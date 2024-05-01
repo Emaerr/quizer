@@ -12,8 +12,8 @@ using Quizer.Data;
 namespace Quizer.Data.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20240501102027_UndoRemakeQuiz")]
-    partial class UndoRemakeQuiz
+    [Migration("20240501104751_AddLobby")]
+    partial class AddLobby
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -227,6 +227,25 @@ namespace Quizer.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Quizer.Models.Lobby.Lobby", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("MasterId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuizId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Lobbies");
+                });
+
             modelBuilder.Entity("Quizer.Models.Quizzes.Answer", b =>
                 {
                     b.Property<int>("Id")
@@ -243,6 +262,8 @@ namespace Quizer.Data.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("QuestionId");
 
                     b.ToTable("Answers");
                 });
@@ -269,6 +290,8 @@ namespace Quizer.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("QuizId");
+
                     b.ToTable("Questions");
                 });
 
@@ -280,7 +303,7 @@ namespace Quizer.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Author")
+                    b.Property<int>("AuthorId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -344,6 +367,34 @@ namespace Quizer.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Quizer.Models.Quizzes.Answer", b =>
+                {
+                    b.HasOne("Quizer.Models.Quizzes.Question", null)
+                        .WithMany("Answers")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Quizer.Models.Quizzes.Question", b =>
+                {
+                    b.HasOne("Quizer.Models.Quizzes.Quiz", null)
+                        .WithMany("Questions")
+                        .HasForeignKey("QuizId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Quizer.Models.Quizzes.Question", b =>
+                {
+                    b.Navigation("Answers");
+                });
+
+            modelBuilder.Entity("Quizer.Models.Quizzes.Quiz", b =>
+                {
+                    b.Navigation("Questions");
                 });
 #pragma warning restore 612, 618
         }

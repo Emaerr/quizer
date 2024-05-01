@@ -7,10 +7,13 @@ namespace Quizer.Models.Quizzes
     {
         [Required]
         public int Id { get; set; }
-        public int Author { get; set; }
+        [ForeignKey("IdentityUser")]
+        public int AuthorId { get; set; }
         [StringLength(50)]
         public string? Name { get; set; }
         [Range(5, 60)]
         public int TimeLimit { get; set; }
+
+        public virtual List<Question>? Questions { get; set; }
     }
 }

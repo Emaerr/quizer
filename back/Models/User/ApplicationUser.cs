@@ -2,7 +2,7 @@
 
 namespace Quizer.Models.User
 {
-    internal class ApplicationUser : IdentityUser
+    public class ApplicationUser : IdentityUser
     {
 
     }

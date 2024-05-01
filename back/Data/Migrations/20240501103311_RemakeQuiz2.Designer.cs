@@ -12,8 +12,8 @@ using Quizer.Data;
 namespace Quizer.Data.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20240501102027_UndoRemakeQuiz")]
-    partial class UndoRemakeQuiz
+    [Migration("20240501103311_RemakeQuiz2")]
+    partial class RemakeQuiz2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -244,6 +244,8 @@ namespace Quizer.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("QuestionId");
+
                     b.ToTable("Answers");
                 });
 
@@ -268,6 +270,8 @@ namespace Quizer.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("QuizId");
 
                     b.ToTable("Questions");
                 });
@@ -344,6 +348,34 @@ namespace Quizer.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Quizer.Models.Quizzes.Answer", b =>
+                {
+                    b.HasOne("Quizer.Models.Quizzes.Question", null)
+                        .WithMany("Answers")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Quizer.Models.Quizzes.Question", b =>
+                {
+                    b.HasOne("Quizer.Models.Quizzes.Quiz", null)
+                        .WithMany("Questions")
+                        .HasForeignKey("QuizId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Quizer.Models.Quizzes.Question", b =>
+                {
+                    b.Navigation("Answers");
+                });
+
+            modelBuilder.Entity("Quizer.Models.Quizzes.Quiz", b =>
+                {
+                    b.Navigation("Questions");
                 });
 #pragma warning restore 612, 618
         }

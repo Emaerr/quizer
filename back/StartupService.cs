@@ -13,7 +13,6 @@ namespace Quizer
         {
             _serviceProvider = serviceProvider;
             _configuration = configuration;
-
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -22,7 +21,7 @@ namespace Quizer
 
             var RoleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var UserManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-            string[] roleNames = { "Admin", "Manager", "Member" };
+            string[] roleNames = { "Admin", "Member", "Participator" };
             IdentityResult roleResult;
 
             foreach (var roleName in roleNames)

@@ -4,13 +4,13 @@ using Quizer.Models.Quizzes;
 
 namespace Quizer.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class QuizContext : IdentityDbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options)
+        public QuizContext(DbContextOptions<IdentityContext> options)
+    : base(options)
         {
         }
-        public DbSet<Quizer.Models.Quizzes.Quiz> Quizs { get; set; } = default!;
+        public DbSet<Quizer.Models.Quizzes.Quiz> Quizzes { get; set; } = default!;
 
         public DbSet<Quizer.Models.Quizzes.Question> Questions { get; set; } = default!;
 

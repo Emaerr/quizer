@@ -11,7 +11,7 @@ using Quizer.Data;
 
 namespace Quizer.Data.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
+    [DbContext(typeof(IdentityContext))]
     [Migration("20240501101601_RemakeQuiz")]
     partial class RemakeQuiz
     {

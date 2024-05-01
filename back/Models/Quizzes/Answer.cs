@@ -7,7 +7,7 @@ namespace Quizer.Models.Quizzes
     {
         [Required]
         public int Id { get; set; }
-        [ForeignKey("Questions")]
+        [ForeignKey("Question")]
         public int QuestionId { get; set; }
         [StringLength(50)]
         public string? Title { get; set; }

@@ -1,9 +1,13 @@
-﻿namespace Quizer.Models.User
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Quizer.Models.User
 {
-    public class Participator
+    public class Participator : IdentityUser
     {
-        public int Id { get; set; }
-        public string? Name { get; set; }
-        public int Quiz {  get; set; }
+        public string? DisplayName { get; set; }
+
+        [ForeignKey("Lobby")]
+        public int LobbyId {  get; set; }
     }
 }

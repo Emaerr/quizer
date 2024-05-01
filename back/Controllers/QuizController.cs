@@ -12,9 +12,9 @@ namespace Quizer.Controllers
 {
     public class QuizController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IdentityContext _context;
 
-        public QuizController(ApplicationDbContext context)
+        public QuizController(IdentityContext context)
         {
             _context = context;
         }
