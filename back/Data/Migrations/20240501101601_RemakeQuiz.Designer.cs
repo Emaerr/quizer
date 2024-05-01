@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Quizer.Data;
 
@@ -11,9 +12,11 @@ using Quizer.Data;
 namespace Quizer.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240501101601_RemakeQuiz")]
+    partial class RemakeQuiz
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -232,9 +235,6 @@ namespace Quizer.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("QuestionId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Title")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -252,13 +252,13 @@ namespace Quizer.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Answers")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("CorrectAnswer")
                         .HasColumnType("int");
 
                     b.Property<int>("Position")
-                        .HasColumnType("int");
-
-                    b.Property<int>("QuizId")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
@@ -283,6 +283,9 @@ namespace Quizer.Data.Migrations
                     b.Property<string>("Name")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Questions")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("TimeLimit")
                         .HasColumnType("int");
