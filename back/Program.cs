@@ -51,6 +51,14 @@ namespace Quizer
                 options.SignIn.RequireConfirmedAccount = true;
             });
 
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("ParticipatorRights", policy => policy.RequireRole("Participator", "Member", "Admin"));
+                options.AddPolicy("MemberRights", policy => policy.RequireRole("Member", "Admin"));
+                options.AddPolicy("AdminRights", policy => policy.RequireRole("Admin"));
+            });
+
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

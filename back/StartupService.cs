@@ -17,6 +17,16 @@ namespace Quizer
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            SetUpRoles();
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+
+        private async void SetUpRoles()
+        {
             using var scope = _serviceProvider.CreateScope();
 
             var RoleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -54,11 +64,6 @@ namespace Quizer
 
                 }
             }
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
         }
     }
 }
