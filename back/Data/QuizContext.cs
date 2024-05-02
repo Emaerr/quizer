@@ -1,19 +1,20 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Quizer.Models.Lobbies;
 using Quizer.Models.Quizzes;
 
 namespace Quizer.Data
 {
-    public class QuizContext : IdentityDbContext
-    {
-        public QuizContext(DbContextOptions<IdentityContext> options)
+    public class QuizContext : DbContext { 
+
+        public QuizContext(DbContextOptions<QuizContext> options)
     : base(options)
         {
         }
-        public DbSet<Quizer.Models.Quizzes.Quiz> Quizzes { get; set; } = default!;
+        public DbSet<Quiz> Quizzes { get; set; } = default!;
 
-        public DbSet<Quizer.Models.Quizzes.Question> Questions { get; set; } = default!;
+        public DbSet<Question> Questions { get; set; } = default!;
 
-        public DbSet<Quizer.Models.Quizzes.Answer> Answers { get; set; } = default!;
+        public DbSet<Answer> Answers { get; set; } = default!;
     }
 }

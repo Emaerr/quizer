@@ -8,7 +8,7 @@ namespace Quizer.Models.Quizzes
         [Required]
         public int Id { get; set; }
         [ForeignKey("IdentityUser")]
-        public int AuthorId { get; set; }
+        public string? AuthorId { get; set; }
         [StringLength(50)]
         public string? Name { get; set; }
         [Range(5, 60)]

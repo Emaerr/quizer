@@ -1,21 +1,30 @@
-﻿using Quizer.Data;
+﻿using Microsoft.AspNetCore.Identity;
+using Quizer.Data;
 using Quizer.Models.Lobbies;
+using Quizer.Models.Quizzes;
 
 namespace Quizer.Services.Lobbies
 {
     public class LobbyService : ILobbyService
     {
-        LobbyRepository _lobbies;
+        private readonly IServiceScopeFactory _scopeFactory;
 
-        public LobbyService(LobbyContext context)
+        public LobbyService(IServiceScopeFactory scopeFactory)
         {
-            _lobbies = new LobbyRepository(context);
+            _scopeFactory = scopeFactory;
         }
 
-        public Lobby Create()
+        public Lobby Create(IdentityUser master, Quiz quiz, int maxParticipators)
         {
-            Lobby lobby = new Lobby();
-            _lobbies.InsertLobby(lobby);
+            IServiceScope scope = _scopeFactory.CreateScope();
+            ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
+
+            Lobby lobby = new Lobby() {
+                MasterId = master.Id,
+                QuizId = quiz.Id,
+                MaxParticipators = maxParticipators,
+            };
+            lobbyRepository.InsertLobby(lobby);
             return lobby;
         }
     }

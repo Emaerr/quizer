@@ -12,9 +12,9 @@ namespace Quizer.Controllers
 {
     public class QuizController : Controller
     {
-        private readonly IdentityContext _context;
+        private readonly QuizContext _context;
 
-        public QuizController(IdentityContext context)
+        public QuizController(QuizContext context)
         {
             _context = context;
         }
@@ -22,7 +22,7 @@ namespace Quizer.Controllers
         // GET: Quizs
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Quizs.ToListAsync());
+            return View(await _context.Quizzes.ToListAsync());
         }
 
         // GET: Quizs/Details/5
@@ -33,7 +33,7 @@ namespace Quizer.Controllers
                 return NotFound();
             }
 
-            var quiz = await _context.Quizs
+            var quiz = await _context.Quizzes
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (quiz == null)
             {
@@ -73,7 +73,7 @@ namespace Quizer.Controllers
                 return NotFound();
             }
 
-            var quiz = await _context.Quizs.FindAsync(id);
+            var quiz = await _context.Quizzes.FindAsync(id);
             if (quiz == null)
             {
                 return NotFound();
@@ -124,7 +124,7 @@ namespace Quizer.Controllers
                 return NotFound();
             }
 
-            var quiz = await _context.Quizs
+            var quiz = await _context.Quizzes
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (quiz == null)
             {
@@ -139,10 +139,10 @@ namespace Quizer.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var quiz = await _context.Quizs.FindAsync(id);
+            var quiz = await _context.Quizzes.FindAsync(id);
             if (quiz != null)
             {
-                _context.Quizs.Remove(quiz);
+                _context.Quizzes.Remove(quiz);
             }
 
             await _context.SaveChangesAsync();
@@ -151,7 +151,7 @@ namespace Quizer.Controllers
 
         private bool QuizExists(int id)
         {
-            return _context.Quizs.Any(e => e.Id == id);
+            return _context.Quizzes.Any(e => e.Id == id);
         }
     }
 }

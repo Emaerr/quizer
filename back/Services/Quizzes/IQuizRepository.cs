@@ -1,4 +1,5 @@
-﻿using Quizer.Models.Quizzes;
+﻿using Microsoft.AspNetCore.Identity;
+using Quizer.Models.Quizzes;
 
 namespace Quizer.Services.Quizzes
 {
@@ -13,6 +14,8 @@ namespace Quizer.Services.Quizzes
         public void DeleteQuiz(int id);
 
         public void UpdateQuiz(Quiz quiz);
+
+        public IEnumerable<Quiz> GetUserQuizzes(string userId);
 
         public void Save();
     }

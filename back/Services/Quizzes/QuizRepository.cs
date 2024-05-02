@@ -47,5 +47,11 @@ namespace Quizer.Services.Quizzes
         {
             _context.SaveChanges();
         }
+
+        public IEnumerable<Quiz> GetUserQuizzes(string userId)
+        {
+            var quizzes = from q in _context.Quizzes where q.AuthorId == userId select q;
+            return quizzes.ToList();
+        }
     }
 }

@@ -54,15 +54,9 @@ namespace Quizer
             string userPWD = _configuration["SuperUser:Password"];
             var _user = await UserManager.FindByEmailAsync(_configuration["SuperUser:Email"]);
 
-            if (_user == null)
+            if (_user != null)
             {
-                var createPowerUser = await UserManager.CreateAsync(superUser, userPWD);
-                if (createPowerUser.Succeeded)
-                {
-                    //here we tie the new user to the role
-                    await UserManager.AddToRoleAsync(superUser, "Admin");
-
-                }
+                await UserManager.AddToRoleAsync(_user, "Admin");
             }
         }
     }

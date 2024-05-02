@@ -3,6 +3,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Quizer.Data;
 using Quizer.Models.User;
+using Quizer.Services.Lobbies;
+using Quizer.Services.Quizzes;
 
 namespace Quizer
 {
@@ -28,6 +30,10 @@ namespace Quizer
 
             builder.Services.AddControllersWithViews();
             builder.Services.AddSingleton<IHostedService, StartupService>();
+            builder.Services.AddScoped<IQuizRepository, QuizRepository>();
+            builder.Services.AddScoped<ILobbyRepository, LobbyRepository>();
+            builder.Services.AddSingleton<IQuizService, QuizService>();
+            builder.Services.AddSingleton<ILobbyService, LobbyService>();
 
             builder.Services.Configure<IdentityOptions>(options =>
             {
@@ -47,8 +53,9 @@ namespace Quizer
                 // User settings.
                 options.User.AllowedUserNameCharacters =
                 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-                options.User.RequireUniqueEmail = false;
-                options.SignIn.RequireConfirmedAccount = true;
+                options.User.RequireUniqueEmail = true;
+                options.SignIn.RequireConfirmedAccount = false;
+                options.SignIn.RequireConfirmedEmail = true;
             });
 
             builder.Services.AddAuthorization(options =>

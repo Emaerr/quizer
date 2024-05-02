@@ -12,10 +12,9 @@ namespace Quizer.Models.Lobbies
         {
             Participators = new List<Participator>();
         }
-
         public int Id { get; set; }
         [ForeignKey("IdentityUser")]
-        public int MasterId { get; set; }
+        public string? MasterId { get; set; }
         [ForeignKey("Quiz")]
         public int QuizId { get; set; }
         [Range(4, 1000)]

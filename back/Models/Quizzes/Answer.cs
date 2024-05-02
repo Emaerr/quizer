@@ -11,6 +11,7 @@ namespace Quizer.Models.Quizzes
         public int QuestionId { get; set; }
         [StringLength(50)]
         public string? Title { get; set; }
+        public bool IsCorrect {  get; set; }
     }
 }
 
