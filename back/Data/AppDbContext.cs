@@ -14,11 +14,11 @@ namespace Quizer.Data
 
         }
 
-        public DbSet<Participator> Participators { get; set; } = default!;
-        public DbSet<Quiz> Quizzes { get; set; } = default!;
-        public DbSet<Question> Questions { get; set; } = default!;
-        public DbSet<Answer> Answers { get; set; } = default!;
-        public DbSet<Lobby> Lobbies { get; set; } = default!;
+        public virtual DbSet<Participator> Participators { get; set; } = default!;
+        public virtual DbSet<Quiz> Quizzes { get; set; } = default!;
+        public virtual DbSet<Question> Questions { get; set; } = default!;
+        public virtual DbSet<Answer> Answers { get; set; } = default!;
+        public virtual DbSet<Lobby> Lobbies { get; set; } = default!;
 
         //#region Required
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
