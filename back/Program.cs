@@ -16,17 +16,13 @@ namespace Quizer
 
             // Add services to the container.
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-            builder.Services.AddDbContext<IdentityContext>(options =>
-                options.UseSqlServer(connectionString));
-            builder.Services.AddDbContext<QuizContext>(options =>
-                options.UseSqlServer(connectionString));
-            builder.Services.AddDbContext<LobbyContext>(options =>
+            builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(connectionString));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-            builder.Services.AddDefaultIdentity<IdentityUser>()
+            builder.Services.AddDefaultIdentity<ApplicationUser>()
             .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<IdentityContext>();
+                .AddEntityFrameworkStores<AppDbContext>();
 
             builder.Services.AddControllersWithViews();
             builder.Services.AddSingleton<IHostedService, StartupService>();

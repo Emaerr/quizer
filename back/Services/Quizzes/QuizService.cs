@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Quizer.Data;
 using Quizer.Models.Quizzes;
+using Quizer.Models.User;
 
 namespace Quizer.Services.Quizzes
 {
@@ -14,13 +16,13 @@ namespace Quizer.Services.Quizzes
             _scopeFactory = scopeFactory;
         }
 
-        public Quiz? GetUserQuiz(IdentityUser user, int quizId)
+        public Quiz? GetUserQuizByGuid(ApplicationUser user, string guid)
         {
             IServiceScope scope = _scopeFactory.CreateScope();
             IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
             var quizzes = quizRepository.GetUserQuizzes(user.Id);
 
-            var userQuizzes = from quizz in quizzes where quizz.Id == quizId select quizz;
+            var userQuizzes = from quizz in quizzes where quizz.Guid == guid select quizz;
 
             if (userQuizzes.IsNullOrEmpty())
             {
@@ -30,11 +32,18 @@ namespace Quizer.Services.Quizzes
             }
         }
 
-        public IEnumerable<Quiz> GetUserQuizzes(IdentityUser user)
+        public IEnumerable<Quiz> GetUserQuizzes(ApplicationUser user)
         {
             IServiceScope scope = _scopeFactory.CreateScope();
             IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
             return quizRepository.GetUserQuizzes(user.Id);
+        }
+
+        public void Insert(Quiz quiz)
+        {
+            IServiceScope scope = _scopeFactory.CreateScope();
+            IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
+            quizRepository.InsertQuiz(quiz);
         }
     }
 }

@@ -2,82 +2,75 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Quizer.Data;
 using Quizer.Models.Quizzes;
+using Quizer.Models.User;
+using Quizer.Services.Quizzes;
 
 namespace Quizer.Controllers
 {
     public class QuizController : Controller
     {
-        private readonly QuizContext _context;
+        private readonly IQuizService _quizService;
+        UserManager<ApplicationUser> _userManager;
 
-        public QuizController(QuizContext context)
+        public QuizController(IQuizService quizService, UserManager<ApplicationUser> userManager)
         {
-            _context = context;
+            _quizService = quizService;
+            _userManager = userManager;
         }
 
-        // GET: Quizs
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Quizzes.ToListAsync());
-        }
-
-        // GET: Quizs/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
+            ApplicationUser? user = await _userManager.GetUserAsync(User);
+            if (user == null)
             {
-                return NotFound();
+                return Unauthorized();
             }
 
-            var quiz = await _context.Quizzes
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (quiz == null)
-            {
-                return NotFound();
-            }
+            var userQuizzes = _quizService.GetUserQuizzes(user);
 
-            return View(quiz);
+            return View(userQuizzes);
         }
 
-        // GET: Quizs/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
-        }
-
-        // POST: Quizs/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Author,Name")] Quiz quiz)
-        {
-            if (ModelState.IsValid)
+            ApplicationUser? user = await _userManager.GetUserAsync(User);
+            if (user == null)
             {
-                _context.Add(quiz);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return Unauthorized();
             }
-            return View(quiz);
+
+            Quiz quiz = new Quiz() {
+                AuthorId = user.Id,
+                Name = "Unnamed",
+                TimeLimit = 15
+                    
+            }; 
+           _quizService.Insert(quiz);
+
+            return RedirectToAction(nameof(Edit), new {guid = quiz.Guid});
         }
 
         // GET: Quizs/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(string guid)
         {
-            if (id == null)
+            ApplicationUser? user = await _userManager.GetUserAsync(User);
+            if (user == null)
             {
-                return NotFound();
+                return Unauthorized();
             }
 
-            var quiz = await _context.Quizzes.FindAsync(id);
+            Quiz? quiz = _quizService.GetUserQuizByGuid(user, guid);
             if (quiz == null)
             {
                 return NotFound();
             }
+
             return View(quiz);
         }
 
@@ -86,72 +79,30 @@ namespace Quizer.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Author,Name")] Quiz quiz)
+        public async Task<IActionResult> Edit(string guid, [FromBody] string name, int timeLimit)
         {
-            if (id != quiz.Id)
+            if (guid == null)
             {
-                return NotFound();
+                return BadRequest();
             }
 
-            if (ModelState.IsValid)
+            ApplicationUser? user = await _userManager.GetUserAsync(User);
+            if (user == null)
             {
-                try
-                {
-                    _context.Update(quiz);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!QuizExists(quiz.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(quiz);
-        }
-
-        // GET: Quizs/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
+                return Unauthorized();
             }
 
-            var quiz = await _context.Quizzes
-                .FirstOrDefaultAsync(m => m.Id == id);
+            Quiz? quiz = _quizService.GetUserQuizByGuid(user, guid);
             if (quiz == null)
             {
                 return NotFound();
             }
 
+            quiz.Name = name;
+            quiz.TimeLimit = timeLimit;
+
             return View(quiz);
         }
 
-        // POST: Quizs/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var quiz = await _context.Quizzes.FindAsync(id);
-            if (quiz != null)
-            {
-                _context.Quizzes.Remove(quiz);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool QuizExists(int id)
-        {
-            return _context.Quizzes.Any(e => e.Id == id);
-        }
     }
 }

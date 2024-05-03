@@ -1,14 +1,18 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using Quizer.Models.User;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Quizer.Models.Quizzes
 {
+    [Table("Quizzes")]
     public class Quiz
     {
-        [Required]
         public int Id { get; set; }
-        [ForeignKey("IdentityUser")]
-        public string? AuthorId { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public string Guid { get; set; } = System.Guid.NewGuid().ToString();
+        [ForeignKey("ApplicationUser")]
+        public string AuthorId { get; set; }
         [StringLength(50)]
         public string? Name { get; set; }
         [Range(5, 60)]

@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Quizer.Models.Quizzes;
+using Quizer.Models.User;
 
 namespace Quizer.Services.Quizzes
 {
     public interface IQuizService
     {
-        public Quiz? GetUserQuiz(IdentityUser user, int quizId);
-        public IEnumerable<Quiz> GetUserQuizzes(IdentityUser user);
+        public Quiz? GetUserQuizByGuid(ApplicationUser user, string guid);
+        public IEnumerable<Quiz> GetUserQuizzes(ApplicationUser user);
+        public void Insert(Quiz quiz);
     }
 }

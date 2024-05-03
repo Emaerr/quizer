@@ -6,7 +6,9 @@ namespace Quizer.Services.Lobbies
     {
         public IEnumerable<Lobby> GetLobbies();
 
-        public Lobby? GetLobby(int id);
+        public Lobby? GetLobbyById(int id);
+
+        public Lobby? GetLobbyByGuid(string guid);
 
         public void InsertLobby(Lobby lobby);
 

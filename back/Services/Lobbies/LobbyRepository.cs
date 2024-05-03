@@ -7,9 +7,9 @@ namespace Quizer.Services.Lobbies
 {
     public class LobbyRepository : ILobbyRepository
     {
-        private LobbyContext _context;
+        private AppDbContext _context;
 
-        public LobbyRepository(LobbyContext context)
+        public LobbyRepository(AppDbContext context)
         {
             _context = context;
         }
@@ -20,7 +20,7 @@ namespace Quizer.Services.Lobbies
             return _context.Lobbies.ToList();
         }
 
-        public Lobby? GetLobby(int id)
+        public Lobby? GetLobbyById(int id)
         {
             return _context.Lobbies.Find(id);
         }
@@ -47,6 +47,12 @@ namespace Quizer.Services.Lobbies
         public void Save()
         {
             _context.SaveChanges();
+        }
+
+        public Lobby? GetLobbyByGuid(string guid)
+        {
+            var lobbies = from l in _context.Lobbies where l.Guid == guid select l;
+            return lobbies.FirstOrDefault();
         }
     }
 }

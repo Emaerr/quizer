@@ -30,7 +30,7 @@ namespace Quizer
             using var scope = _serviceProvider.CreateScope();
 
             var RoleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            var UserManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            var UserManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             string[] roleNames = { "Admin", "Member", "Participator" };
             IdentityResult roleResult;
 

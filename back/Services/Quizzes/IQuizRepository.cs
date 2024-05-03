@@ -7,7 +7,9 @@ namespace Quizer.Services.Quizzes
     {
         public IEnumerable<Quiz> GetQuizzes();
 
-        public Quiz? GetQuiz(int id);
+        public Quiz? GetQuizById(int id);
+
+        public Quiz? GetQuizByGuid(string guid);
 
         public void InsertQuiz(Quiz quiz);
 

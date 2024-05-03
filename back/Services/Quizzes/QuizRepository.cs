@@ -6,9 +6,9 @@ namespace Quizer.Services.Quizzes
 {
     public class QuizRepository : IQuizRepository
     {
-        private QuizContext _context;
+        private AppDbContext _context;
 
-        public QuizRepository(QuizContext context)
+        public QuizRepository(AppDbContext context)
         {
             _context = context;
         }
@@ -19,7 +19,7 @@ namespace Quizer.Services.Quizzes
             return _context.Quizzes.ToList();
         }
 
-        public Quiz? GetQuiz(int id)
+        public Quiz? GetQuizById(int id)
         {
             return _context.Quizzes.Find(id);
         }
@@ -52,6 +52,12 @@ namespace Quizer.Services.Quizzes
         {
             var quizzes = from q in _context.Quizzes where q.AuthorId == userId select q;
             return quizzes.ToList();
+        }
+
+        public Quiz? GetQuizByGuid(string guid)
+        {
+            var quizzes = from q in _context.Quizzes where q.Guid == guid select q;
+            return quizzes.FirstOrDefault();
         }
     }
 }

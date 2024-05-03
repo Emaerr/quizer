@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.CodeAnalysis.FlowAnalysis.DataFlow;
 using Quizer.Data;
 using Quizer.Models.Lobbies;
 using Quizer.Models.Quizzes;
+using Quizer.Models.User;
 
 namespace Quizer.Services.Lobbies
 {
@@ -14,14 +16,19 @@ namespace Quizer.Services.Lobbies
             _scopeFactory = scopeFactory;
         }
 
-        public Lobby Create(IdentityUser master, Quiz quiz, int maxParticipators)
+        public Lobby Create(ApplicationUser master, Quiz quiz, int maxParticipators)
         {
             IServiceScope scope = _scopeFactory.CreateScope();
             ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
 
+            if (quiz.Id == null)
+            {
+                throw new ArgumentException("quiz.id is null");
+            }
+
             Lobby lobby = new Lobby() {
                 MasterId = master.Id,
-                QuizId = quiz.Id,
+                Quiz = quiz,
                 MaxParticipators = maxParticipators,
             };
             lobbyRepository.InsertLobby(lobby);

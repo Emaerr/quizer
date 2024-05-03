@@ -3,12 +3,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Quizer.Models.Quizzes
 {
+    [Table("Questions")]
     public class Question
     {
         [Required]
         public int Id { get; set; }
-        [ForeignKey("Quiz")]
-        public int QuizId { get; set; } 
+        [Required]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public string Guid { get; set; } = System.Guid.NewGuid().ToString();
+        //[ForeignKey("Quiz")]
+        //public int? QuizId { get; set; } 
         public int Position { get; set; }
         public string? Title { get; set; }
 
