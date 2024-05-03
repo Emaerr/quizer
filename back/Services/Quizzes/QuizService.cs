@@ -44,6 +44,7 @@ namespace Quizer.Services.Quizzes
             IServiceScope scope = _scopeFactory.CreateScope();
             IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
             quizRepository.InsertQuiz(quiz);
+            quizRepository.Save();
         }
     }
 }
