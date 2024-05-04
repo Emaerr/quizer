@@ -34,7 +34,13 @@ namespace Quizer.Controllers
 
             var userQuizzes = _quizService.GetUserQuizzes(user);
 
-            return View(userQuizzes);
+            List<QuizViewModel> viewModels = new List<QuizViewModel>();
+            foreach (var quiz in userQuizzes)
+            {
+                viewModels.Add(new QuizViewModel(quiz));
+            }
+
+            return View(viewModels);
         }
 
         public async Task<IActionResult> Create()
@@ -70,7 +76,9 @@ namespace Quizer.Controllers
                 return NotFound();
             }
 
-            return View(quiz);
+            QuizViewModel viewModel = new QuizViewModel(quiz);  
+
+            return View(viewModel);
         }
 
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -101,7 +109,9 @@ namespace Quizer.Controllers
 
             _quizService.Update(quiz);
 
-            return View(quiz);
+            QuizViewModel viewModel = new QuizViewModel(quiz);
+
+            return View(viewModel);
         }
 
     }
