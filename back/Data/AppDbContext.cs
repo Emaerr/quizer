@@ -20,11 +20,14 @@ namespace Quizer.Data
         public virtual DbSet<Answer> Answers { get; set; } = default!;
         public virtual DbSet<Lobby> Lobbies { get; set; } = default!;
 
-        //#region Required
-        //protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-        //    modelBuilder.Entity<Lobby>().HasOne(l => l.Quiz).WithMany();
-        //}
-        //#endregion
+        #region Required
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Quiz>().Navigation(q => q.Questions).AutoInclude();
+            modelBuilder.Entity<Question>().Navigation(q => q.Answers).AutoInclude();
+
+            base.OnModelCreating(modelBuilder);
+        }
+        #endregion
     }
 }

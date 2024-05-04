@@ -119,6 +119,24 @@ namespace Quizer.Controllers
             return View(viewModel);
         }
 
-        
+        [HttpGet("Details/{guid:guid}")]
+        public async Task<IActionResult> Details(string guid)
+        {
+            ApplicationUser? user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            Quiz? quiz = _quizService.GetUserQuiz(user, guid);
+            if (quiz == null)
+            {
+                return NotFound();
+            }
+
+            QuizViewModel viewModel = new QuizViewModel(quiz);
+
+            return View(viewModel);
+        }
     }
 }

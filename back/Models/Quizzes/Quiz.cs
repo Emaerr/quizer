@@ -8,9 +8,9 @@ namespace Quizer.Models.Quizzes
     [Table("Quizzes")]
     public class Quiz
     {
-        public Quiz() {
-            Questions = [];
-        }
+        //public Quiz() {
+           // Questions = [];
+        //}
 
         public int Id { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
