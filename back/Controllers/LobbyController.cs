@@ -44,7 +44,7 @@ namespace Quizer.Controllers
                 return BadRequest();
             }
 
-            Quiz? quiz = _quizService.GetUserQuizByGuid(user, quizGuid);
+            Quiz? quiz = _quizService.GetUserQuiz(user, quizGuid);
             if (quiz !=  null) {
                 Lobby lobby = _lobbyService.Create(user, quiz, (int)maxParticipators);
                 return View(lobby);

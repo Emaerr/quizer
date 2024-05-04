@@ -56,7 +56,6 @@ namespace Quizer.Controllers
             return RedirectToAction(nameof(Edit), new {guid = quiz.Guid});
         }
 
-        // GET: Quizs/Edit/5
         public async Task<IActionResult> Edit(string guid)
         {
             ApplicationUser? user = await _userManager.GetUserAsync(User);
@@ -65,7 +64,7 @@ namespace Quizer.Controllers
                 return Unauthorized();
             }
 
-            Quiz? quiz = _quizService.GetUserQuizByGuid(user, guid);
+            Quiz? quiz = _quizService.GetUserQuiz(user, guid);
             if (quiz == null)
             {
                 return NotFound();
@@ -74,12 +73,11 @@ namespace Quizer.Controllers
             return View(quiz);
         }
 
-        // POST: Quizs/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string guid, [FromBody] string name, int timeLimit)
+        public async Task<IActionResult> Edit(string guid, [FromForm] string name, [FromForm] int timeLimit)
         {
             if (guid == null)
             {
@@ -92,7 +90,7 @@ namespace Quizer.Controllers
                 return Unauthorized();
             }
 
-            Quiz? quiz = _quizService.GetUserQuizByGuid(user, guid);
+            Quiz? quiz = _quizService.GetUserQuiz(user, guid);
             if (quiz == null)
             {
                 return NotFound();
@@ -100,6 +98,8 @@ namespace Quizer.Controllers
 
             quiz.Name = name;
             quiz.TimeLimit = timeLimit;
+
+            _quizService.Update(quiz);
 
             return View(quiz);
         }

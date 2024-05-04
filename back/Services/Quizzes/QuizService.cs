@@ -16,7 +16,7 @@ namespace Quizer.Services.Quizzes
             _scopeFactory = scopeFactory;
         }
 
-        public Quiz? GetUserQuizByGuid(ApplicationUser user, string guid)
+        public Quiz? GetUserQuiz(ApplicationUser user, string guid)
         {
             IServiceScope scope = _scopeFactory.CreateScope();
             IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
@@ -45,6 +45,27 @@ namespace Quizer.Services.Quizzes
             IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
             quizRepository.InsertQuiz(quiz);
             quizRepository.Save();
+        }
+
+        public void Update(Quiz quiz)
+        {
+            IServiceScope scope = _scopeFactory.CreateScope();
+            IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
+            quizRepository.UpdateQuiz(quiz);
+            quizRepository.Save();
+        }
+
+        public void DeleteUserQuiz(ApplicationUser user, string guid)
+        {
+            Quiz? quiz = GetUserQuiz(user, guid);
+
+            if (quiz != null)
+            {
+                IServiceScope scope = _scopeFactory.CreateScope();
+                IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
+                quizRepository.DeleteQuiz(quiz.Id);
+                quizRepository.Save();
+            }
         }
     }
 }
