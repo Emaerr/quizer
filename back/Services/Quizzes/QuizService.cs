@@ -53,7 +53,9 @@ namespace Quizer.Services.Quizzes
             IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
             Quiz quiz = new Quiz()
             {
-                AuthorId = authorId    
+                AuthorId = authorId,
+                Name = "Unnamed",
+                TimeLimit = 15,
             };
             quizRepository.InsertQuiz(quiz);
             quizRepository.Save();
