@@ -1,4 +1,4 @@
-﻿@model Quizer.Models.Quizzes.Quiz
+﻿@model Quizer.Models.Quizzes.QuizViewModel
 
 @{
     ViewData["Title"] = "Delete";
@@ -19,8 +19,8 @@
         </dd>
     </dl>
     
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
+    <form asp-action="DeleteConfirm">
+        <input type="hidden" asp-for="Guid" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a>
     </form>

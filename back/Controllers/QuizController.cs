@@ -80,12 +80,12 @@ namespace Quizer.Controllers
                 return NotFound();
             }
 
-            QuizViewModel viewModel = new() { 
+            QuizViewModel viewModel = new() {
                 Guid = quiz.Guid,
                 Name = quiz.Name,
                 TimeLimit = quiz.TimeLimit
             };
-            
+
             foreach (QuestionData qData in quiz.Questions) {
                 QuestionViewModel questionViewModel = new()
                 {
@@ -182,6 +182,45 @@ namespace Quizer.Controllers
             }
 
             return View(viewModel);
+        }
+
+        [HttpGet("Delete/{guid:guid}")]
+        public async Task<IActionResult> Delete(string guid)
+        {
+            ApplicationUser? user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            QuizData? quiz = _quizService.GetUserQuizData(user.Id, guid);
+            if (quiz == null)
+            {
+                return NotFound();
+            }
+
+            QuizViewModel viewModel = new()
+            {
+                Guid = quiz.Guid,
+                Name = quiz.Name,
+                TimeLimit = quiz.TimeLimit
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost("Delete")]
+        public async Task<IActionResult> DeleteConfirm([FromForm] string guid)
+        {
+            ApplicationUser? user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            _quizService.DeleteUserQuiz(user.Id, guid);
+
+            return RedirectToAction("Index");
         }
     }
 }
