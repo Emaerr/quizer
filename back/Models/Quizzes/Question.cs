@@ -15,7 +15,7 @@ namespace Quizer.Models.Quizzes
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Guid { get; set; } = System.Guid.NewGuid().ToString();
         public int Position { get; set; }
-        public string? Title { get; set; }
+        public string Title { get; set; }
 
         public virtual List<Answer> Answers { get; set; }
 

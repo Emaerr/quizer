@@ -41,7 +41,7 @@ namespace Quizer.Services.Quizzes
 
         public void UpdateQuiz(Quiz quiz)
         {
-            _context.Entry(quiz).State = EntityState.Modified;
+            _context.Update(quiz);
         }
 
         public void Save()

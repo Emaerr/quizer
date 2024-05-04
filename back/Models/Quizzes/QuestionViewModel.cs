@@ -7,17 +7,8 @@ namespace Quizer.Models.Quizzes
 {
     public class QuestionViewModel
     {
-        public QuestionViewModel(Question question) {
-            Guid = question.Guid;
-            Position = question.Position;
-            Title = question.Title;
-
+        public QuestionViewModel() {
             Answers = [];
-
-            foreach (Answer answer in question.Answers)
-            {
-                Answers.Add(new AnswerViewModel(answer));
-            }
         }
 
         [HiddenInput]
@@ -28,7 +19,7 @@ namespace Quizer.Models.Quizzes
         public int Position { get; set; }
         [DisplayName("Title")]
         [Required(ErrorMessage = "Title is required")]
-        public string? Title { get; set; }
+        public string Title { get; set; }
 
         public virtual List<AnswerViewModel> Answers { get; set; }
     }

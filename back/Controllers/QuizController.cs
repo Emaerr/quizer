@@ -34,12 +34,17 @@ namespace Quizer.Controllers
                 return Unauthorized();
             }
 
-            var userQuizzes = _quizService.GetUserQuizzes(user);
+            var userQuizzes = _quizService.GetUserQuizzesData(user.Id);
 
             List<QuizViewModel> viewModels = new List<QuizViewModel>();
             foreach (var quiz in userQuizzes)
             {
-                viewModels.Add(new QuizViewModel(quiz));
+                QuizViewModel viewModel = new() {
+                    Guid = quiz.Guid,
+                    Name = quiz.Name,
+                    TimeLimit = quiz.TimeLimit
+                };
+                viewModels.Add(viewModel);
             }
 
             return View(viewModels);
@@ -54,15 +59,9 @@ namespace Quizer.Controllers
                 return Unauthorized();
             }
 
-            Quiz quiz = new Quiz() {
-                AuthorId = user.Id,
-                Name = "Unnamed",
-                TimeLimit = 15
+            string guid = _quizService.Create(user.Id);
 
-            };
-            _quizService.Insert(quiz);
-
-            return RedirectToAction("Edit", new { guid = quiz.Guid });
+            return RedirectToAction("Edit", new { guid = guid });
         }
 
 
@@ -75,13 +74,35 @@ namespace Quizer.Controllers
                 return Unauthorized();
             }
 
-            Quiz? quiz = _quizService.GetUserQuiz(user, guid);
+            QuizData? quiz = _quizService.GetUserQuizData(user.Id, guid);
             if (quiz == null)
             {
                 return NotFound();
             }
 
-            QuizViewModel viewModel = new QuizViewModel(quiz);
+            QuizViewModel viewModel = new() { 
+                Guid = quiz.Guid,
+                Name = quiz.Name,
+                TimeLimit = quiz.TimeLimit
+            };
+            
+            foreach (QuestionData qData in quiz.Questions) {
+                QuestionViewModel questionViewModel = new()
+                {
+                    Guid = qData.Guid,
+                    Position = qData.Position,
+                    Title = qData.Title,
+                };
+
+                foreach (AnswerData aData in qData.Answers) {
+                    questionViewModel.Answers.Add(new AnswerViewModel() { Guid = aData.Guid,
+                        Title = aData.Title,
+                        IsCorrect = aData.isCorrect
+                    });
+                }
+
+                viewModel.Questions.Add(questionViewModel);
+            }
 
             return View(viewModel);
         }
@@ -103,20 +124,17 @@ namespace Quizer.Controllers
                 return Unauthorized();
             }
 
-            Quiz? quiz = _quizService.GetUserQuiz(user, guid);
+            QuizData? quiz = _quizService.GetUserQuizData(user.Id, guid);
             if (quiz == null)
             {
                 return NotFound();
             }
 
-            quiz.Name = name;
-            quiz.TimeLimit = timeLimit;
+            QuizData quizUpdated = new(quiz.Guid, quiz.AuthorId, name, timeLimit, quiz.Questions);
 
-            _quizService.Update(quiz);
+            _quizService.Update(quizUpdated);
 
-            QuizViewModel viewModel = new QuizViewModel(quiz);
-
-            return View(viewModel);
+            return View();
         }
 
         [HttpGet("Details/{guid:guid}")]
@@ -128,13 +146,40 @@ namespace Quizer.Controllers
                 return Unauthorized();
             }
 
-            Quiz? quiz = _quizService.GetUserQuiz(user, guid);
+            QuizData? quiz = _quizService.GetUserQuizData(user.Id, guid);
             if (quiz == null)
             {
                 return NotFound();
             }
 
-            QuizViewModel viewModel = new QuizViewModel(quiz);
+            QuizViewModel viewModel = new()
+            {
+                Guid = quiz.Guid,
+                Name = quiz.Name,
+                TimeLimit = quiz.TimeLimit
+            };
+
+            foreach (QuestionData qData in quiz.Questions)
+            {
+                QuestionViewModel questionViewModel = new()
+                {
+                    Guid = qData.Guid,
+                    Position = qData.Position,
+                    Title = qData.Title,
+                };
+
+                foreach (AnswerData aData in qData.Answers)
+                {
+                    questionViewModel.Answers.Add(new AnswerViewModel()
+                    {
+                        Guid = aData.Guid,
+                        Title = aData.Title,
+                        IsCorrect = aData.isCorrect
+                    });
+                }
+
+                viewModel.Questions.Add(questionViewModel);
+            }
 
             return View(viewModel);
         }

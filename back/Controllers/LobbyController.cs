@@ -44,14 +44,16 @@ namespace Quizer.Controllers
                 return BadRequest();
             }
 
-            Quiz? quiz = _quizService.GetUserQuiz(user, quizGuid);
-            if (quiz !=  null) {
-                Lobby lobby = _lobbyService.Create(user, quiz, (int)maxParticipators);
-                return View(lobby);
-            } else
-            {
-                return UnprocessableEntity();
-            }
+            //Quiz? quiz = _quizService.GetUserQuizData(user.Id, quizGuid);
+            //if (quiz !=  null) {
+            //    Lobby lobby = _lobbyService.Create(user, quiz, (int)maxParticipators);
+            //    return View(lobby);
+            //} else
+            //{
+            //    return UnprocessableEntity();
+            //}
+
+            return View();
         }
 
         [Authorize(Policy = "ParticipatorRights")]

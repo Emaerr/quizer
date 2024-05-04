@@ -6,10 +6,14 @@ namespace Quizer.Services.Quizzes
 {
     public interface IQuizService
     {
-        public Quiz? GetUserQuiz(ApplicationUser user, string guid);
-        public IEnumerable<Quiz> GetUserQuizzes(ApplicationUser user);
-        public void Insert(Quiz quiz);
-        public void Update(Quiz quiz);
-        public void DeleteUserQuiz(ApplicationUser user, string guid);
+        public QuizData? GetUserQuizData(string userId, string guid);
+        public IEnumerable<QuizData> GetUserQuizzesData(string userId);
+        public string Create(string authorId);
+        public void Update(QuizData quizData);
+        public void DeleteUserQuiz(string userId, string guid);
     }
+
+    public record AnswerData(string Guid, string Title, bool isCorrect);
+    public record QuestionData(string Guid, int Position, string Title, List<AnswerData> Answers);
+    public record QuizData(string Guid, string AuthorId, string Name, int TimeLimit, List<QuestionData> Questions);
 }
