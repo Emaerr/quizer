@@ -13,6 +13,7 @@ using Quizer.Services.Quizzes;
 
 namespace Quizer.Controllers
 {
+    [Route("[controller]")]
     public class QuizController : Controller
     {
         private readonly IQuizService _quizService;
@@ -24,6 +25,7 @@ namespace Quizer.Controllers
             _userManager = userManager;
         }
 
+        [HttpGet("Index")]
         public async Task<IActionResult> Index()
         {
             ApplicationUser? user = await _userManager.GetUserAsync(User);
@@ -43,6 +45,7 @@ namespace Quizer.Controllers
             return View(viewModels);
         }
 
+        [HttpGet("Create")]
         public async Task<IActionResult> Create()
         {
             ApplicationUser? user = await _userManager.GetUserAsync(User);
@@ -55,13 +58,15 @@ namespace Quizer.Controllers
                 AuthorId = user.Id,
                 Name = "Unnamed",
                 TimeLimit = 15
-                    
-            }; 
-           _quizService.Insert(quiz);
 
-            return RedirectToAction(nameof(Edit), new {guid = quiz.Guid});
+            };
+            _quizService.Insert(quiz);
+
+            return RedirectToAction("Edit", new { guid = quiz.Guid });
         }
 
+
+        [HttpGet("Edit/{guid:guid}")]
         public async Task<IActionResult> Edit(string guid)
         {
             ApplicationUser? user = await _userManager.GetUserAsync(User);
@@ -76,14 +81,14 @@ namespace Quizer.Controllers
                 return NotFound();
             }
 
-            QuizViewModel viewModel = new QuizViewModel(quiz);  
+            QuizViewModel viewModel = new QuizViewModel(quiz);
 
             return View(viewModel);
         }
 
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost("Edit/{guid:guid}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string guid, [FromForm] string name, [FromForm] int timeLimit)
         {
@@ -114,5 +119,6 @@ namespace Quizer.Controllers
             return View(viewModel);
         }
 
+        
     }
 }
