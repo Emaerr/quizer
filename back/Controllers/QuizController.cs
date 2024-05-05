@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Text;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
@@ -44,7 +45,7 @@ namespace Quizer.Controllers
                     Name = quiz.Name,
                     TimeLimit = quiz.TimeLimit
                 };
-                viewModels.Add(viewModel);
+                viewModels.Add(viewModel); 
             }
 
             return View(viewModels);
@@ -80,31 +81,37 @@ namespace Quizer.Controllers
                 return NotFound();
             }
 
-            QuizViewModel viewModel = new() {
-                Guid = quiz.Guid,
-                Name = quiz.Name,
-                TimeLimit = quiz.TimeLimit
-            };
+            return View(GetQuizViewModel(quiz, GetQuestionViewModels(quiz.Questions)));
+        }
 
-            foreach (QuestionData qData in quiz.Questions) {
-                QuestionViewModel questionViewModel = new()
-                {
-                    Guid = qData.Guid,
-                    Position = qData.Position,
-                    Title = qData.Title,
-                };
-
-                foreach (AnswerData aData in qData.Answers) {
-                    questionViewModel.Answers.Add(new AnswerViewModel() { Guid = aData.Guid,
-                        Title = aData.Title,
-                        IsCorrect = aData.isCorrect
-                    });
-                }
-
-                viewModel.Questions.Add(questionViewModel);
+        [HttpGet("EditQuestion/{guid:guid}")]
+        public async Task<IActionResult> EditQuestion(string guid, string questionGuid)
+        {
+            ApplicationUser? user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
             }
 
-            return View(viewModel);
+            QuizData? quiz = _quizService.GetUserQuizData(user.Id, guid);
+            if (quiz == null)
+            {
+                return NotFound();
+            }
+
+            QuestionData? question = null;
+            foreach (QuestionData q in quiz.Questions) { 
+                if (q.Guid == questionGuid)
+                {
+                    question = q;
+                }
+            }
+
+            if (question == null) {
+                return NotFound();
+            }
+
+            return View(GetQuestionViewModel(question));
         }
 
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -152,36 +159,7 @@ namespace Quizer.Controllers
                 return NotFound();
             }
 
-            QuizViewModel viewModel = new()
-            {
-                Guid = quiz.Guid,
-                Name = quiz.Name,
-                TimeLimit = quiz.TimeLimit
-            };
-
-            foreach (QuestionData qData in quiz.Questions)
-            {
-                QuestionViewModel questionViewModel = new()
-                {
-                    Guid = qData.Guid,
-                    Position = qData.Position,
-                    Title = qData.Title,
-                };
-
-                foreach (AnswerData aData in qData.Answers)
-                {
-                    questionViewModel.Answers.Add(new AnswerViewModel()
-                    {
-                        Guid = aData.Guid,
-                        Title = aData.Title,
-                        IsCorrect = aData.isCorrect
-                    });
-                }
-
-                viewModel.Questions.Add(questionViewModel);
-            }
-
-            return View(viewModel);
+            return View(GetQuizViewModel(quiz, GetQuestionViewModels(quiz.Questions)));
         }
 
         [HttpGet("Delete/{guid:guid}")]
@@ -206,7 +184,7 @@ namespace Quizer.Controllers
                 TimeLimit = quiz.TimeLimit
             };
 
-            return View(viewModel);
+            return View(GetQuizViewModel(quiz)); ;
         }
 
         [HttpPost("Delete")]
@@ -222,5 +200,56 @@ namespace Quizer.Controllers
 
             return RedirectToAction("Index");
         }
+
+        private QuizViewModel GetQuizViewModel(QuizData quiz, List<QuestionViewModel>? questionData = null)
+        {
+            QuizViewModel viewModel = new()
+            {
+                Guid = quiz.Guid,
+                Name = quiz.Name,
+                TimeLimit = quiz.TimeLimit
+            };
+
+            if (questionData != null)
+            {
+                viewModel.Questions = questionData;
+            }
+
+            return viewModel;
+        }
+
+        private List<QuestionViewModel> GetQuestionViewModels(IEnumerable<QuestionData> questionData) {
+            List<QuestionViewModel> result = [];
+
+            foreach (QuestionData qData in questionData)
+            { 
+                result.Add(GetQuestionViewModel(qData));
+            }
+
+            return result;
+        }
+
+        private QuestionViewModel GetQuestionViewModel(QuestionData qData)
+        {
+            QuestionViewModel questionViewModel = new()
+            {
+                Guid = qData.Guid,
+                Position = qData.Position,
+                Title = qData.Title,
+            };
+
+            foreach (AnswerData aData in qData.Answers)
+            {
+                questionViewModel.Answers.Add(new AnswerViewModel()
+                {
+                    Guid = aData.Guid,
+                    Title = aData.Title,
+                    IsCorrect = aData.isCorrect
+                });
+            }
+
+            return questionViewModel;
+        }
     }
+
 }
