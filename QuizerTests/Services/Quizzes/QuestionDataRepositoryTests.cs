@@ -27,7 +27,6 @@ namespace Quizer.Services.Quizzes.Tests
             List<AnswerData> correctAnswers = new List<AnswerData>() { new AnswerData("0", new AnswerInfo("test_answer", true)) };
             QuestionData correctData = new QuestionData("0", correctInfo, correctAnswers);
 
-
             Assert.AreEqual(data.Count(), 1);
             Assert.AreEqual(data.First().Info.Title, correctData.Info.Title);
             Assert.AreEqual(data.First().Info.Position, correctData.Info.Position);

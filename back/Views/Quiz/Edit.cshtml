@@ -35,12 +35,12 @@
                     @Html.DisplayFor(modelItem => question.Title)
                 </td>
                 <td>
-                        <a asp-controller="Quiz" asp-action="EditQuestion" asp-route-guid="@Model.Guid" asp-route-questionGuid="@question.Guid">Edit question</a>
+                        <a asp-controller="Question" asp-action="Edit" asp-route-quizGuid="@Model.Guid" asp-route-questionGuid="@question.Guid">Edit question</a>
                 </td>
             </tr>
         }
 
-    </div>
+    </div> 
 </div>
 
 <div>

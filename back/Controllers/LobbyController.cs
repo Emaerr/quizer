@@ -19,10 +19,10 @@ namespace Quizer.Controllers
     {
         private readonly ILogger<LobbyController> _logger;
         private readonly ILobbyService _lobbyService;
-        private readonly IQuizService _quizService;
+        private readonly IQuizDataRepository _quizService;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public LobbyController(ILogger<LobbyController> logger, ILobbyService lobbyService, IQuizService quizService, UserManager<ApplicationUser> userManager)
+        public LobbyController(ILogger<LobbyController> logger, ILobbyService lobbyService, IQuizDataRepository quizService, UserManager<ApplicationUser> userManager)
         {
             _logger = logger;
             _lobbyService = lobbyService;

@@ -29,7 +29,8 @@ namespace Quizer
             builder.Services.AddSingleton<IHostedService, StartupService>();
             builder.Services.AddScoped<IQuizRepository, QuizRepository>();
             builder.Services.AddScoped<ILobbyRepository, LobbyRepository>();
-            builder.Services.AddSingleton<IQuizService, QuizService>();
+            builder.Services.AddScoped<IQuizDataRepository, QuizDataRepository>();
+            builder.Services.AddScoped<IQuestionDataRepository, QuestionDataRepository>();
             builder.Services.AddSingleton<ILobbyService, LobbyService>();
 
             builder.Services.Configure<IdentityOptions>(options =>

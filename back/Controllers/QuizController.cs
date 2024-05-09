@@ -17,35 +17,43 @@ namespace Quizer.Controllers
     [Route("[controller]")]
     public class QuizController : Controller
     {
-        private readonly IQuizService _quizService;
-        UserManager<ApplicationUser> _userManager;
+        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public QuizController(IQuizService quizService, UserManager<ApplicationUser> userManager)
+        public QuizController(IServiceScopeFactory scopeFactory, UserManager<ApplicationUser> userManager)
         {
-            _quizService = quizService;
+            _scopeFactory = scopeFactory;
             _userManager = userManager;
         }
 
         [HttpGet("Index")]
         public async Task<IActionResult> Index()
         {
+            var scope = _scopeFactory.CreateScope();
+            var quizRepository = scope.ServiceProvider.GetService<IQuizDataRepository>();
+            if (quizRepository == null)
+            {
+                return StatusCode(500);
+            }
+
             ApplicationUser? user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
             }
 
-            var userQuizzes = _quizService.GetUserQuizzesData(user.Id);
+            var userQuizzes = quizRepository.GetUserQuizzesData(user.Id);
 
             List<QuizViewModel> viewModels = new List<QuizViewModel>();
             foreach (var quiz in userQuizzes)
             {
-                QuizViewModel viewModel = new() {
+                QuizViewModel viewModel = new()
+                {
                     Guid = quiz.Guid,
-                    Name = quiz.Name,
-                    TimeLimit = quiz.TimeLimit
+                    Name = quiz.Info.Name,
+                    TimeLimit = quiz.Info.TimeLimit
                 };
-                viewModels.Add(viewModel); 
+                viewModels.Add(viewModel);
             }
 
             return View(viewModels);
@@ -54,13 +62,20 @@ namespace Quizer.Controllers
         [HttpGet("Create")]
         public async Task<IActionResult> Create()
         {
+            var scope = _scopeFactory.CreateScope();
+            var quizRepository = scope.ServiceProvider.GetService<IQuizDataRepository>();
+            if (quizRepository == null)
+            {
+                return StatusCode(500);
+            }
+
             ApplicationUser? user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
             }
 
-            string guid = _quizService.Create(user.Id);
+            string guid = quizRepository.Create(user.Id);
 
             return RedirectToAction("Edit", new { guid = guid });
         }
@@ -69,49 +84,27 @@ namespace Quizer.Controllers
         [HttpGet("Edit/{guid:guid}")]
         public async Task<IActionResult> Edit(string guid)
         {
+            var scope = _scopeFactory.CreateScope();
+            var questionRepository = scope.ServiceProvider.GetService<IQuestionDataRepository>();
+            var quizRepository = scope.ServiceProvider.GetService<IQuizDataRepository>();
+            if (questionRepository == null || quizRepository == null)
+            {
+                return StatusCode(500);
+            }
+
             ApplicationUser? user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
             }
 
-            QuizData? quiz = _quizService.GetUserQuizData(user.Id, guid);
+            QuizData? quiz = quizRepository.GetUserQuizData(user.Id, guid);
             if (quiz == null)
             {
                 return NotFound();
             }
 
-            return View(GetQuizViewModel(quiz, GetQuestionViewModels(quiz.Questions)));
-        }
-
-        [HttpGet("EditQuestion/{guid:guid}")]
-        public async Task<IActionResult> EditQuestion(string guid, string questionGuid)
-        {
-            ApplicationUser? user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-
-            QuizData? quiz = _quizService.GetUserQuizData(user.Id, guid);
-            if (quiz == null)
-            {
-                return NotFound();
-            }
-
-            QuestionData? question = null;
-            foreach (QuestionData q in quiz.Questions) { 
-                if (q.Guid == questionGuid)
-                {
-                    question = q;
-                }
-            }
-
-            if (question == null) {
-                return NotFound();
-            }
-
-            return View(GetQuestionViewModel(question));
+            return View(GetQuizViewModel(quiz, GetQuestionViewModels(user.Id, guid, questionRepository.GetUserQuizQuestionsData(user.Id, guid))));
         }
 
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -120,6 +113,13 @@ namespace Quizer.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string guid, [FromForm] string name, [FromForm] int timeLimit)
         {
+            var scope = _scopeFactory.CreateScope();
+            var quizRepository = scope.ServiceProvider.GetService<IQuizDataRepository>();
+            if (quizRepository == null)
+            {
+                return StatusCode(500);
+            }
+
             if (guid == null)
             {
                 return BadRequest();
@@ -131,15 +131,12 @@ namespace Quizer.Controllers
                 return Unauthorized();
             }
 
-            QuizData? quiz = _quizService.GetUserQuizData(user.Id, guid);
+            QuizData? quiz = quizRepository.GetUserQuizData(user.Id, guid);
             if (quiz == null)
             {
                 return NotFound();
             }
-
-            QuizData quizUpdated = new(quiz.Guid, quiz.AuthorId, name, timeLimit, quiz.Questions);
-
-            _quizService.Update(quizUpdated);
+            quizRepository.UpdateUserQuizInfo(user.Id, quiz.Guid, new QuizInfo(name, timeLimit));
 
             return View();
         }
@@ -147,31 +144,46 @@ namespace Quizer.Controllers
         [HttpGet("Details/{guid:guid}")]
         public async Task<IActionResult> Details(string guid)
         {
+            var scope = _scopeFactory.CreateScope();
+            var questionRepository = scope.ServiceProvider.GetService<IQuestionDataRepository>();
+            var quizRepository = scope.ServiceProvider.GetService<IQuizDataRepository>();
+            if (questionRepository == null || quizRepository == null)
+            {
+                return StatusCode(500);
+            }
+
             ApplicationUser? user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
             }
 
-            QuizData? quiz = _quizService.GetUserQuizData(user.Id, guid);
+            QuizData? quiz = quizRepository.GetUserQuizData(user.Id, guid);
             if (quiz == null)
             {
                 return NotFound();
             }
 
-            return View(GetQuizViewModel(quiz, GetQuestionViewModels(quiz.Questions)));
+            return View(GetQuizViewModel(quiz, GetQuestionViewModels(user.Id, guid, questionRepository.GetUserQuizQuestionsData(user.Id, guid))));
         }
 
         [HttpGet("Delete/{guid:guid}")]
         public async Task<IActionResult> Delete(string guid)
         {
+            var scope = _scopeFactory.CreateScope();
+            var quizRepository = scope.ServiceProvider.GetService<IQuizDataRepository>();
+            if (quizRepository == null)
+            {
+                return StatusCode(500);
+            }
+
             ApplicationUser? user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
             }
 
-            QuizData? quiz = _quizService.GetUserQuizData(user.Id, guid);
+            QuizData? quiz = quizRepository.GetUserQuizData(user.Id, guid);
             if (quiz == null)
             {
                 return NotFound();
@@ -180,8 +192,8 @@ namespace Quizer.Controllers
             QuizViewModel viewModel = new()
             {
                 Guid = quiz.Guid,
-                Name = quiz.Name,
-                TimeLimit = quiz.TimeLimit
+                Name = quiz.Info.Name,
+                TimeLimit = quiz.Info.TimeLimit
             };
 
             return View(GetQuizViewModel(quiz)); ;
@@ -190,13 +202,20 @@ namespace Quizer.Controllers
         [HttpPost("Delete")]
         public async Task<IActionResult> DeleteConfirm([FromForm] string guid)
         {
+            var scope = _scopeFactory.CreateScope();
+            var quizRepository = scope.ServiceProvider.GetService<IQuizDataRepository>();
+            if (quizRepository == null)
+            {
+                return StatusCode(500);
+            }
+
             ApplicationUser? user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
             }
 
-            _quizService.DeleteUserQuiz(user.Id, guid);
+            quizRepository.DeleteUserQuiz(user.Id, guid);
 
             return RedirectToAction("Index");
         }
@@ -206,8 +225,8 @@ namespace Quizer.Controllers
             QuizViewModel viewModel = new()
             {
                 Guid = quiz.Guid,
-                Name = quiz.Name,
-                TimeLimit = quiz.TimeLimit
+                Name = quiz.Info.Name,
+                TimeLimit = quiz.Info.TimeLimit
             };
 
             if (questionData != null)
@@ -218,33 +237,43 @@ namespace Quizer.Controllers
             return viewModel;
         }
 
-        private List<QuestionViewModel> GetQuestionViewModels(IEnumerable<QuestionData> questionData) {
+        private List<QuestionViewModel> GetQuestionViewModels(string userId, string quizGuid, IEnumerable<QuestionData> questionsData)
+        {
             List<QuestionViewModel> result = [];
 
-            foreach (QuestionData qData in questionData)
-            { 
-                result.Add(GetQuestionViewModel(qData));
+            foreach (QuestionData q in questionsData)
+            {
+                QuestionViewModel? qvm = GetQuestionViewModel(userId, quizGuid, q);
+                if (qvm != null)
+                {
+                    result.Add(qvm);
+                }
             }
 
             return result;
         }
 
-        private QuestionViewModel GetQuestionViewModel(QuestionData qData)
+        private QuestionViewModel? GetQuestionViewModel(string userId, string quizGuid, QuestionData questionData)
         {
+            if (questionData == null)
+            {
+                return null;
+            }
+
             QuestionViewModel questionViewModel = new()
             {
-                Guid = qData.Guid,
-                Position = qData.Position,
-                Title = qData.Title,
+                Guid = questionData.Guid,
+                Position = questionData.Info.Position,
+                Title = questionData.Info.Title,
             };
 
-            foreach (AnswerData aData in qData.Answers)
+            foreach (AnswerData aData in questionData.Answers)
             {
                 questionViewModel.Answers.Add(new AnswerViewModel()
                 {
                     Guid = aData.Guid,
-                    Title = aData.Title,
-                    IsCorrect = aData.isCorrect
+                    Title = aData.Info.Title,
+                    IsCorrect = aData.Info.IsCorrect,
                 });
             }
 
