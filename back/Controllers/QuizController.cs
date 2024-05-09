@@ -26,6 +26,10 @@ namespace Quizer.Controllers
             _userManager = userManager;
         }
 
+        /// <summary>
+        /// List of user quizzes
+        /// </summary>
+        /// <returns>Index view with a list of QuizViewModel</returns>
         [HttpGet("Index")]
         public async Task<IActionResult> Index()
         {
@@ -59,6 +63,10 @@ namespace Quizer.Controllers
             return View(viewModels);
         }
 
+        /// <summary>
+        /// Creates quiz.
+        /// </summary>
+        /// <returns>Redirects to the Quiz/Edit/{GUID} page</returns>
         [HttpGet("Create")]
         public async Task<IActionResult> Create()
         {
@@ -80,7 +88,11 @@ namespace Quizer.Controllers
             return RedirectToAction("Edit", new { guid = guid });
         }
 
-
+        /// <summary>
+        /// Quiz edit page. 
+        /// </summary>
+        /// <param name="guid">Quiz GUID</param>
+        /// <returns>Edit view with QuizViewModel</returns>
         [HttpGet("Edit/{guid:guid}")]
         public async Task<IActionResult> Edit(string guid)
         {
@@ -107,8 +119,13 @@ namespace Quizer.Controllers
             return View(GetQuizViewModel(quiz, GetQuestionViewModels(user.Id, guid, questionRepository.GetUserQuizQuestionsData(user.Id, guid))));
         }
 
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        /// <summary>
+        /// Should be used with forms.
+        /// </summary>
+        /// <param name="guid">Quiz GUID</param>
+        /// <param name="name">New quiz name</param>
+        /// <param name="timeLimit">New time limit</param>
+        /// <returns>View</returns>
         [HttpPost("Edit/{guid:guid}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string guid, [FromForm] string name, [FromForm] int timeLimit)
@@ -141,6 +158,11 @@ namespace Quizer.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Quiz details.
+        /// </summary>
+        /// <param name="guid">Quiz GUID</param>
+        /// <returns>View with QuizViewModel</returns>
         [HttpGet("Details/{guid:guid}")]
         public async Task<IActionResult> Details(string guid)
         {
@@ -166,6 +188,12 @@ namespace Quizer.Controllers
 
             return View(GetQuizViewModel(quiz, GetQuestionViewModels(user.Id, guid, questionRepository.GetUserQuizQuestionsData(user.Id, guid))));
         }
+
+        /// <summary>
+        /// Sends to the deletion page.
+        /// </summary>
+        /// <param name="guid">Quiz GUID</param>
+        /// <returns>Delete view with QuizViewModel</returns>
 
         [HttpGet("Delete/{guid:guid}")]
         public async Task<IActionResult> Delete(string guid)
@@ -199,6 +227,11 @@ namespace Quizer.Controllers
             return View(GetQuizViewModel(quiz)); ;
         }
 
+        /// <summary>
+        /// Deletes the quiz
+        /// </summary>
+        /// <param name="guid">Quiz GUID</param>
+        /// <returns>Redirects to Quiz/Index page</returns>
         [HttpPost("Delete")]
         public async Task<IActionResult> DeleteConfirm([FromForm] string guid)
         {

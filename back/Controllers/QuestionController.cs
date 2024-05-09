@@ -21,6 +21,11 @@ namespace Quizer.Controllers
             _userManager = userManager;
         }
 
+        /// <summary>
+        /// List of quiz questions.
+        /// </summary>
+        /// <param name="quizGuid">Quiz GUID</param>
+        /// <returns>Index view with a list of QuestionViewModel</returns>
         [HttpGet("Index/{quizGuid:guid}")]
         public async Task<IActionResult> Index(string quizGuid)
         {
@@ -49,6 +54,11 @@ namespace Quizer.Controllers
             return View(questionViewModels);
         }
 
+        /// <summary>
+        /// Created quiz question.
+        /// </summary>
+        /// <param name="quizGuid">Quiz GUID</param>
+        /// <returns>Redirects to Question/Edit/{questionGuid}?quizGuid={quizGuid}</returns>
         [HttpGet("Create/{quizGuid:guid}")]
         public async Task<IActionResult> Create(string quizGuid)
         {
@@ -77,6 +87,12 @@ namespace Quizer.Controllers
             return RedirectToAction("Edit", new { quizGuid = quizGuid, questionGuid = newQuestionGuid });
         }
 
+        /// <summary>
+        /// Quiz edit page.
+        /// </summary>
+        /// <param name="questionGuid">Question GUID</param>
+        /// <param name="quizGuid">Quiz GUID</param>
+        /// <returns>Edit view with QuestionViewModel</returns>
         [HttpGet("Edit/{questionGuid:guid}")]
         public async Task<IActionResult> Edit(string questionGuid, string quizGuid)
         {
@@ -100,9 +116,24 @@ namespace Quizer.Controllers
                 return NotFound();
             }
 
+            ViewData["quizGuid"] = quizGuid;
+
             return View(GetQuestionViewModel(question));
         }
 
+        /// <summary>
+        /// Edits the question. Should be called via JavaScript.
+        /// </summary>
+        /// <param name="questionGuid">Question GUID</param>
+        /// <param name="quizGuid">Quiz GUID</param>
+        /// <param name="body">JSON string with question data. See more in the example.</param>
+        /// <returns>View</returns>
+        /// <example>
+        /// Example of the JSON string:
+        /// <code>
+        /// {"Position" : 0, "Title" : "Is it a good cat?", "Answers" : [{"Title" : "Yep", "IsCorrect" : true}]}}
+        /// </code>
+        /// </example>
         [HttpPost("Edit/{questionGuid:guid}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string questionGuid, string quizGuid, [FromBody] string body)
@@ -141,7 +172,9 @@ namespace Quizer.Controllers
                 questionRepository.UpdateUserQuizQuestion(user.Id, quizGuid, questionGuid, updatedQuestion, answers);
             }
 
-            return View(GetQuestionViewModel(question));
+            ViewData["quizGuid"] = quizGuid;
+
+            return View();
         }
 
         private QuestionViewModel GetQuestionViewModel(QuestionData qData)
