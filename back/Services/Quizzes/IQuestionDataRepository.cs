@@ -10,6 +10,7 @@
 
     public record QuestionInfo(int Position, string Title);
     public record AnswerInfo(string Title, bool IsCorrect);
-    public record QuestionData(QuestionInfo info, List<AnswerInfo> answers);
+    public record AnswerData(string Guid, AnswerInfo Info);
+    public record QuestionData(QuestionInfo Info, List<AnswerData> Answers);
     
 }

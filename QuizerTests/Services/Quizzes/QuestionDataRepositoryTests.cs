@@ -24,14 +24,14 @@ namespace Quizer.Services.Quizzes.Tests
             QuestionData? data = repository.GetUserQuizQuestionData("0", "0", "0");
 
             QuestionInfo correctInfo = new QuestionInfo(0, "test_question");
-            List<AnswerInfo> correctAnswers = new List<AnswerInfo>() { new AnswerInfo("test_answer", true) };
+            List<AnswerData> correctAnswers = new List<AnswerData>() { new AnswerData("0", new AnswerInfo("test_answer", true)) };
             QuestionData correctData = new QuestionData(correctInfo, correctAnswers);
 
             Assert.IsNotNull(data);
-            Assert.AreEqual(data.info.Title, correctData.info.Title);
-            Assert.AreEqual(data.info.Position, correctData.info.Position);
-            Assert.AreEqual(data.answers.Count, correctData.answers.Count);
-            Assert.AreEqual(data.answers.First(), correctData.answers.First());
+            Assert.AreEqual(data.Info.Title, correctData.Info.Title);
+            Assert.AreEqual(data.Info.Position, correctData.Info.Position);
+            Assert.AreEqual(data.Answers.Count, correctData.Answers.Count);
+            Assert.AreEqual(data.Answers.First(), correctData.Answers.First());
         }
 
         [TestMethod()]

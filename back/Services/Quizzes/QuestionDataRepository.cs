@@ -68,9 +68,10 @@ namespace Quizer.Services.Quizzes
 
         private QuestionData GetQuestionDataFromQuestion(Question question)
         {
-            List<AnswerInfo> answers = [];
+            List<AnswerData> answers = [];
             foreach (Answer answer in question.Answers) {
-                answers.Add(new AnswerInfo(answer.Title, answer.IsCorrect));
+                AnswerInfo answerInfo = new AnswerInfo(answer.Title, answer.IsCorrect);
+                answers.Add(new AnswerData(answer.Guid, answerInfo));
             }
 
             QuestionInfo info = new QuestionInfo(question.Position, question.Title);
