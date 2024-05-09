@@ -16,6 +16,26 @@ namespace Quizer.Services.Quizzes.Tests
     public class QuestionDataRepositoryTests
     {
         [TestMethod()]
+        public void GetUserQuizQuestionsDataTest()
+        {
+            AppDbContext context = GetContextMock(GenerateTestData());
+            QuestionDataRepository repository = new QuestionDataRepository(context);
+
+            IEnumerable<QuestionData> data = repository.GetUserQuizQuestionsData("0", "0");
+
+            QuestionInfo correctInfo = new QuestionInfo(0, "test_question");
+            List<AnswerData> correctAnswers = new List<AnswerData>() { new AnswerData("0", new AnswerInfo("test_answer", true)) };
+            QuestionData correctData = new QuestionData("0", correctInfo, correctAnswers);
+
+
+            Assert.AreEqual(data.Count(), 1);
+            Assert.AreEqual(data.First().Info.Title, correctData.Info.Title);
+            Assert.AreEqual(data.First().Info.Position, correctData.Info.Position);
+            Assert.AreEqual(data.First().Answers.Count, correctData.Answers.Count);
+            Assert.AreEqual(data.First().Answers.First(), correctData.Answers.First());
+        }
+
+        [TestMethod()]
         public void GetUserQuizQuestionDataTest()
         {
             AppDbContext context = GetContextMock(GenerateTestData());
@@ -25,7 +45,7 @@ namespace Quizer.Services.Quizzes.Tests
 
             QuestionInfo correctInfo = new QuestionInfo(0, "test_question");
             List<AnswerData> correctAnswers = new List<AnswerData>() { new AnswerData("0", new AnswerInfo("test_answer", true)) };
-            QuestionData correctData = new QuestionData(correctInfo, correctAnswers);
+            QuestionData correctData = new QuestionData("0", correctInfo, correctAnswers);
 
             Assert.IsNotNull(data);
             Assert.AreEqual(data.Info.Title, correctData.Info.Title);

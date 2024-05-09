@@ -4,16 +4,15 @@ using Quizer.Models.User;
 
 namespace Quizer.Services.Quizzes
 {
-    public interface IQuizService
+    public interface IQuizDataRepository
     {
         public QuizData? GetUserQuizData(string userId, string guid);
         public IEnumerable<QuizData> GetUserQuizzesData(string userId);
         public string Create(string authorId);
-        public void Update(QuizData quizData);
+        public void UpdateUserQuizInfo(string userId, string quizGuid, QuizInfo quizInfo);
         public void DeleteUserQuiz(string userId, string guid);
     }
 
-    public record AnswerData(string Guid, string Title, bool isCorrect);
-    public record QuestionData(string Guid, int Position, string Title, List<AnswerData> Answers);
-    public record QuizData(string Guid, string AuthorId, string Name, int TimeLimit, List<QuestionData> Questions);
+    public record QuizInfo(string Name, int TimeLimit);
+    public record QuizData(string Guid, QuizInfo Info);
 }

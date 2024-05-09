@@ -13,6 +13,21 @@ namespace Quizer.Services.Quizzes
             _context = context;
         }
 
+        public IEnumerable<QuestionData> GetUserQuizQuestionsData(string userId, string quizGuid)
+        {
+            var quizzQuery = from q in _context.Quizzes where (q.AuthorId == userId && q.Guid == quizGuid) select q;
+
+            List<QuestionData> result = new List<QuestionData>();
+            if (!quizzQuery.IsNullOrEmpty())
+            {
+                foreach (Question question in quizzQuery.First().Questions)
+                {
+                    result.Add(GetQuestionDataFromQuestion(question));
+                }
+            }
+
+            return result;
+        }
         public QuestionData? GetUserQuizQuestionData(string userId, string quizGuid, string questionGuid)
         {
             var quizzQuery = from q in _context.Quizzes where (q.AuthorId == userId && q.Guid == quizGuid) select q;
@@ -76,7 +91,7 @@ namespace Quizer.Services.Quizzes
 
             QuestionInfo info = new QuestionInfo(question.Position, question.Title);
 
-            return new QuestionData(info, answers);
+            return new QuestionData(question.Guid, info, answers);
         } 
 
         private void UpdateQuestionInfo(Question question, QuestionInfo info)
