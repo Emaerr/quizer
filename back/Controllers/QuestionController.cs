@@ -26,7 +26,7 @@ namespace Quizer.Controllers
         /// </summary>
         /// <param name="quizGuid">Quiz GUID</param>
         /// <returns>Index view with a list of QuestionViewModel</returns>
-        [HttpGet("Index/{quizGuid:guid}")]
+        [HttpGet("Index")]
         public async Task<IActionResult> Index(string quizGuid)
         {
             var scope = _scopeFactory.CreateScope();
@@ -175,6 +175,33 @@ namespace Quizer.Controllers
             ViewData["quizGuid"] = quizGuid;
 
             return View();
+        }
+
+        /// <summary>
+        /// Deletes the question.
+        /// </summary>
+        /// <param name="questionGuid">Question GUID</param>
+        /// <param name="quizGuid">Quiz GUID</param>
+        /// <returns>Redirects to Question/Index?quizGuid={quizGuid} page</returns>
+        [HttpPost("Delete")]
+        public async Task<IActionResult> DeleteConfirm([FromForm] string questionGuid, [FromForm] string quizGuid)
+        {
+            var scope = _scopeFactory.CreateScope();
+            var questionRepository = scope.ServiceProvider.GetService<IQuestionDataRepository>();
+            if (questionRepository == null)
+            {
+                return StatusCode(500);
+            }
+
+            ApplicationUser? user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            questionRepository.DeleteUserQuizQuestion(user.Id, quizGuid, questionGuid);
+
+            return RedirectToAction("Index", new { quizGuid });
         }
 
         private QuestionViewModel GetQuestionViewModel(QuestionData qData)
