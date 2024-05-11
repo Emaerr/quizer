@@ -4,8 +4,80 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<link href="~/css/Index.css" rel="stylesheet" />
 
+<title>Ваши квизы</title>
+
+<div class="header">
+    <a href="#" class="help">?</a>
+    <h1><br>Ваши квизы</h1>
+</div>
+<div class="content">
+    <table style="width:100%">
+        @{bool isFirst = false;}
+        @foreach (var item in Model)
+        {
+
+                <tr>
+                    <div class="quiz-list">
+                    <th>
+                        <div class="quiz-item">
+                            <div class="quiz-title">@Html.DisplayFor(modelItem => item.Name)</div>
+                            <div class="quiz-actions">
+                                <a asp-controller="Quiz" asp-action="Edit" asp-route-id="@item.Guid">Редактировать</a> |
+                                <a asp-controller="Quiz" asp-action="Details" asp-route-id="@item.Guid">Детали</a> |
+                                <a asp-controller="Quiz" asp-action="Delete" asp-route-id="@item.Guid">Удалить</a>
+                            </div>
+                        </div>
+                    </th>
+
+                @if (isFirst == false)
+                {
+                    isFirst = true;
+                    <th>
+                        <div class="quiz-create">
+                            <a asp-action="Create" class="quiz-create-button">Создать новый квиз</a>
+                        </div>
+                    </th>
+                }
+                </tr>
+        }
+    </table>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@*
 <p>
     <a asp-action="Create">Create New</a>
 </p>
@@ -33,3 +105,4 @@
 }
     </tbody>
 </table>
+*@
