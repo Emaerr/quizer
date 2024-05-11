@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Build.Logging;
 using Quizer.Exceptions.Models;
 using Quizer.Models.Quizzes;
 using Quizer.Models.User;
@@ -23,35 +24,9 @@ namespace Quizer.Models.Lobbies
         public string MasterId { get; set; }
         [Range(4, 1000)]
         public int MaxParticipators { get; set; }
-        public virtual List<Participator> Participators { private get; set; }
+        public bool IsStarted { get; set; } = false;
+        public virtual List<Participator> Participators { get; set; }
         public virtual Quiz? Quiz {  get; set; }
-
-        private bool _isStarted = false;
-
-        public void Start()
-        {
-            _isStarted = true;
-        }
-
-        public void AddParticipator(Participator participator)
-        {   
-            if (_isStarted)
-            {
-                throw new LobbyUnavailable();
-            }
-
-            if (Participators.Count() <= MaxParticipators)
-            {
-                Participators.Add(participator);
-            } else
-            {
-                throw new MaxParticipatorsException();
-            }
-        }
-
-        public void RemoveParticipator(Participator participator) {
-            Participators.Remove(participator);
-        }
 
     }
 }

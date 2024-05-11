@@ -15,7 +15,7 @@ namespace Quizer.Services.Lobbies
         public void DeleteLobby(int id);
 
         public void UpdateLobby(Lobby lobby);
-
         public void Save();
+        public Task SaveAsync();
     }
 }

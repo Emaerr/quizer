@@ -6,12 +6,16 @@ namespace Quizer.Models.User
 {
     public class Participator
     {
+        public Participator(string id) { 
+            Id = id;
+        }
+
+        public Participator() { 
+            Id = Guid.NewGuid().ToString();
+        }
+
         [Required]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public string Id { get; set; } = Guid.NewGuid().ToString();
-        //[ForeignKey("Lobby")]
-        //public int LobbyId {  get; set; }
-
-        public virtual ApplicationUser? User { get; set; }
+        public string Id { get; set; }
     }
 }
