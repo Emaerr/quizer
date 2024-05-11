@@ -4,14 +4,15 @@ using Microsoft.IdentityModel.Tokens;
 using Quizer.Data;
 using Quizer.Models.Quizzes;
 using Quizer.Models.User;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Quizer.Services.Quizzes
 {
-    public class QuizService : IQuizService
+    public class QuizDataRepository : IQuizDataRepository
     { 
         private readonly IServiceScopeFactory _scopeFactory;
 
-        public QuizService(IServiceScopeFactory scopeFactory)
+        public QuizDataRepository(IServiceScopeFactory scopeFactory)
         {
             _scopeFactory = scopeFactory;
         }
@@ -62,22 +63,27 @@ namespace Quizer.Services.Quizzes
             return quiz.Guid;
         }
 
-        public void Update(QuizData quizData)
+        public void UpdateUserQuizInfo(string userId, string guid, QuizInfo quizInfo)
         {
             IServiceScope scope = _scopeFactory.CreateScope();
             IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
-            Quiz? quiz = quizRepository.GetQuizByGuid(quizData.Guid);
+            Quiz? quiz = quizRepository.GetQuizByGuid(guid);
 
-            if (quiz != null)
+            if (quiz == null)
             {
-                Quiz quizUpdated = GetQuizFromData(quizData);
-                quiz.Questions = quizUpdated.Questions;
-                quiz.TimeLimit = quizUpdated.TimeLimit;
-                quiz.Name = quizUpdated.Name;
-
-                quizRepository.UpdateQuiz(quiz);
-                quizRepository.Save();
+                return;
             }
+
+            if (quiz.AuthorId != userId)
+            {
+                return;
+            }
+
+            quiz.TimeLimit = quizInfo.TimeLimit;
+            quiz.Name = quizInfo.Name;
+
+            quizRepository.UpdateQuiz(quiz);
+            quizRepository.Save();
         }
 
         public void DeleteUserQuiz(string userId, string guid)
@@ -95,64 +101,7 @@ namespace Quizer.Services.Quizzes
 
         private QuizData GetDataFromQuiz(Quiz quiz)
         {   
-            List<QuestionData> questionData = [];
-            foreach(Question question in quiz.Questions)
-            {
-                questionData.Add(GetDataFromQuestion(question));
-            }
-
-            return new(quiz.Guid, quiz.AuthorId, quiz.Name, quiz.TimeLimit, questionData);
-        }
-
-        private QuestionData GetDataFromQuestion(Question question)
-        {
-            List<AnswerData> answerData = [];
-            foreach (Answer answer in question.Answers)
-            {
-                answerData.Add(new AnswerData(answer.Guid, answer.Title, answer.IsCorrect));
-            }
-
-            return new QuestionData(question.Guid, question.Position, question.Title, answerData);
-        }
-
-        private Quiz GetQuizFromData(QuizData data)
-        {
-            List<Question> questions = [];
-            foreach(QuestionData qData in data.Questions)
-            {
-                questions.Add(GetQuestionFromData(qData));
-            }
-
-            return new Quiz()
-            {
-                Guid = data.Guid,
-                AuthorId = data.AuthorId,
-                Name = data.Name,
-                TimeLimit = data.TimeLimit,
-                Questions = questions,
-            }; ;
-        }
-
-        private Question GetQuestionFromData(QuestionData data)
-        {
-            List<Answer> answers = [];
-            foreach(AnswerData aData in data.Answers)
-            {
-                answers.Add(new Answer()
-                {
-                    Guid = aData.Guid,
-                    Title = aData.Title,
-                    IsCorrect = aData.isCorrect
-                });
-            }
-
-            return new Question()
-            {
-                Guid = data.Guid,
-                Position = data.Position,
-                Title = data.Title,
-                Answers = answers
-            };
+            return new QuizData(quiz.Guid, new QuizInfo(quiz.Name, quiz.TimeLimit));
         }
 
         private Quiz? GetUserQuiz(string userId, string guid)
@@ -172,6 +121,8 @@ namespace Quizer.Services.Quizzes
                 Quiz quiz = userQuizzes.First();
                 return quiz;
             }
-        } 
+        }
+
+ 
     }
 }

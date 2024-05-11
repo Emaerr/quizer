@@ -27,7 +27,20 @@
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
-    </div>
+
+        @foreach (var question in Model.Questions)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => question.Title)
+                </td>
+                <td>
+                        <a asp-controller="Question" asp-action="Edit" asp-route-quizGuid="@Model.Guid" asp-route-questionGuid="@question.Guid">Edit question</a>
+                </td>
+            </tr>
+        }
+
+    </div> 
 </div>
 
 <div>

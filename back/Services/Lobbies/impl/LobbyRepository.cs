@@ -3,7 +3,7 @@ using Quizer.Data;
 using Quizer.Models.Lobbies;
 using Quizer.Models.Quizzes;
 
-namespace Quizer.Services.Lobbies
+namespace Quizer.Services.Lobbies.impl
 {
     public class LobbyRepository : ILobbyRepository
     {
@@ -47,6 +47,11 @@ namespace Quizer.Services.Lobbies
         public void Save()
         {
             _context.SaveChanges();
+        }
+
+        public async Task SaveAsync()
+        {
+            await _context.SaveChangesAsync();
         }
 
         public Lobby? GetLobbyByGuid(string guid)

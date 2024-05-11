@@ -2,9 +2,11 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel;
+using Microsoft.EntityFrameworkCore;
 
 namespace Quizer.Models.Quizzes
 {
+    [Keyless]
     public class QuizViewModel
     {
         public QuizViewModel() {
