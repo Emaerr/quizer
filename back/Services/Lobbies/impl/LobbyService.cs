@@ -11,17 +11,42 @@ using Quizer.Services.Quizzes;
 
 namespace Quizer.Services.Lobbies.impl
 {
-    public class LobbyService : ILobbyService
+    public class LobbyService : ILobbyControlService, ILobbyConductService, IHostedService, IDisposable
     {
-        private readonly IServiceScopeFactory _scopeFactory;
-        private readonly IQuizControlService _quizControlService;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private bool disposedValue;
 
-        public LobbyService(IServiceScopeFactory scopeFactory, IQuizControlService quizControlService, UserManager<ApplicationUser> userManager)
+        private readonly IServiceScopeFactory _scopeFactory;
+
+        public LobbyService(IServiceScopeFactory scopeFactory)
         {
             _scopeFactory = scopeFactory;
-            _quizControlService = quizControlService;
-            _userManager = userManager;
+        }
+
+        public async Task<Result<QuestionData>> GetCurrentQuestion(string userId, string lobbyGuid)
+        {
+            IServiceScope scope = _scopeFactory.CreateScope();
+            ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
+            UserManager<ApplicationUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+            ApplicationUser? user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return Result.Fail(new UserNotFoundError("Invalid joining user id."));
+            }
+
+            Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
+            if (lobby == null)
+            {
+                return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
+            }
+
+            Question? question = lobby.GetCurrentQuestion();
+            if (question == null)
+            {
+                return Result.Fail(new QuizNotFoundError("The question is null. Possible reasiob is that quiz in lobby is null."));
+            }
+
+            return Result.Ok(GetQuestionDataFromQuestion(question));
         }
 
         public async Task<Result<string>> CreateAsync(string masterId, string quizGuid, int maxParticipators)
@@ -45,7 +70,6 @@ namespace Quizer.Services.Lobbies.impl
             {
                 return Result.Fail("Impossible happened. Lobby GUID is null. (check lobby constructor)");
             }
-
         }
 
         public async Task<Result> ForceNextQuestionAsync(string userId, string lobbyGuid)
@@ -53,8 +77,9 @@ namespace Quizer.Services.Lobbies.impl
             IServiceScope scope = _scopeFactory.CreateScope();
             ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
             IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
+            UserManager<ApplicationUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-            ApplicationUser? user = await _userManager.FindByIdAsync(userId);
+            ApplicationUser? user = await userManager.FindByIdAsync(userId);
             if (user == null)
             {
                 return Result.Fail(new UserNotFoundError("Invalid joining user id."));
@@ -66,7 +91,7 @@ namespace Quizer.Services.Lobbies.impl
                 return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
             }
 
-            _quizControlService.ForceNextQuestion(lobbyGuid);
+            lobby.NextQuestion();
             return Result.Ok();            
         }
 
@@ -75,8 +100,9 @@ namespace Quizer.Services.Lobbies.impl
             IServiceScope scope = _scopeFactory.CreateScope();
             ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
             IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
+            UserManager<ApplicationUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-            ApplicationUser? user = await _userManager.FindByIdAsync(joiningUserId);
+            ApplicationUser? user = await userManager.FindByIdAsync(joiningUserId);
             if (user == null)
             {
                 return Result.Fail(new UserNotFoundError("Invalid joining user id."));
@@ -112,8 +138,9 @@ namespace Quizer.Services.Lobbies.impl
             IServiceScope scope = _scopeFactory.CreateScope();
             ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
             IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
+            UserManager<ApplicationUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-            ApplicationUser? user = await _userManager.FindByIdAsync(userToKickId);
+            ApplicationUser? user = await userManager.FindByIdAsync(userToKickId);
             if (user == null)
             {
                 return Result.Fail(new UserNotFoundError("Invalid user to kick id."));
@@ -136,13 +163,14 @@ namespace Quizer.Services.Lobbies.impl
             return Result.Ok();
         }
 
-        public async Task<Result> StartAsync(string userId, string lobbyGuid)
+        public async Task<Result> StartLobbyAsync(string userId, string lobbyGuid)
         {
             IServiceScope scope = _scopeFactory.CreateScope();
             ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
             IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
+            UserManager<ApplicationUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-            ApplicationUser? user = await _userManager.FindByIdAsync(userId);
+            ApplicationUser? user = await userManager.FindByIdAsync(userId);
             if (user == null)
             {
                 return Result.Fail(new UserNotFoundError("Invalid user id."));
@@ -159,13 +187,14 @@ namespace Quizer.Services.Lobbies.impl
             return Result.Ok();
         }
 
-        public async Task<Result> StopAsync(string userId, string lobbyGuid)
+        public async Task<Result> StopLobbyAsync(string userId, string lobbyGuid)
         {
             IServiceScope scope = _scopeFactory.CreateScope();
             ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
             IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
+            UserManager<ApplicationUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-            ApplicationUser? user = await _userManager.FindByIdAsync(userId);
+            ApplicationUser? user = await userManager.FindByIdAsync(userId);
             if (user == null)
             {
                 return Result.Fail(new UserNotFoundError("Invalid user id."));
@@ -182,6 +211,59 @@ namespace Quizer.Services.Lobbies.impl
             await lobbyRepository.SaveAsync();
 
             return Result.Ok();
+        }
+
+        private QuestionData GetQuestionDataFromQuestion(Question question)
+        {
+            List<AnswerData> answers = [];
+            foreach (Answer answer in question.Answers)
+            {
+                AnswerInfo answerInfo = new AnswerInfo(answer.Title, answer.IsCorrect);
+                answers.Add(new AnswerData(answer.Guid, answerInfo));
+            }
+
+            QuestionInfo info = new QuestionInfo(question.Position, question.Title);
+
+            return new QuestionData(question.Guid, info, answers);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects)
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                disposedValue = true;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~QuizService()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
     }
 }

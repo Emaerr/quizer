@@ -20,5 +20,7 @@ namespace Quizer.Services.Quizzes
         public IEnumerable<Quiz> GetUserQuizzes(string userId);
 
         public void Save();
+
+        public Task SaveAsync();
     }
 }

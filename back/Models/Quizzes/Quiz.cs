@@ -8,10 +8,6 @@ namespace Quizer.Models.Quizzes
     [Table("Quizzes")]
     public class Quiz
     {
-        public Quiz()
-        {
-            Questions = [];
-        }
 
         public int Id { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -20,7 +16,21 @@ namespace Quizer.Models.Quizzes
         public string AuthorId { get; set; }
         public string Name { get; set; }
         public int TimeLimit { get; set; }
+        
 
-        public virtual List<Question> Questions { get; set; }
+        public virtual List<Question> Questions { get; set; } = [];
+
+        public Question? GetQuestionByPosition(int position)
+        {
+            foreach (Question question in Questions)
+            {
+                if (question.Position == position)
+                {
+                    return question;
+                }
+            }
+
+            return null;
+        }
     }
 }

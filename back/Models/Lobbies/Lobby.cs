@@ -11,7 +11,9 @@ namespace Quizer.Models.Lobbies
 {
     [Table("Lobbies")]
     public class Lobby
-    { 
+    {
+        int _currentQuestion;
+
         public Lobby()
         {
             Participators = new List<Participator>();
@@ -28,5 +30,21 @@ namespace Quizer.Models.Lobbies
         public virtual List<Participator> Participators { get; set; }
         public virtual Quiz? Quiz {  get; set; }
 
+        public Question? GetCurrentQuestion()
+        {
+            if (Quiz != null) {
+                return Quiz.GetQuestionByPosition(_currentQuestion);
+            }
+            return null;
+        }
+
+        public void NextQuestion()
+        {
+            _currentQuestion++;
+        }
+
+        public void PreviousQuestion() { 
+            _currentQuestion--;
+        }
     }
 }
