@@ -15,5 +15,6 @@ namespace Quizer.Services.Lobbies
         public Task<Result> StartLobbyAsync(string userId, string lobbyGuid);
         public Task<Result> ForceNextQuestionAsync(string userId, string lobbyGuid);
         public Task<Result> StopLobbyAsync(string userId, string lobbyGuid);
+        public Task<Result<List<ApplicationUser>>> GetUsersInLobby(string userId, string lobbyGuid);
     }
 }

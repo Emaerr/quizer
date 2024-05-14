@@ -262,6 +262,42 @@ namespace Quizer.Services.Lobbies.impl
             return Task.CompletedTask;
         }
 
+        public async Task<Result<List<ApplicationUser>>> GetLobbyParticipants(string userId, string lobbyGuid)
+        {
+            IServiceScope scope = _scopeFactory.CreateScope();
+            ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
+            IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
+            UserManager<ApplicationUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+            ApplicationUser? user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return Result.Fail(new UserNotFoundError($"Invalid user id {userId}"));
+            }
+
+            Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
+            if (lobby == null)
+            {
+                return Result.Fail(new LobbyNotFoundError($"Invalid lobby GUID {lobbyGuid}"));
+            }
+
+            List<ApplicationUser> users = new List<ApplicationUser>();
+            foreach(Participator participator in lobby.Participators)
+            {
+                ApplicationUser? userParticipating = await userManager.FindByIdAsync(participator.Id);
+
+                if (userParticipating == null)
+                {
+                    return Result.Fail(new UserNotFoundError($"Invalid participating user id {participator.Id}"));
+                }
+
+                users.Add(userParticipating);
+            }
+
+            return users;
+
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
