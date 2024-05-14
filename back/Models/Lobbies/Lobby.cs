@@ -12,7 +12,8 @@ namespace Quizer.Models.Lobbies
     [Table("Lobbies")]
     public class Lobby
     {
-        int _currentQuestion;
+        private int _currentQuestion;
+        private int _timeElapsedSinceLastQuestionChange;
 
         public Lobby()
         {
@@ -45,6 +46,21 @@ namespace Quizer.Models.Lobbies
 
         public void PreviousQuestion() { 
             _currentQuestion--;
+        }
+
+        public void Update(TimeSpan timeSpan)
+        {
+            _timeElapsedSinceLastQuestionChange = timeSpan.Milliseconds;
+
+            if ((float)_timeElapsedSinceLastQuestionChange / 1000.0f >= Quiz.TimeLimit)
+            {
+                NextQuestion();
+            }
+        }
+
+        public void ResetTime()
+        {
+            _timeElapsedSinceLastQuestionChange = 0;
         }
     }
 }

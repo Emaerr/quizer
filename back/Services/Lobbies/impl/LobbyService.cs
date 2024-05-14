@@ -8,6 +8,9 @@ using Quizer.Models.Lobbies;
 using Quizer.Models.Quizzes;
 using Quizer.Models.User;
 using Quizer.Services.Quizzes;
+using Quizer.Services.Util;
+using System;
+using System.Timers;
 
 namespace Quizer.Services.Lobbies.impl
 {
@@ -16,10 +19,14 @@ namespace Quizer.Services.Lobbies.impl
         private bool disposedValue;
 
         private readonly IServiceScopeFactory _scopeFactory;
+        private readonly ITimeService _timeService;
+        private readonly ILogger<LobbyService> _logger;
 
-        public LobbyService(IServiceScopeFactory scopeFactory)
+        public LobbyService(IServiceScopeFactory scopeFactory, ITimeService timeService, ILogger<LobbyService> logger)
         {
             _scopeFactory = scopeFactory;
+            _timeService = timeService;
+            _logger = logger;
         }
 
         public async Task<Result<QuestionData>> GetCurrentQuestion(string userId, string lobbyGuid)
@@ -92,6 +99,7 @@ namespace Quizer.Services.Lobbies.impl
             }
 
             lobby.NextQuestion();
+            lobby.ResetTime();
             return Result.Ok();            
         }
 
@@ -213,18 +221,45 @@ namespace Quizer.Services.Lobbies.impl
             return Result.Ok();
         }
 
-        private QuestionData GetQuestionDataFromQuestion(Question question)
+        public Task StartAsync(CancellationToken cancellationToken)
         {
-            List<AnswerData> answers = [];
-            foreach (Answer answer in question.Answers)
+            DateTime time = _timeService.GetDateTimeNow();
+
+            while (!cancellationToken.IsCancellationRequested)
             {
-                AnswerInfo answerInfo = new AnswerInfo(answer.Title, answer.IsCorrect);
-                answers.Add(new AnswerData(answer.Guid, answerInfo));
+                DateTime now = _timeService.GetDateTimeNow();
+                TimeSpan timeSpan = now - time;
+                time = now;
+
+                IServiceScope scope = _scopeFactory.CreateScope();
+                ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
+
+                IEnumerable<Lobby> lobbies = lobbyRepository.GetLobbies();
+
+                foreach (Lobby lobby in lobbies)
+                {
+                    lobby.Update(timeSpan);
+                }
             }
 
-            QuestionInfo info = new QuestionInfo(question.Position, question.Title);
+            return Task.CompletedTask;
+        }
 
-            return new QuestionData(question.Guid, info, answers);
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            IServiceScope scope = _scopeFactory.CreateScope();
+            ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
+            IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
+            UserManager<ApplicationUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+            IEnumerable<Lobby> lobbies = lobbyRepository.GetLobbies();
+
+            foreach (Lobby lobby in lobbies)
+            {
+                lobby.IsStarted = false;
+            }
+
+            return Task.CompletedTask;
         }
 
         protected virtual void Dispose(bool disposing)
@@ -256,14 +291,18 @@ namespace Quizer.Services.Lobbies.impl
             GC.SuppressFinalize(this);
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        private QuestionData GetQuestionDataFromQuestion(Question question)
         {
-            throw new NotImplementedException();
-        }
+            List<AnswerData> answers = [];
+            foreach (Answer answer in question.Answers)
+            {
+                AnswerInfo answerInfo = new AnswerInfo(answer.Title, answer.IsCorrect);
+                answers.Add(new AnswerData(answer.Guid, answerInfo));
+            }
 
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
+            QuestionInfo info = new QuestionInfo(question.Position, question.Title);
+
+            return new QuestionData(question.Guid, info, answers);
         }
     }
 }
