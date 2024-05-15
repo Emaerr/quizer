@@ -33,7 +33,6 @@ namespace Quizer.Services.Qr
                 using PngByteQRCode qrCode = new PngByteQRCode(qrCodeData);
                 byte[] qrCodeImage = qrCode.GetGraphic(20);
                 _qrCodes[name] = qrCodeImage;
-                File.WriteAllBytes(@"C:\Users\User\Desktop\yourfile.png", qrCodeImage);
             }
             catch (DataTooLongException e)
             {
