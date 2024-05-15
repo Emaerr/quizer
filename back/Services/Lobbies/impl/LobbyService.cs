@@ -353,7 +353,7 @@ namespace Quizer.Services.Lobbies.impl
 
             for (int i = 0; i < length; i++)
             {
-                ints[i] = random.Next(0, 9);
+                ints[i] = random.Next(1, 9);
             }
 
             int pin = 0;
