@@ -62,11 +62,18 @@ namespace Quizer.Services.Lobbies.impl
             ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
             IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
 
+            int pin = GenerateRandomPin(5);
+            while (!CheckIfPinIsUnique(pin))
+            {
+                pin = GenerateRandomPin(5);
+            }
+
             Lobby lobby = new Lobby()
             {
                 MasterId = masterId,
                 Quiz = quizRepository.GetQuizByGuid(quizGuid),
                 MaxParticipators = maxParticipators,
+                Pin = pin,
             };
             lobbyRepository.InsertLobby(lobby);
             await lobbyRepository.SaveAsync();
@@ -262,7 +269,7 @@ namespace Quizer.Services.Lobbies.impl
             return Task.CompletedTask;
         }
 
-        public async Task<Result<List<ApplicationUser>>> GetLobbyParticipants(string userId, string lobbyGuid)
+        public async Task<Result<List<ApplicationUser>>> GetUsersInLobby(string userId, string lobbyGuid)
         {
             IServiceScope scope = _scopeFactory.CreateScope();
             ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
@@ -325,6 +332,57 @@ namespace Quizer.Services.Lobbies.impl
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Generates random pin of fixed length.
+        /// </summary>
+        /// <param name="length">Pin length</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        private int GenerateRandomPin(int length)
+        {
+            if (length > 9)
+            {
+                throw new Exception("GenerateUniquePin: Length should not be higher than 9");
+            }
+
+            int[] ints = new int[length];
+
+            Random random = new Random();
+
+            for (int i = 0; i < length; i++)
+            {
+                ints[i] = random.Next(0, 9);
+            }
+
+            int pin = 0;
+
+            double digitPlace = 1;
+
+            for (int i = 0; i < length; i++)
+            {
+                pin += ints[i] * (int)digitPlace;
+                digitPlace *= 10;
+            }
+
+            return pin;
+        }
+
+        private bool CheckIfPinIsUnique(int pin)
+        {
+            IServiceScope scope = _scopeFactory.CreateScope();
+            ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
+
+            IEnumerable<Lobby> lobbies = lobbyRepository.GetLobbies();
+
+            foreach (Lobby lobby in lobbies) {
+                if (lobby.Pin == pin) { 
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private QuestionData GetQuestionDataFromQuestion(Question question)
