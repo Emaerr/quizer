@@ -5,6 +5,7 @@ using Quizer.Data;
 using Quizer.Models.User;
 using Quizer.Services.Lobbies;
 using Quizer.Services.Lobbies.impl;
+using Quizer.Services.Qr;
 using Quizer.Services.Quizzes;
 using Quizer.Services.Util;
 
@@ -36,6 +37,7 @@ namespace Quizer
             builder.Services.AddSingleton<ILobbyConductService, LobbyService>();
             builder.Services.AddSingleton<ILobbyControlService, LobbyService>();
             builder.Services.AddSingleton<ITimeService, TimeService>();
+            builder.Services.AddSingleton<IQrService, QrService>();
 
             builder.Services.Configure<IdentityOptions>(options =>
             {

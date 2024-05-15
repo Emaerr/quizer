@@ -8,7 +8,7 @@ using System.IO;
 
 namespace Quizer.Services.Qr
 {
-    public class QrService : IQrService, IQrGenerationService
+    public class QrService : IQrService
     {
         private Dictionary<string, byte[]> _qrCodes = [];
 

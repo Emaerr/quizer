@@ -28,6 +28,7 @@ namespace Quizer.Models.Lobbies
         [Range(4, 1000)]
         public int MaxParticipators { get; set; }
         public bool IsStarted { get; set; } = false;
+        public int Pin { get; set; }
         public virtual List<Participator> Participators { get; set; }
         public virtual Quiz? Quiz {  get; set; }
 
