@@ -16,6 +16,7 @@ namespace Quizer.Models.Quizzes
         public string AuthorId { get; set; }
         public string Name { get; set; }
         public int TimeLimit { get; set; }
+        public int BreakTime { get; set; }
         
 
         public virtual List<Question> Questions { get; set; } = [];

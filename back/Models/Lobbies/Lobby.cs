@@ -13,7 +13,8 @@ namespace Quizer.Models.Lobbies
     public class Lobby
     {
         private int _currentQuestion;
-        private int _timeElapsedSinceLastQuestionChange;
+        private int _timeElapsedSinceLastAction; // here action is question finish and break finish
+        bool _isBreakTime;
 
         public Lobby()
         {
@@ -31,6 +32,12 @@ namespace Quizer.Models.Lobbies
         public int Pin { get; set; }
         public virtual List<Participator> Participators { get; set; }
         public virtual Quiz? Quiz {  get; set; }
+
+
+        public bool IsBreakTime()
+        {
+            return _isBreakTime;
+        }
 
         public Question? GetCurrentQuestion()
         {
@@ -51,17 +58,45 @@ namespace Quizer.Models.Lobbies
 
         public void Update(TimeSpan timeSpan)
         {
-            _timeElapsedSinceLastQuestionChange = timeSpan.Milliseconds;
-
-            if ((float)_timeElapsedSinceLastQuestionChange / 1000.0f >= Quiz.TimeLimit)
+            if (!IsStarted)
             {
-                NextQuestion();
+                return;
             }
+
+            checked
+            {
+                try
+                {
+                    _timeElapsedSinceLastAction = (int)timeSpan.TotalMilliseconds;
+                }
+                catch (OverflowException)
+                {
+         
+                }
+            }
+
+            if (!_isBreakTime)
+            {
+                if ((float)_timeElapsedSinceLastAction / 1000.0f >= Quiz.TimeLimit)
+                {
+                    _isBreakTime = true;
+                    _timeElapsedSinceLastAction = 0;
+                }
+            } else
+            {
+                if ((float)_timeElapsedSinceLastAction / 1000.0f >= Quiz.BreakTime)
+                {
+                    NextQuestion();
+                    _isBreakTime = false;
+                    _timeElapsedSinceLastAction = 0;
+                }
+            }
+
         }
 
         public void ResetTime()
         {
-            _timeElapsedSinceLastQuestionChange = 0;
+            _timeElapsedSinceLastAction = 0;
         }
     }
 }
