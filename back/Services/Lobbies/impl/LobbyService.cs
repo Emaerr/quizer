@@ -404,7 +404,7 @@ namespace Quizer.Services.Lobbies.impl
                 answers.Add(new AnswerData(answer.Guid, answerInfo));
             }
 
-            QuestionInfo info = new QuestionInfo(question.Position, question.Title);
+            QuestionInfo info = new QuestionInfo(question.Position, question.Title, question.Type);
 
             return new QuestionData(question.Guid, info, answers);
         }

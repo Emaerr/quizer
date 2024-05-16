@@ -43,13 +43,13 @@ namespace Quizer.Services.Quizzes
             return null;
         }
 
-        public string? CreateUserQuizQuestion(string userId, string quizGuid)
+        public string? CreateUserQuizQuestion(string userId, string quizGuid, QuestionType type)
         {
             var quizzQuery = from q in _context.Quizzes where (q.AuthorId == userId && q.Guid == quizGuid) select q;
 
             if (!quizzQuery.IsNullOrEmpty())
             {
-                Question question = new Question();
+                Question question = new Question() { Type = type };
                 quizzQuery.First().Questions.Add(question);
                 _context.SaveChanges();
                 return question.Guid;
@@ -89,7 +89,7 @@ namespace Quizer.Services.Quizzes
                 answers.Add(new AnswerData(answer.Guid, answerInfo));
             }
 
-            QuestionInfo info = new QuestionInfo(question.Position, question.Title);
+            QuestionInfo info = new QuestionInfo(question.Position, question.Title, question.Type);
 
             return new QuestionData(question.Guid, info, answers);
         } 

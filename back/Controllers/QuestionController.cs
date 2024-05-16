@@ -55,12 +55,12 @@ namespace Quizer.Controllers
         }
 
         /// <summary>
-        /// Created quiz question.
+        /// Creates quiz question.
         /// </summary>
         /// <param name="quizGuid">Quiz GUID</param>
         /// <returns>Redirects to Question/Edit/{questionGuid}?quizGuid={quizGuid}</returns>
-        [HttpGet("Create/{quizGuid:guid}")]
-        public async Task<IActionResult> Create(string quizGuid)
+        [HttpPost("Create/{quizGuid:guid}")]
+        public async Task<IActionResult> Create(string quizGuid, [FromQuery] string questionTypeStr)
         {
             var scope = _scopeFactory.CreateScope();
             var questionRepository = scope.ServiceProvider.GetService<IQuestionDataRepository>();
@@ -76,8 +76,14 @@ namespace Quizer.Controllers
                 return Unauthorized();
             }
 
+            if (!Enum.TryParse(questionTypeStr, out QuestionType questionType))
+            {
+                return BadRequest();
+            }
+
+
             List<QuestionData> questions = questionRepository.GetUserQuizQuestionsData(user.Id, quizGuid).ToList();
-            string? newQuestionGuid = questionRepository.CreateUserQuizQuestion(user.Id, quizGuid);
+            string? newQuestionGuid = questionRepository.CreateUserQuizQuestion(user.Id, quizGuid, questionType);
 
             if (newQuestionGuid == null)
             {
@@ -167,7 +173,7 @@ namespace Quizer.Controllers
                     answers.Add(new AnswerInfo(answerViewModel.Title, answerViewModel.IsCorrect));
                 }
 
-                QuestionInfo updatedQuestion = new QuestionInfo(questionViewModel.Position, questionViewModel.Title);
+                QuestionInfo updatedQuestion = new QuestionInfo(questionViewModel.Position, questionViewModel.Title, question.Info.Type);
 
                 questionRepository.UpdateUserQuizQuestion(user.Id, quizGuid, questionGuid, updatedQuestion, answers);
             }

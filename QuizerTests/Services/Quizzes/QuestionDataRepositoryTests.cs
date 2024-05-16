@@ -23,7 +23,7 @@ namespace Quizer.Services.Quizzes.Tests
 
             IEnumerable<QuestionData> data = repository.GetUserQuizQuestionsData("0", "0");
 
-            QuestionInfo correctInfo = new QuestionInfo(0, "test_question");
+            QuestionInfo correctInfo = new QuestionInfo(0, "test_question", QuestionType.Test);
             List<AnswerData> correctAnswers = new List<AnswerData>() { new AnswerData("0", new AnswerInfo("test_answer", true)) };
             QuestionData correctData = new QuestionData("0", correctInfo, correctAnswers);
 
@@ -42,7 +42,7 @@ namespace Quizer.Services.Quizzes.Tests
 
             QuestionData? data = repository.GetUserQuizQuestionData("0", "0", "0");
 
-            QuestionInfo correctInfo = new QuestionInfo(0, "test_question");
+            QuestionInfo correctInfo = new QuestionInfo(0, "test_question", QuestionType.Test);
             List<AnswerData> correctAnswers = new List<AnswerData>() { new AnswerData("0", new AnswerInfo("test_answer", true)) };
             QuestionData correctData = new QuestionData("0", correctInfo, correctAnswers);
 
@@ -59,7 +59,7 @@ namespace Quizer.Services.Quizzes.Tests
             AppDbContext context = GetContextMock(GenerateTestData());
             QuestionDataRepository repository = new QuestionDataRepository(context);
 
-            repository.CreateUserQuizQuestion("0", "0");
+            repository.CreateUserQuizQuestion("0", "0", QuestionType.Test);
 
             var quizzes = from q in context.Quizzes where q.Guid == "0" select q;
 
@@ -72,7 +72,7 @@ namespace Quizer.Services.Quizzes.Tests
             AppDbContext context = GetContextMock(GenerateTestData());
             QuestionDataRepository repository = new QuestionDataRepository(context);
 
-            QuestionInfo updatedInfo = new QuestionInfo(0, "test_question_updated");
+            QuestionInfo updatedInfo = new QuestionInfo(0, "test_question_updated", QuestionType.Test);
             AnswerInfo updatedAnswer = new AnswerInfo("test_answer_updated", true);
             List<AnswerInfo> updatedAnswers = new List<AnswerInfo> { updatedAnswer };
             repository.UpdateUserQuizQuestion("0", "0", "0", updatedInfo, updatedAnswers);
@@ -124,7 +124,8 @@ namespace Quizer.Services.Quizzes.Tests
                 Guid = "0",
                 Id = 0,
                 Position = 0,
-                Answers = new List<Answer>() { answer }
+                Answers = new List<Answer>() { answer },
+                Type = QuestionType.Test
             };
 
             quiz.Questions.Add(question);
