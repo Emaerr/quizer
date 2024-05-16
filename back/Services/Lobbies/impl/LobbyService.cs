@@ -47,13 +47,23 @@ namespace Quizer.Services.Lobbies.impl
                 return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
             }
 
-            Question? question = lobby.GetCurrentQuestion();
-            if (question == null)
+
+            foreach(Participator participator in lobby.Participators)
             {
-                return Result.Fail(new QuizNotFoundError("The question is null. Possible reasiob is that quiz in lobby is null."));
+                if (participator.Id == userId)
+                {
+                    Question? question = lobby.GetCurrentQuestion();
+                    if (question == null)
+                    {
+                        return Result.Fail(new QuizNotFoundError("The question is null. Possible reasion is that quiz in lobby is null."));
+                    }
+
+                    return Result.Ok(GetQuestionDataFromQuestion(question));
+                }
             }
 
-            return Result.Ok(GetQuestionDataFromQuestion(question));
+            return Result.Fail(new LobbyAccessDeniedError("User in not in the lobby"));
+
         }
 
         public async Task<Result<string>> CreateAsync(string masterId, string quizGuid, int maxParticipators)
