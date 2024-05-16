@@ -66,6 +66,16 @@ namespace Quizer.Services.Lobbies.impl
 
         }
 
+        public Task<Result> RegisterAnswer(string userId, string lobbyGuid, string? answerGuid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Result<IEnumerable<AnswerData>>> GetRightAnswers(string userId, string lobbyGuid)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<Result<string>> CreateAsync(string masterId, string quizGuid, int maxParticipators)
         {
             IServiceScope scope = _scopeFactory.CreateScope();
@@ -408,5 +418,6 @@ namespace Quizer.Services.Lobbies.impl
 
             return new QuestionData(question.Guid, info, answers);
         }
+
     }
 }
