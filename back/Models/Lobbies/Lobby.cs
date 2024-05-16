@@ -69,9 +69,9 @@ namespace Quizer.Models.Lobbies
                 {
                     _timeElapsedSinceLastAction = (int)timeSpan.TotalMilliseconds;
                 }
-                catch (OverflowException)
+                catch (OverflowException e)
                 {
-         
+                    throw new ModelException("Given time span is too high.", e);
                 }
             }
 
