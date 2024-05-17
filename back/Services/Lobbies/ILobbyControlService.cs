@@ -11,10 +11,10 @@ namespace Quizer.Services.Lobbies
     {
         public Task<Result<string>> CreateAsync(string masterId, string quizGuid, int maxParticipators);
         public Task<Result> JoinUserAsync(string lobbyGuid, string joiningUserId);
-        public Task<Result> KickUserAsync(string userId, string lobbyGuid, string userToKickId);
-        public Task<Result> StartLobbyAsync(string userId, string lobbyGuid);
-        public Task<Result> ForceNextQuestionAsync(string userId, string lobbyGuid);
-        public Task<Result> StopLobbyAsync(string userId, string lobbyGuid);
-        public Task<Result<List<ApplicationUser>>> GetUsersInLobby(string userId, string lobbyGuid);
+        public Task<Result> KickUserAsync(string lobbyGuid, string userToKickId);
+        public Task<Result> StartLobbyAsync(string lobbyGuid);
+        public Result ForceNextQuestionAsync(string lobbyGuid);
+        public Task<Result> StopLobbyAsync(string lobbyGuid);
+        public Task<Result<List<ApplicationUser>>> GetUsersInLobby(string lobbyGuid);
     }
 }

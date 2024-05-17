@@ -37,6 +37,7 @@ namespace Quizer
             builder.Services.AddScoped<IParticipatorRepository, ParticipatorRepository>();
             builder.Services.AddSingleton<ILobbyConductService, LobbyService>();
             builder.Services.AddSingleton<ILobbyControlService, LobbyService>();
+            builder.Services.AddSingleton<ILobbyAuthService, LobbyService>();
             builder.Services.AddSingleton<ITimeService, TimeService>();
             builder.Services.AddSingleton<IQrService, QrService>();
 
