@@ -112,7 +112,6 @@ namespace Quizer.Controllers
             return View();
         }
 
-        [Authorize(Policy = "MemberRights")]
         [HttpGet("LobbyStatus/{lobbyGuid}")]
         public IActionResult Status(string lobbyGuid)
         {
