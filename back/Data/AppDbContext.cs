@@ -26,6 +26,7 @@ namespace Quizer.Data
             modelBuilder.Entity<Quiz>().Navigation(q => q.Questions).AutoInclude();
             modelBuilder.Entity<Question>().Navigation(q => q.Answers).AutoInclude();
             modelBuilder.Entity<Lobby>().Navigation(q => q.Participators).AutoInclude();
+            modelBuilder.Entity<Lobby>().Navigation(q => q.Quiz).AutoInclude();
 
             base.OnModelCreating(modelBuilder);
         }

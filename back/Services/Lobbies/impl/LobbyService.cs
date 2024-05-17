@@ -28,6 +28,25 @@ namespace Quizer.Services.Lobbies.impl
             _timeService = timeService;
             _logger = logger;
         }
+        public Result<LobbyStatus> GetLobbyStatus(string lobbyGuid)
+        {
+            IServiceScope scope = _scopeFactory.CreateScope();
+            ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
+
+            Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
+            if (lobby == null)
+            {
+                return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
+            }
+
+            if (lobby.IsStarted)
+            {
+                return LobbyStatus.Game;
+            } else
+            {
+                return LobbyStatus.Briefing;
+            }
+        }
 
         public async Task<Result<QuestionData>> GetCurrentQuestion(string userId, string lobbyGuid)
         {
@@ -88,10 +107,17 @@ namespace Quizer.Services.Lobbies.impl
                 pin = GenerateRandomPin(5);
             }
 
+            Quiz? quiz = quizRepository.GetQuizByGuid(quizGuid);
+
+            if (quiz == null)
+            {
+                return Result.Fail(new QuizNotFoundError("Quiz not found"));
+            }
+
             Lobby lobby = new Lobby()
             {
                 MasterId = masterId,
-                Quiz = quizRepository.GetQuizByGuid(quizGuid),
+                Quiz = quiz,
                 MaxParticipators = maxParticipators,
                 Pin = pin,
             };
@@ -135,6 +161,7 @@ namespace Quizer.Services.Lobbies.impl
             IServiceScope scope = _scopeFactory.CreateScope();
             ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
             IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
+            IParticipatorRepository participatorRepository = scope.ServiceProvider.GetRequiredService<IParticipatorRepository>();
             UserManager<ApplicationUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
             ApplicationUser? user = await userManager.FindByIdAsync(joiningUserId);
@@ -150,6 +177,8 @@ namespace Quizer.Services.Lobbies.impl
             }
 
             Participator participator = new Participator(joiningUserId);
+            participatorRepository.InsertParticipator(participator);
+            participatorRepository.Save();
 
             if (lobby.IsStarted)
             {
@@ -164,6 +193,9 @@ namespace Quizer.Services.Lobbies.impl
             {
                 return Result.Fail(new MaxParticipatorsError("No free player slot in the lobby."));
             }
+
+            lobbyRepository.UpdateLobby(lobby);
+            await lobbyRepository.SaveAsync();
 
             return Result.Ok();
         }
@@ -195,6 +227,9 @@ namespace Quizer.Services.Lobbies.impl
                 }
             }
 
+            lobbyRepository.UpdateLobby(lobby);
+            await lobbyRepository.SaveAsync();
+
             return Result.Ok();
         }
 
@@ -219,14 +254,19 @@ namespace Quizer.Services.Lobbies.impl
 
             lobby.IsStarted = true;
 
+            lobbyRepository.UpdateLobby(lobby);
+            await lobbyRepository.SaveAsync();
+
             return Result.Ok();
         }
 
         public async Task<Result> StopLobbyAsync(string userId, string lobbyGuid)
         {
+
             IServiceScope scope = _scopeFactory.CreateScope();
             ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
             IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
+            IParticipatorRepository participatorRepository = scope.ServiceProvider.GetRequiredService<IParticipatorRepository>();
             UserManager<ApplicationUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
             ApplicationUser? user = await userManager.FindByIdAsync(userId);
@@ -242,6 +282,14 @@ namespace Quizer.Services.Lobbies.impl
             }
 
             lobby.IsStarted = false;
+
+            foreach (Participator participator in lobby.Participators)
+            {
+                participatorRepository.DeleteParticipator(participator.Id);
+            }
+
+            await participatorRepository.SaveAsync();
+
             lobbyRepository.DeleteLobby(lobby.Id);
             await lobbyRepository.SaveAsync();
 
@@ -418,6 +466,5 @@ namespace Quizer.Services.Lobbies.impl
 
             return new QuestionData(question.Guid, info, answers);
         }
-
     }
 }
