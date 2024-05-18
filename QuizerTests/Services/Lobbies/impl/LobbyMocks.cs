@@ -1,120 +1,24 @@
-﻿using Castle.Components.DictionaryAdapter.Xml;
-using FluentResults;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Quizer.Models.Lobbies;
 using Quizer.Models.Quizzes;
 using Quizer.Models.User;
 using Quizer.Services.Lobbies.impl;
+using Quizer.Services.Lobbies;
 using Quizer.Services.Quizzes;
-using Quizer.Services.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Quizer.Services.Lobbies.impl.Tests
-{ 
-    [TestClass()]
-    public class LobbyServiceTests
+namespace QuizerTests.Services.Lobbies.impl
+{
+    public class LobbyMocks
     {
-
-        [TestMethod()]
-        public async Task GetCurrentQuestionTestAsync()
-        {
-            ILobbyConductService service = new LobbyService(GetScopeFactoryMock(GetLobbyRepositoryMock()), new TestTimeService(), GetLoggerMock());
-            Result<QuestionData> result = await service.GetCurrentQuestion("0", "0");
-            Assert.IsTrue(result.IsFailed);
-
-            service = new LobbyService(GetScopeFactoryMock(GetLobbyWithUserRepositoryMock()), new TestTimeService(), GetLoggerMock());
-            result = await service.GetCurrentQuestion("0", "0");
-            Assert.IsTrue(result.IsSuccess);
-        }
-
-        [TestMethod()]
-        public async Task CreateAsyncTestAsync()
-        {
-            ILobbyControlService service = new LobbyService(GetScopeFactoryMock(GetLobbyRepositoryMock()), new TestTimeService(), GetLoggerMock());
-            Result<string> result = await service.CreateAsync("0", "0", 10);
-            Assert.IsTrue(result.IsSuccess);
-        }
-
-        [TestMethod()]
-        public async Task ForceNextQuestionAsyncTestAsync()
-        {
-            ILobbyControlService service = new LobbyService(GetScopeFactoryMock(GetLobbyRepositoryMock()), new TestTimeService(), GetLoggerMock());
-            Result<string> result = await service.ForceNextQuestionAsync("0", "0");
-            Assert.IsTrue(result.IsSuccess);
-        }
-
-        [TestMethod()]
-        public async Task JoinUserAsyncTestAsync()
-        {
-            ILobbyControlService service = new LobbyService(GetScopeFactoryMock(GetLobbyRepositoryMock()), new TestTimeService(), GetLoggerMock());
-            Result<string> result = await service.JoinUserAsync("0", "1");
-            Assert.IsTrue(result.IsSuccess);
-        }
-
-        [TestMethod()]
-        public async Task KickUserAsyncTestAsync()
-        {
-            ILobbyControlService service = new LobbyService(GetScopeFactoryMock(GetLobbyRepositoryMock()), new TestTimeService(), GetLoggerMock());
-            Result<string> result = await service.KickUserAsync("0", "0", "1");
-            Assert.IsTrue(result.IsSuccess);
-        }
-
-        [TestMethod()]
-        public async Task StartLobbyAsyncTestAsync()
-        {
-            ILobbyControlService service = new LobbyService(GetScopeFactoryMock(GetLobbyRepositoryMock()), new TestTimeService(), GetLoggerMock());
-            Result<string> result = await service.StartLobbyAsync("0", "0");
-            Assert.IsTrue(result.IsSuccess);
-        }
-
-        [TestMethod()]
-        public async Task StopLobbyAsyncTestAsync()
-        {
-            ILobbyControlService service = new LobbyService(GetScopeFactoryMock(GetLobbyRepositoryMock()), new TestTimeService(), GetLoggerMock());
-            Result<string> result = await service.StopLobbyAsync("0", "0");
-            Assert.IsTrue(result.IsSuccess);
-        }
-
-        [TestMethod()]
-        //public async Task StartAsyncTestAsync()
-        //{
-        //    var scopeFactory = GetScopeFactoryMock();
-        //    TestTimeService timeService = new TestTimeService();
-        //    IHostedService service = new LobbyService(scopeFactory, timeService, GetLoggerMock());
-        //    timeService.SetDateTime(new DateTime(1, 1, 1, 1, 1, 0));
-        //    Task.Run(() => service.StartAsync(new CancellationToken()));
-        //    timeService.SetDateTime(new DateTime(1, 1, 1, 1, 1, 2));
-
-        //    Thread.Sleep(100); //TODO: Get rid of thi
-        //    ILobbyRepository repository = scopeFactory.CreateScope().ServiceProvider.GetRequiredService<ILobbyRepository>();
-        //    Lobby? lobby = repository.GetLobbyByGuid("0");
-        //    Assert.IsNotNull(lobby);
-        //    Question? currentQuestion = lobby.GetCurrentQuestion();
-        //    Assert.IsNotNull(currentQuestion);
-        //    Assert.AreEqual(currentQuestion.Position, 0);
-
-        //    timeService.SetDateTime(new DateTime(1, 1, 1, 1, 1, 10));
-        //    Thread.Sleep(100); //TODO: Get rid of this
-        //    lobby = repository.GetLobbyByGuid("0");
-        //    Assert.IsNotNull(lobby);
-        //    currentQuestion = lobby.GetCurrentQuestion();
-        //    Assert.IsNotNull(currentQuestion);
-        //    Assert.AreEqual(currentQuestion.Position, 1);
-
-        //    Task.Run(() => service.StopAsync(new CancellationToken()));
-        //}
-
-        private IServiceScopeFactory GetScopeFactoryMock(ILobbyRepository lobbyRepository)
+        public static IServiceScopeFactory GetScopeFactoryMock(ILobbyRepository lobbyRepository)
         {
             var serviceProvider = new Mock<IServiceProvider>();
             serviceProvider
@@ -126,6 +30,9 @@ namespace Quizer.Services.Lobbies.impl.Tests
             serviceProvider
                 .Setup(x => x.GetService(typeof(UserManager<ApplicationUser>)))
                 .Returns(GetUserManagerMock());
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IParticipatorRepository)))
+                .Returns(new Mock<IParticipatorRepository>().Object);
 
             var serviceScope = new Mock<IServiceScope>();
             serviceScope.Setup(x => x.ServiceProvider).Returns(serviceProvider.Object);
@@ -142,13 +49,13 @@ namespace Quizer.Services.Lobbies.impl.Tests
             return serviceScopeFactory.Object;
         }
 
-        private ILogger<LobbyService> GetLoggerMock()
+        public static ILogger<LobbyService> GetLoggerMock()
         {
             var store = new Mock<ILogger<LobbyService>>();
             return store.Object;
         }
 
-        private UserManager<ApplicationUser> GetUserManagerMock()
+        public static UserManager<ApplicationUser> GetUserManagerMock()
         {
             List<ApplicationUser> users = new List<ApplicationUser>()
             {
@@ -185,14 +92,14 @@ namespace Quizer.Services.Lobbies.impl.Tests
             return mgr;
         }
 
-        private ILobbyRepository GetLobbyWithUserRepositoryMock()
+        public static ILobbyRepository GetLobbyWithUserRepositoryMock()
         {
             var lobby = new Lobby()
             {
                 IsStarted = false,
                 MasterId = "0",
                 MaxParticipators = 10,
-                Quiz = new Models.Quizzes.Quiz()
+                Quiz = new Quiz()
                 {
                     AuthorId = "0",
                     TimeLimit = 10,
@@ -212,14 +119,14 @@ namespace Quizer.Services.Lobbies.impl.Tests
             return lobbyRepository.Object;
         }
 
-        private ILobbyRepository GetLobbyRepositoryMock()
+        public static ILobbyRepository GetLobbyRepositoryMock()
         {
             var lobby = new Lobby()
             {
                 IsStarted = false,
                 MasterId = "0",
                 MaxParticipators = 10,
-                Quiz = new Models.Quizzes.Quiz()
+                Quiz = new Quiz()
                 {
                     AuthorId = "0",
                     TimeLimit = 10,
@@ -238,10 +145,37 @@ namespace Quizer.Services.Lobbies.impl.Tests
             return lobbyRepository.Object;
         }
 
-        private IQuizRepository GetQuizRepositoryMock()
+        public static ILobbyRepository GetLobbyStartedWithUserRepositoryMock()
+        {
+            var lobby = new Lobby()
+            {
+                IsStarted = true,
+                MasterId = "0",
+                MaxParticipators = 10,
+                Quiz = new Quiz()
+                {
+                    AuthorId = "0",
+                    TimeLimit = 10,
+                    Questions = new List<Question>() { new Question() { Position = 0, Answers = { new Answer() {Guid = "0"} } }, new Question() { Position = 1 } }
+                },
+                Participators = new List<Participator>() { new Participator() { Id = "0" } }
+            };
+
+            var lobbyRepository = new Mock<ILobbyRepository>();
+            lobbyRepository.Setup(x => x.InsertLobby(It.IsAny<Lobby>()));
+            lobbyRepository.Setup(x => x.UpdateLobby(It.IsAny<Lobby>()));
+            lobbyRepository.Setup(x => x.DeleteLobby(It.IsAny<int>()));
+            lobbyRepository.Setup(x => x.Save());
+            lobbyRepository.Setup(x => x.SaveAsync());
+            lobbyRepository.Setup(x => x.GetLobbyByGuid(It.IsAny<string>())).Returns(lobby);
+
+            return lobbyRepository.Object;
+        }
+
+        public static IQuizRepository GetQuizRepositoryMock()
         {
             var quizRepository = new Mock<IQuizRepository>();
-            quizRepository.Setup(x => x.GetQuizByGuid(It.IsAny<string>())).Returns(new Models.Quizzes.Quiz()
+            quizRepository.Setup(x => x.GetQuizByGuid(It.IsAny<string>())).Returns(new Quiz()
             {
                 AuthorId = "0",
                 TimeLimit = 10,
