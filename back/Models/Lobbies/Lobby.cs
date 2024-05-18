@@ -2,7 +2,6 @@
 using Microsoft.Build.Logging;
 using Quizer.Exceptions.Models;
 using Quizer.Models.Quizzes;
-using Quizer.Models.User;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml.Xsl;

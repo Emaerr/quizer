@@ -1,5 +1,4 @@
 ﻿using Quizer.Models.Lobbies;
-using Quizer.Models.User;
 
 namespace Quizer.Services.Lobbies
 {

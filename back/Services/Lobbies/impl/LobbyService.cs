@@ -69,7 +69,80 @@ namespace Quizer.Services.Lobbies.impl
             return Result.Ok(GetQuestionDataFromQuestion(question));
         }
 
-        public Task<Result> RegisterAnswer(string userId, string lobbyGuid, string? answerGuid)
+        public async Task<Result> RegisterTestAnswer(string userId, string lobbyGuid, string? answerGuid)
+        {
+            IServiceScope scope = _scopeFactory.CreateScope();
+            ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
+            UserManager<ApplicationUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            IParticipatorRepository participatorRepository = scope.ServiceProvider.GetRequiredService<IParticipatorRepository>();
+
+            ApplicationUser? user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return Result.Fail(new UserNotFoundError("Invalid user ID."));
+            }
+
+            Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
+            if (lobby == null)
+            {
+                return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
+            }
+
+            Participator? participator = null;
+            foreach (Participator p in lobby.Participators)
+            {
+                if (p.Id == userId)
+                {
+                    participator = p;
+                }
+            }
+            if (participator == null)
+            {
+                return Result.Fail(new LobbyUnavailableError($"User {userId} is not part of the lobby {lobbyGuid}"));
+            }
+
+            Question? currentQuestion = lobby.GetCurrentQuestion();
+            if (currentQuestion == null)
+            {
+                return Result.Fail(new QuizNotFoundError("The question is null. Possible reasion is that quiz in lobby is null."));
+            }
+
+            if (currentQuestion.Type != QuestionType.Test)
+            {
+                return Result.Fail(new InvalidAnswerFormatError("Invalid answer format."));
+            }
+
+            bool isAnswerGuidValid = false;
+
+            foreach (Answer answer in currentQuestion.Answers)
+            {
+                if (answer.Guid == answerGuid)
+                {
+                    isAnswerGuidValid = true;
+                }
+            }
+
+            if (!isAnswerGuidValid)
+            {
+                return Result.Fail(new InvalidAnswerGuidError("Invalid answer GUID"));
+            }
+
+            ParticipatorAnswer participatorAnswer = new ParticipatorAnswer() {
+                TestAnswerGuid = answerGuid,
+            };
+
+            participator.Answers.Add(participatorAnswer);
+            await participatorRepository.SaveAsync();
+
+            return Result.Ok();
+        }
+
+        public Task<Result> RegisterNumericalAnswer(string userId, string lobbyGuid, int answer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Result> RegisterTextAnswer(string userId, string lobbyGuid, string answer)
         {
             throw new NotImplementedException();
         }
@@ -471,5 +544,6 @@ namespace Quizer.Services.Lobbies.impl
 
             return new QuestionData(question.Guid, info, answers);
         }
+
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Quizer.Data;
 using Quizer.Models.Lobbies;
-using Quizer.Models.User;
 using System;
 
 namespace Quizer.Services.Lobbies.impl

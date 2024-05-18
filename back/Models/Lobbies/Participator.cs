@@ -2,20 +2,23 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Quizer.Models.User
+namespace Quizer.Models.Lobbies
 {
     public class Participator
     {
-        public Participator(string id) { 
+        public Participator(string id)
+        {
             Id = id;
         }
 
-        public Participator() { 
+        public Participator()
+        {
             Id = Guid.NewGuid().ToString();
         }
 
         [Required]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Id { get; set; }
+        public List<ParticipatorAnswer> Answers { get; set; } = [];
     }
 }

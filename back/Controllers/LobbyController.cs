@@ -208,7 +208,7 @@ namespace Quizer.Controllers
                 return new ForbidResult();
             }
 
-            Result result = await _lobbyConductService.RegisterAnswer(user.Id, lobbyGuid, answerGuid);
+            Result result = await _lobbyConductService.RegisterTestAnswer(user.Id, lobbyGuid, answerGuid);
 
             if (result.IsFailed)
             {
