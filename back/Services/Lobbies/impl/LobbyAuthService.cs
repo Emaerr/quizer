@@ -1,20 +1,14 @@
 ﻿using FluentResults;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.CodeAnalysis.FlowAnalysis.DataFlow;
-using Quizer.Data;
-using Quizer.Exceptions.Models;
 using Quizer.Exceptions.Services;
 using Quizer.Models.Lobbies;
-using Quizer.Models.Quizzes;
 using Quizer.Models.User;
 using Quizer.Services.Quizzes;
 using Quizer.Services.Util;
-using System;
-using System.Timers;
 
 namespace Quizer.Services.Lobbies.impl
 {
-    public class LobbyService : IHostedService, IDisposable
+    public class LobbyAuthService : ILobbyAuthService, IDisposable
     {
         private bool disposedValue;
 
@@ -22,54 +16,71 @@ namespace Quizer.Services.Lobbies.impl
         private readonly ITimeService _timeService;
         private readonly ILogger<LobbyService> _logger;
 
-        public LobbyService(IServiceScopeFactory scopeFactory, ITimeService timeService, ILogger<LobbyService> logger)
+        public LobbyAuthService(IServiceScopeFactory scopeFactory, ITimeService timeService, ILogger<LobbyService> logger)
         {
             _scopeFactory = scopeFactory;
             _timeService = timeService;
             _logger = logger;
         }
 
-
-        public Task StartAsync(CancellationToken cancellationToken)
-        {
-            DateTime time = _timeService.GetDateTimeNow();
-
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                DateTime now = _timeService.GetDateTimeNow();
-                TimeSpan timeSpan = now - time;
-                time = now;
-
-                IServiceScope scope = _scopeFactory.CreateScope();
-                ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
-
-                IEnumerable<Lobby> lobbies = lobbyRepository.GetLobbies();
-
-                foreach (Lobby lobby in lobbies)
-                {
-                    lobby.Update(timeSpan);
-                }
-            }
-
-            return Task.CompletedTask;
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
+        public async Task<Result<bool>> IsUserMaster(string userId, string lobbyGuid)
         {
             IServiceScope scope = _scopeFactory.CreateScope();
             ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
-            IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
             UserManager<ApplicationUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-            IEnumerable<Lobby> lobbies = lobbyRepository.GetLobbies();
-
-            foreach (Lobby lobby in lobbies)
+            ApplicationUser? user = await userManager.FindByIdAsync(userId);
+            if (user == null)
             {
-                lobby.IsStarted = false;
+                return Result.Fail(new UserNotFoundError("Invalid joining user id."));
             }
 
-            return Task.CompletedTask;
+            Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
+            if (lobby == null)
+            {
+                return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
+            }
+
+            if (lobby.MasterId == user.Id)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
+
+        public async Task<Result<bool>> IsUserParticipator(string userId, string lobbyGuid)
+        {
+            IServiceScope scope = _scopeFactory.CreateScope();
+            ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
+            UserManager<ApplicationUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+            ApplicationUser? user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return Result.Fail(new UserNotFoundError("Invalid joining user id."));
+            }
+
+            Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
+            if (lobby == null)
+            {
+                return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
+            }
+
+            foreach (Participator participator in lobby.Participators)
+            {
+                if (participator.Id == userId)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+
 
         protected virtual void Dispose(bool disposing)
         {
@@ -87,7 +98,7 @@ namespace Quizer.Services.Lobbies.impl
         }
 
         // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-        // ~QuizService()
+        // ~LobbyAuthService()
         // {
         //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         //     Dispose(disposing: false);
@@ -99,6 +110,5 @@ namespace Quizer.Services.Lobbies.impl
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
-
     }
 }

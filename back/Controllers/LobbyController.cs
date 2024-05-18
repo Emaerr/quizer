@@ -160,7 +160,7 @@ namespace Quizer.Controllers
                 return new ForbidResult();
             }
 
-            Result<QuestionData> result = await _lobbyConductService.GetCurrentQuestion(lobbyGuid);
+            Result<QuestionData> result = _lobbyConductService.GetCurrentQuestion(lobbyGuid);
 
             if (result.HasError<LobbyNotFoundError>())
             {
@@ -215,9 +215,9 @@ namespace Quizer.Controllers
                 return StatusCode(500);
             }
 
-            Result<IEnumerable<AnswerData>> rightAnswers = await _lobbyConductService.GetRightAnswers(lobbyGuid);
+            Result<IEnumerable<AnswerData>> rightAnswers = _lobbyConductService.GetRightAnswers(lobbyGuid);
 
-            Result<QuestionData> questionResult = await _lobbyConductService.GetCurrentQuestion( lobbyGuid);
+            Result<QuestionData> questionResult = _lobbyConductService.GetCurrentQuestion( lobbyGuid);
 
             if (result.HasError<LobbyNotFoundError>())
             {
