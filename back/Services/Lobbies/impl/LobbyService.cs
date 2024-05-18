@@ -14,7 +14,7 @@ using System.Timers;
 
 namespace Quizer.Services.Lobbies.impl
 {
-    public class LobbyService : IHostedService, IDisposable
+    public class LobbyService : BackgroundService, IDisposable
     {
         private bool disposedValue;
 
@@ -30,31 +30,39 @@ namespace Quizer.Services.Lobbies.impl
         }
 
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            DateTime time = _timeService.GetDateTimeNow();
+            using PeriodicTimer timer = new(TimeSpan.FromSeconds(0.1));
 
-            while (!cancellationToken.IsCancellationRequested)
+            try
             {
-                DateTime now = _timeService.GetDateTimeNow();
-                TimeSpan timeSpan = now - time;
-                time = now;
+                DateTime time = _timeService.GetDateTimeNow();
 
-                IServiceScope scope = _scopeFactory.CreateScope();
-                ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
-
-                IEnumerable<Lobby> lobbies = lobbyRepository.GetLobbies();
-
-                foreach (Lobby lobby in lobbies)
+                while (await timer.WaitForNextTickAsync(cancellationToken))
                 {
-                    lobby.Update(timeSpan);
+                    DateTime now = _timeService.GetDateTimeNow();
+                    TimeSpan timeSpan = now - time;
+                    time = now;
+
+                    IServiceScope scope = _scopeFactory.CreateScope();
+                    ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
+
+                    IEnumerable<Lobby> lobbies = lobbyRepository.GetLobbies();
+
+                    foreach (Lobby lobby in lobbies)
+                    {
+                        lobby.Update(timeSpan);
+                    }
                 }
             }
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("Timed Hosted Service is stopping.");
+            }
 
-            return Task.CompletedTask;
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
+        public override Task StopAsync(CancellationToken cancellationToken)
         {
             IServiceScope scope = _scopeFactory.CreateScope();
             ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
@@ -99,6 +107,5 @@ namespace Quizer.Services.Lobbies.impl
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
-
     }
 }

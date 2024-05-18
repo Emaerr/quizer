@@ -13,6 +13,7 @@ namespace Quizer.Models.Lobbies
         [Required]
         [ForeignKey("Participator")]
         public string ParticipatorId { get; set; }
+        [ForeignKey("Answer")]
         public string? TestAnswerGuid { get; set; }
         public float? NumberAnswer { get; set; }
         public string? TextAnswer {  get; set; }
