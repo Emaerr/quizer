@@ -49,9 +49,9 @@ namespace QuizerTests.Services.Lobbies.impl
             return serviceScopeFactory.Object;
         }
 
-        public static ILogger<LobbyService> GetLoggerMock()
+        public static ILogger<TService> GetLoggerMock<TService>() where TService : class
         {
-            var store = new Mock<ILogger<LobbyService>>();
+            var store = new Mock<ILogger<TService>>();
             return store.Object;
         }
 
