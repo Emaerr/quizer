@@ -55,6 +55,11 @@ namespace Quizer.Services.Lobbies.impl
                 return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
             }
 
+            if (!lobby.IsStarted)
+            {
+                return Result.Fail(new LobbyUnavailableError("Lobby has't started yet."));
+            }
+
             Question? question = lobby.GetCurrentQuestion();
             if (question == null)
             {
@@ -83,6 +88,11 @@ namespace Quizer.Services.Lobbies.impl
                 return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
             }
 
+            if (!lobby.IsStarted)
+            {
+                return Result.Fail(new LobbyUnavailableError("Lobby has't started yet."));
+            }
+
             Participator? participator = null;
             foreach (Participator p in lobby.Participators)
             {
@@ -93,7 +103,7 @@ namespace Quizer.Services.Lobbies.impl
             }
             if (participator == null)
             {
-                return Result.Fail(new LobbyUnavailableError($"User {userId} is not part of the lobby {lobbyGuid}"));
+                return Result.Fail(new LobbyAccessDeniedError($"User {userId} is not part of the lobby {lobbyGuid}"));
             }
 
             Question? currentQuestion = lobby.GetCurrentQuestion();
@@ -133,7 +143,7 @@ namespace Quizer.Services.Lobbies.impl
             return Result.Ok();
         }
 
-        public Task<Result> RegisterNumericalAnswer(string userId, string lobbyGuid, int answer)
+        public Task<Result> RegisterNumericalAnswer(string userId, string lobbyGuid, float answer)
         {
             throw new NotImplementedException();
         }

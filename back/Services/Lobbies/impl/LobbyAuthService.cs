@@ -32,7 +32,7 @@ namespace Quizer.Services.Lobbies.impl
             ApplicationUser? user = await userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return Result.Fail(new UserNotFoundError("Invalid joining user id."));
+                return Result.Fail(new UserNotFoundError("Invalid user id."));
             }
 
             Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
@@ -60,7 +60,7 @@ namespace Quizer.Services.Lobbies.impl
             ApplicationUser? user = await userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return Result.Fail(new UserNotFoundError("Invalid joining user id."));
+                return Result.Fail(new UserNotFoundError("Invalid user id."));
             }
 
             Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
