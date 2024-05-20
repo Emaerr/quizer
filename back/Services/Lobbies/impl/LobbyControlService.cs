@@ -40,6 +40,8 @@ namespace Quizer.Services.Lobbies.impl
 
             if (quiz == null)
             {
+                _logger.LogInformation(ServiceLogEvents.LobbyCreationError,
+                    "Coultn't create lobby for {masterId} because quiz {quizGuid} not found", masterId, quizGuid);
                 return Result.Fail(new QuizNotFoundError("Quiz not found"));
             }
 
@@ -55,10 +57,12 @@ namespace Quizer.Services.Lobbies.impl
 
             if (lobby.Guid != null)
             {
+                _logger.LogInformation(ServiceLogEvents.LobbyCreated, "Lobby {lobbyGuid} has been succefully created", lobby.Guid);
                 return Result.Ok(lobby.Guid);
             }
             else
             {
+                _logger.LogError(ServiceLogEvents.LobbyCreationError, "Impossible happened. Lobby GUID is null. (check lobby constructor)");
                 return Result.Fail("Impossible happened. Lobby GUID is null. (check lobby constructor)");
             }
         }
@@ -73,11 +77,16 @@ namespace Quizer.Services.Lobbies.impl
             Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
             if (lobby == null)
             {
+                _logger.LogInformation(ServiceLogEvents.NextQuestionForcingError,
+                 "Coultn't force next question for lobby because lobby {lobbyGuid} not found", lobbyGuid);
                 return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
             }
 
             lobby.NextQuestion();
             lobby.ResetTime();
+
+            _logger.LogInformation(ServiceLogEvents.NextQuestionForced, "Next question has been succefully forced in lobby {lobbyGuid}", lobbyGuid);
+
             return Result.Ok();
         }
 
@@ -92,12 +101,14 @@ namespace Quizer.Services.Lobbies.impl
             ApplicationUser? user = await userManager.FindByIdAsync(joiningUserId);
             if (user == null)
             {
+                _logger.LogInformation(ServiceLogEvents.UserLobbyJoinError, "User {userId} not found", joiningUserId);
                 return Result.Fail(new UserNotFoundError("Invalid joining user id."));
             }
 
             Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
             if (lobby == null)
             {
+                _logger.LogInformation(ServiceLogEvents.UserLobbyJoinError, "User {userId} couldn't join because lobby {lobbyGuid} not found", joiningUserId, lobbyGuid);
                 return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
             }
 
@@ -107,6 +118,7 @@ namespace Quizer.Services.Lobbies.impl
 
             if (lobby.IsStarted)
             {
+                _logger.LogInformation(ServiceLogEvents.UserLobbyJoinError, "User {userId} couldn't join because lobby {lobbyGuid} has been already started", joiningUserId, lobbyGuid);
                 return Result.Fail(new LobbyUnavailableError("The game has already started."));
             }
 
@@ -116,11 +128,14 @@ namespace Quizer.Services.Lobbies.impl
             }
             else
             {
+                 _logger.LogInformation(ServiceLogEvents.UserLobbyJoinError, "User {userId} couldn't join because lobby {lobbyGuid} has been already started.", joiningUserId, lobbyGuid);
                 return Result.Fail(new MaxParticipatorsError("No free player slot in the lobby."));
             }
 
             lobbyRepository.UpdateLobby(lobby);
             await lobbyRepository.SaveAsync();
+
+            _logger.LogInformation(ServiceLogEvents.UserJoinedLobby, "User {userId} succesfully joined lobby {lobbyGuid}", joiningUserId, lobbyGuid);
 
             return Result.Ok();
         }
@@ -134,6 +149,7 @@ namespace Quizer.Services.Lobbies.impl
             Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
             if (lobby == null)
             {
+                _logger.LogInformation(ServiceLogEvents.UserLobbyLeaveError, "User {userId} couldn't left because lobby {lobbyGuid} not found", userToKickId, lobbyGuid);
                 return Result.Fail(new LobbyNotFoundError("(Invalid lobby GUID."));
             }
 
@@ -148,6 +164,8 @@ namespace Quizer.Services.Lobbies.impl
             lobbyRepository.UpdateLobby(lobby);
             await lobbyRepository.SaveAsync();
 
+            _logger.LogInformation(ServiceLogEvents.UserLeftLobby, "User {userId} succesfully left lobby {lobbyGuid}", userToKickId, lobbyGuid);
+
             return Result.Ok();
         }
 
@@ -160,6 +178,7 @@ namespace Quizer.Services.Lobbies.impl
             Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
             if (lobby == null)
             {
+                _logger.LogInformation(ServiceLogEvents.LobbyStartError, "Lobby {lobbyGuid} couldn't be started because it's not found", lobbyGuid);
                 return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
             }
 
@@ -167,6 +186,8 @@ namespace Quizer.Services.Lobbies.impl
 
             lobbyRepository.UpdateLobby(lobby);
             await lobbyRepository.SaveAsync();
+
+            _logger.LogInformation(ServiceLogEvents.LobbyStarted, "Lobby {lobbyGuid} has been succefully started", lobbyGuid);
 
             return Result.Ok();
         }
@@ -182,6 +203,7 @@ namespace Quizer.Services.Lobbies.impl
             Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
             if (lobby == null)
             {
+                _logger.LogInformation(ServiceLogEvents.LobbyStopError, "Lobby {lobbyGuid} couldn't be started because it's not found", lobbyGuid);
                 return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
             }
 
@@ -196,6 +218,8 @@ namespace Quizer.Services.Lobbies.impl
 
             lobbyRepository.DeleteLobby(lobby.Id);
             await lobbyRepository.SaveAsync();
+
+            _logger.LogInformation(ServiceLogEvents.LobbyStopped, "Lobby {lobbyGuid} has been succefully stopped", lobbyGuid);
 
             return Result.Ok();
         }
