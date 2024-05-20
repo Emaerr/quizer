@@ -80,8 +80,6 @@ namespace Quizer.Services.Lobbies.impl
             return false;
         }
 
-
-
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)

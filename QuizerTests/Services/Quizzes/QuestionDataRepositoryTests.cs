@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 
 namespace Quizer.Services.Quizzes.Tests
 {
+    // assertions of context don't make any sense.
+    // TODO: Remove them
     [TestClass()]
     public class QuestionDataRepositoryTests
     {

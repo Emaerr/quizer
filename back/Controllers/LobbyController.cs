@@ -26,7 +26,7 @@ namespace Quizer.Controllers
         private readonly ILogger<LobbyController> _logger;
         private readonly ILobbyControlService _lobbyControlService;
         private readonly ILobbyAuthService _lobbyAuthService;
-        ILobbyConductService _lobbyConductService;
+        private readonly ILobbyConductService _lobbyConductService;
         private readonly IQrService _qrService;
         private readonly UserManager<ApplicationUser> _userManager;
 
