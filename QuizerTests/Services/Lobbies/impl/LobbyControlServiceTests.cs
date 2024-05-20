@@ -30,7 +30,7 @@ namespace Quizer.Services.Lobbies.impl.Tests
         [TestMethod()]
         public async Task CreateAsyncTestAsync()
         {
-            ILobbyControlService service = new LobbyControlService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyRepositoryMock()), new TestTimeService(), LobbyMocks.GetLoggerMock());
+            ILobbyControlService service = new LobbyControlService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyRepositoryMock(isLobbyStarted: false)), new TestTimeService(), LobbyMocks.GetLoggerMock());
             Result<string> result = await service.CreateAsync("0", "0", 10);
             Assert.IsTrue(result.IsSuccess);
         }
@@ -38,7 +38,7 @@ namespace Quizer.Services.Lobbies.impl.Tests
         [TestMethod()]
         public void ForceNextQuestionAsyncTestAsync()
         {
-            ILobbyControlService service = new LobbyControlService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyRepositoryMock()), new TestTimeService(), LobbyMocks.GetLoggerMock());
+            ILobbyControlService service = new LobbyControlService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyRepositoryMock(isLobbyStarted: true)), new TestTimeService(), LobbyMocks.GetLoggerMock());
             Result result = service.ForceNextQuestionAsync("0");
             Assert.IsTrue(result.IsSuccess);
         }
@@ -46,7 +46,7 @@ namespace Quizer.Services.Lobbies.impl.Tests
         [TestMethod()]
         public async Task JoinUserAsyncTestAsync()
         {
-            ILobbyControlService service = new LobbyControlService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyRepositoryMock()), new TestTimeService(), LobbyMocks.GetLoggerMock());
+            ILobbyControlService service = new LobbyControlService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyRepositoryMock(isLobbyStarted: false)), new TestTimeService(), LobbyMocks.GetLoggerMock());
             Result<string> result = await service.JoinUserAsync("0", "1");
             Assert.IsTrue(result.IsSuccess);
         }
@@ -54,7 +54,7 @@ namespace Quizer.Services.Lobbies.impl.Tests
         [TestMethod()]
         public async Task KickUserAsyncTestAsync()
         {
-            ILobbyControlService service = new LobbyControlService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyRepositoryMock()), new TestTimeService(), LobbyMocks.GetLoggerMock());
+            ILobbyControlService service = new LobbyControlService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyRepositoryMock(isLobbyStarted: false)), new TestTimeService(), LobbyMocks.GetLoggerMock());
             Result<string> result = await service.KickUserAsync("0", "1");
             Assert.IsTrue(result.IsSuccess);
         }
@@ -62,7 +62,7 @@ namespace Quizer.Services.Lobbies.impl.Tests
         [TestMethod()]
         public async Task StartLobbyAsyncTestAsync()
         {
-            ILobbyControlService service = new LobbyControlService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyRepositoryMock()), new TestTimeService(), LobbyMocks.GetLoggerMock());
+            ILobbyControlService service = new LobbyControlService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyRepositoryMock(isLobbyStarted: false)), new TestTimeService(), LobbyMocks.GetLoggerMock());
             Result<string> result = await service.StartLobbyAsync("0");
             Assert.IsTrue(result.IsSuccess);
         }
@@ -70,7 +70,7 @@ namespace Quizer.Services.Lobbies.impl.Tests
         [TestMethod()]
         public async Task StopLobbyAsyncTestAsync()
         {
-            ILobbyControlService service = new LobbyControlService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyRepositoryMock()), new TestTimeService(), LobbyMocks.GetLoggerMock());
+            ILobbyControlService service = new LobbyControlService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyRepositoryMock(isLobbyStarted: true)), new TestTimeService(), LobbyMocks.GetLoggerMock());
             Result<string> result = await service.StopLobbyAsync("0");
             Assert.IsTrue(result.IsSuccess);
         }

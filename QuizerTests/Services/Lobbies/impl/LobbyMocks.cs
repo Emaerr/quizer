@@ -92,18 +92,18 @@ namespace QuizerTests.Services.Lobbies.impl
             return mgr;
         }
 
-        public static ILobbyRepository GetLobbyWithUserRepositoryMock()
+        public static ILobbyRepository GetLobbyWithUserRepositoryMock(bool isLobbyStarted)
         {
             var lobby = new Lobby()
             {
-                IsStarted = false,
+                IsStarted = isLobbyStarted,
                 MasterId = "0",
                 MaxParticipators = 10,
                 Quiz = new Quiz()
                 {
                     AuthorId = "0",
                     TimeLimit = 10,
-                    Questions = new List<Question>() { new Question() { Position = 0 }, new Question() { Position = 1 } }
+                    Questions = new List<Question>() { new Question() { Position = 0, Answers = new List<Answer>() { new Answer() { Guid = "0"} } }, new Question() { Position = 1 } }
                 },
                 Participators = new List<Participator>() { new Participator() { Id = "0" } }
             };
@@ -119,46 +119,19 @@ namespace QuizerTests.Services.Lobbies.impl
             return lobbyRepository.Object;
         }
 
-        public static ILobbyRepository GetLobbyRepositoryMock()
+        public static ILobbyRepository GetLobbyRepositoryMock(bool isLobbyStarted)
         {
             var lobby = new Lobby()
             {
-                IsStarted = false,
+                IsStarted = isLobbyStarted,
                 MasterId = "0",
                 MaxParticipators = 10,
                 Quiz = new Quiz()
                 {
                     AuthorId = "0",
                     TimeLimit = 10,
-                    Questions = new List<Question>() { new Question() { Position = 0 }, new Question() { Position = 1 } }
+                    Questions = new List<Question>() { new Question() { Position = 0, Answers = new List<Answer>() { new Answer() { Guid = "0" } } }, new Question() { Position = 1 } }
                 }
-            };
-
-            var lobbyRepository = new Mock<ILobbyRepository>();
-            lobbyRepository.Setup(x => x.InsertLobby(It.IsAny<Lobby>()));
-            lobbyRepository.Setup(x => x.UpdateLobby(It.IsAny<Lobby>()));
-            lobbyRepository.Setup(x => x.DeleteLobby(It.IsAny<int>()));
-            lobbyRepository.Setup(x => x.Save());
-            lobbyRepository.Setup(x => x.SaveAsync());
-            lobbyRepository.Setup(x => x.GetLobbyByGuid(It.IsAny<string>())).Returns(lobby);
-
-            return lobbyRepository.Object;
-        }
-
-        public static ILobbyRepository GetLobbyStartedWithUserRepositoryMock()
-        {
-            var lobby = new Lobby()
-            {
-                IsStarted = true,
-                MasterId = "0",
-                MaxParticipators = 10,
-                Quiz = new Quiz()
-                {
-                    AuthorId = "0",
-                    TimeLimit = 10,
-                    Questions = new List<Question>() { new Question() { Position = 0, Answers = { new Answer() {Guid = "0"} } }, new Question() { Position = 1 } }
-                },
-                Participators = new List<Participator>() { new Participator() { Id = "0" } }
             };
 
             var lobbyRepository = new Mock<ILobbyRepository>();
