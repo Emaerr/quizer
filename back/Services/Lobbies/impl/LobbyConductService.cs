@@ -13,10 +13,10 @@ namespace Quizer.Services.Lobbies.impl
     {
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ITimeService _timeService;
-        private readonly ILogger<LobbyService> _logger;
+        private readonly ILogger<LobbyConductService> _logger;
         private bool disposedValue;
 
-        public LobbyConductService(IServiceScopeFactory scopeFactory, ITimeService timeService, ILogger<LobbyService> logger)
+        public LobbyConductService(IServiceScopeFactory scopeFactory, ITimeService timeService, ILogger<LobbyConductService> logger)
         {
             _scopeFactory = scopeFactory;
             _timeService = timeService;
@@ -79,17 +79,20 @@ namespace Quizer.Services.Lobbies.impl
             ApplicationUser? user = await userManager.FindByIdAsync(userId);
             if (user == null)
             {
+                _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register test answer {answerGuid} in lobby {lobbyGuid} because user {userId} is not found",answerGuid, lobbyGuid, userId);
                 return Result.Fail(new UserNotFoundError("Invalid user ID."));
             }
 
             Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
             if (lobby == null)
             {
+                _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register test answer {answerGuid} for user {userId} because lobby {lobbyGuid} is not found", answerGuid, userId, lobbyGuid);
                 return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
             }
 
             if (!lobby.IsStarted)
             {
+                _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register test answer {answerGuid} for user {userId} because lobby {lobbyGuid} isn't started yet", answerGuid, userId, lobbyGuid);
                 return Result.Fail(new LobbyUnavailableError("Lobby has't started yet."));
             }
 
@@ -103,17 +106,20 @@ namespace Quizer.Services.Lobbies.impl
             }
             if (participator == null)
             {
+                _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register test answer {answerGuid} because user {userId} doesn't participate in lobby {lobbyGuid}", answerGuid, userId, lobbyGuid);
                 return Result.Fail(new LobbyAccessDeniedError($"User {userId} is not part of the lobby {lobbyGuid}"));
             }
 
             Question? currentQuestion = lobby.GetCurrentQuestion();
             if (currentQuestion == null)
             {
+                _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register test answer {answerGuid} for user {userId} {lobbyGuid} bacause currentQuestion not found (is null)", answerGuid, userId, lobbyGuid);
                 return Result.Fail(new QuizNotFoundError("The question is null. Possible reasion is that quiz in lobby is null."));
             }
 
             if (currentQuestion.Type != QuestionType.Test)
             {
+                _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register test answer {answerGuid} for user {userId} in lobby {lobbyGuid} because current question type is not test", answerGuid, userId, lobbyGuid);
                 return Result.Fail(new InvalidAnswerFormatError("Invalid answer format."));
             }
 
@@ -129,6 +135,7 @@ namespace Quizer.Services.Lobbies.impl
 
             if (!isAnswerGuidValid)
             {
+                _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register test answer {answerGuid} for user {userId} in lobby {lobbyGuid} because the answer not found (answer GUID is not valid)", answerGuid, userId, lobbyGuid);
                 return Result.Fail(new InvalidAnswerGuidError("Invalid answer GUID"));
             }
 
@@ -139,6 +146,8 @@ namespace Quizer.Services.Lobbies.impl
 
             participator.Answers.Add(participatorAnswer);
             await participatorRepository.SaveAsync();
+
+            _logger.LogInformation(ServiceLogEvents.AnswerRegistered, "Succesfully registered test answer {answerGuid} for user {userId} in lobby {lobbyGuid}", answerGuid, userId, lobbyGuid);
 
             return Result.Ok();
         }

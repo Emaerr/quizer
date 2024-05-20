@@ -15,9 +15,9 @@ namespace Quizer.Services.Lobbies.impl
 
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ITimeService _timeService;
-        private readonly ILogger<LobbyService> _logger;
+        private readonly ILogger<LobbyControlService> _logger;
 
-        public LobbyControlService(IServiceScopeFactory scopeFactory, ITimeService timeService, ILogger<LobbyService> logger)
+        public LobbyControlService(IServiceScopeFactory scopeFactory, ITimeService timeService, ILogger<LobbyControlService> logger)
         {
             _scopeFactory = scopeFactory;
             _timeService = timeService;
