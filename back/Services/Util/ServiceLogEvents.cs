@@ -17,5 +17,13 @@
         public const int NextQuestionForcingError = 2104;
         public const int LobbyCreationError = 2105;
         public const int AnswerRegistrationError = 2106;
+
+        public const int QuizCreated = 3000;
+        public const int QuizUpdated = 3001;
+        public const int QuizDeleted = 3002;
+
+        public const int QuizCreationError = 3100;
+        public const int QuizUpdateError = 3101;
+        public const int QuizDeletionError = 3102;
     }
 }
