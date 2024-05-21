@@ -3,6 +3,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Quizer.Models.Quizzes
 {
+    public enum QuestionType
+    {
+        Test,
+        TextEntry,
+        NumberEntry
+    }
+
     [Table("Questions")]
     public class Question
     {
@@ -16,6 +23,7 @@ namespace Quizer.Models.Quizzes
         public string Guid { get; set; } = System.Guid.NewGuid().ToString();
         public int Position { get; set; }
         public string Title { get; set; }
+        public QuestionType Type { get; set; }
 
         public virtual List<Answer> Answers { get; set; }
 

@@ -8,180 +8,104 @@ using Quizer.Models.Lobbies;
 using Quizer.Models.Quizzes;
 using Quizer.Models.User;
 using Quizer.Services.Quizzes;
+using Quizer.Services.Util;
+using System;
+using System.Timers;
 
 namespace Quizer.Services.Lobbies.impl
 {
-    public class LobbyService : ILobbyService
+    public class LobbyService : BackgroundService, IDisposable
     {
-        private readonly IServiceScopeFactory _scopeFactory;
-        private readonly IQuizControlService _quizControlService;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private bool disposedValue;
 
-        public LobbyService(IServiceScopeFactory scopeFactory, IQuizControlService quizControlService, UserManager<ApplicationUser> userManager)
+        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly ITimeService _timeService;
+        private readonly ILogger<LobbyService> _logger;
+
+        public LobbyService(IServiceScopeFactory scopeFactory, ITimeService timeService, ILogger<LobbyService> logger)
         {
             _scopeFactory = scopeFactory;
-            _quizControlService = quizControlService;
-            _userManager = userManager;
+            _timeService = timeService;
+            _logger = logger;
         }
 
-        public async Task<Result<string>> CreateAsync(string masterId, string quizGuid, int maxParticipators)
+
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            IServiceScope scope = _scopeFactory.CreateScope();
-            ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
-            IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
+            using PeriodicTimer timer = new(TimeSpan.FromSeconds(0.1));
 
-            Lobby lobby = new Lobby()
+            try
             {
-                MasterId = masterId,
-                Quiz = quizRepository.GetQuizByGuid(quizGuid),
-                MaxParticipators = maxParticipators,
-            };
-            lobbyRepository.InsertLobby(lobby);
-            await lobbyRepository.SaveAsync();
+                DateTime time = _timeService.GetDateTimeNow();
 
-            if (lobby.Guid != null) {
-                return Result.Ok(lobby.Guid);
-            } else
-            {
-                return Result.Fail("Impossible happened. Lobby GUID is null. (check lobby constructor)");
-            }
-
-        }
-
-        public async Task<Result> ForceNextQuestionAsync(string userId, string lobbyGuid)
-        {
-            IServiceScope scope = _scopeFactory.CreateScope();
-            ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
-            IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
-
-            ApplicationUser? user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                return Result.Fail(new UserNotFoundError("Invalid joining user id."));
-            }
-
-            Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
-            if (lobby == null)
-            {
-                return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
-            }
-
-            _quizControlService.ForceNextQuestion(lobbyGuid);
-            return Result.Ok();            
-        }
-
-        public async Task<Result> JoinUserAsync(string lobbyGuid, string joiningUserId)
-        {
-            IServiceScope scope = _scopeFactory.CreateScope();
-            ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
-            IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
-
-            ApplicationUser? user = await _userManager.FindByIdAsync(joiningUserId);
-            if (user == null)
-            {
-                return Result.Fail(new UserNotFoundError("Invalid joining user id."));
-            }
-
-            Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
-            if (lobby == null)
-            {
-                return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
-            }
-
-            Participator participator = new Participator(joiningUserId);
-
-            if (lobby.IsStarted)
-            {
-                return Result.Fail(new LobbyUnavailableError("The game has already started."));
-            }
-
-            if (lobby.Participators.Count() <= lobby.MaxParticipators)
-            {
-                lobby.Participators.Add(participator);
-            }
-            else
-            {
-                return Result.Fail(new MaxParticipatorsError("No free player slot in the lobby."));
-            }
-
-            return Result.Ok();
-        }
-
-        public async Task<Result> KickUserAsync(string userId, string lobbyGuid, string userToKickId)
-        {
-            IServiceScope scope = _scopeFactory.CreateScope();
-            ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
-            IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
-
-            ApplicationUser? user = await _userManager.FindByIdAsync(userToKickId);
-            if (user == null)
-            {
-                return Result.Fail(new UserNotFoundError("Invalid user to kick id."));
-            }
-
-            Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
-            if (lobby == null)
-            {
-                return Result.Fail(new LobbyNotFoundError("(Invalid lobby GUID."));
-            }
-
-            foreach (Participator participator in lobby.Participators)
-            {
-                if (participator.Id == userToKickId)
+                while (await timer.WaitForNextTickAsync(cancellationToken))
                 {
-                    lobby.Participators.Remove(participator);
+                    DateTime now = _timeService.GetDateTimeNow();
+                    TimeSpan timeSpan = now - time;
+                    time = now;
+
+                    IServiceScope scope = _scopeFactory.CreateScope();
+                    ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
+
+                    IEnumerable<Lobby> lobbies = lobbyRepository.GetLobbies();
+
+                    foreach (Lobby lobby in lobbies)
+                    {
+                        lobby.Update(timeSpan);
+                    }
                 }
             }
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("Timed Hosted Service is stopping.");
+            }
 
-            return Result.Ok();
         }
 
-        public async Task<Result> StartAsync(string userId, string lobbyGuid)
+        public override Task StopAsync(CancellationToken cancellationToken)
         {
             IServiceScope scope = _scopeFactory.CreateScope();
             ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
             IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
+            UserManager<ApplicationUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-            ApplicationUser? user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
+            IEnumerable<Lobby> lobbies = lobbyRepository.GetLobbies();
+
+            foreach (Lobby lobby in lobbies)
             {
-                return Result.Fail(new UserNotFoundError("Invalid user id."));
+                lobby.IsStarted = false;
             }
 
-            Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
-            if (lobby == null)
-            {
-                return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
-            }
-
-            lobby.IsStarted = true;
-
-            return Result.Ok();
+            return Task.CompletedTask;
         }
 
-        public async Task<Result> StopAsync(string userId, string lobbyGuid)
+        protected virtual void Dispose(bool disposing)
         {
-            IServiceScope scope = _scopeFactory.CreateScope();
-            ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
-            IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
-
-            ApplicationUser? user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
+            if (!disposedValue)
             {
-                return Result.Fail(new UserNotFoundError("Invalid user id."));
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects)
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                disposedValue = true;
             }
+        }
 
-            Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
-            if (lobby == null)
-            {
-                return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
-            }
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~QuizService()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
 
-            lobby.IsStarted = false;
-            lobbyRepository.DeleteLobby(lobby.Id);
-            await lobbyRepository.SaveAsync();
-
-            return Result.Ok();
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

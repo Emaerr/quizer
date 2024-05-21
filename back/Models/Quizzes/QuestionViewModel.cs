@@ -22,6 +22,8 @@ namespace Quizer.Models.Quizzes
         [DisplayName("Title")]
         [Required(ErrorMessage = "Title is required")]
         public string Title { get; set; }
+        [Required]
+        public QuestionType QuestionType { get; set; }
 
         public virtual List<AnswerViewModel> Answers { get; set; }
     }

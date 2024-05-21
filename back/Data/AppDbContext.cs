@@ -19,12 +19,16 @@ namespace Quizer.Data
         public virtual DbSet<Question> Questions { get; set; } = default!;
         public virtual DbSet<Answer> Answers { get; set; } = default!;
         public virtual DbSet<Lobby> Lobbies { get; set; } = default!;
+        public virtual DbSet<ParticipatorAnswer> ParticipatorAnswers { get; set; } = default!;
 
         #region Required
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Quiz>().Navigation(q => q.Questions).AutoInclude();
             modelBuilder.Entity<Question>().Navigation(q => q.Answers).AutoInclude();
+            modelBuilder.Entity<Lobby>().Navigation(q => q.Participators).AutoInclude();
+            modelBuilder.Entity<Lobby>().Navigation(q => q.Quiz).AutoInclude();
+            modelBuilder.Entity<Participator>().Navigation(q => q.Answers).AutoInclude();
 
             base.OnModelCreating(modelBuilder);
         }

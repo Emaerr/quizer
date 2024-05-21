@@ -4,7 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using Quizer.Data;
 using Quizer.Models.User;
 using Quizer.Services.Lobbies;
+using Quizer.Services.Lobbies.impl;
+using Quizer.Services.Qr;
 using Quizer.Services.Quizzes;
+using Quizer.Services.Util;
 
 
 namespace Quizer
@@ -31,7 +34,13 @@ namespace Quizer
             builder.Services.AddScoped<ILobbyRepository, LobbyRepository>();
             builder.Services.AddScoped<IQuizDataRepository, QuizDataRepository>();
             builder.Services.AddScoped<IQuestionDataRepository, QuestionDataRepository>();
-            builder.Services.AddSingleton<ILobbyService, LobbyService>();
+            builder.Services.AddScoped<IParticipatorRepository, ParticipatorRepository>();
+            builder.Services.AddSingleton<ILobbyConductService, LobbyConductService>();
+            builder.Services.AddSingleton<ILobbyControlService, LobbyControlService>();
+            builder.Services.AddSingleton<ILobbyAuthService, LobbyAuthService>();
+            builder.Services.AddSingleton<IHostedService, LobbyService>();
+            builder.Services.AddSingleton<ITimeService, TimeService>();
+            builder.Services.AddSingleton<IQrService, QrService>();
 
             builder.Services.Configure<IdentityOptions>(options =>
             {
