@@ -34,8 +34,8 @@ namespace Quizer.Controllers.Tests
                 GetLobbyControlServiceMock(isLobbyStarted: false),
                 GetLobbyConductServiceMock(isLobbyStarted: false),
                 GetLobbyAuthServiceMock(),
-                GetQrServiceMock(),
-                GetUserManagerMock("0"));
+                GetQrServiceMock(), null,
+                GetUserManagerMock("0"), null);
 
             var viewResult = await lobbyController.Join("0");
             Assert.IsInstanceOfType(viewResult, typeof(RedirectToActionResult));
@@ -45,8 +45,8 @@ namespace Quizer.Controllers.Tests
                 GetLobbyControlServiceMock(isLobbyStarted: true),
                 GetLobbyConductServiceMock(isLobbyStarted: true),
                 GetLobbyAuthServiceMock(),
-                GetQrServiceMock(),
-                GetUserManagerMock("0"));
+                GetQrServiceMock(), null,
+                GetUserManagerMock("0"), null);
 
             viewResult = await lobbyController.Join("0");
             Assert.IsInstanceOfType(viewResult, typeof(ViewResult));
@@ -60,8 +60,8 @@ namespace Quizer.Controllers.Tests
                 GetLobbyControlServiceMock(isLobbyStarted: true),
                 GetLobbyConductServiceMock(isLobbyStarted: true),
                 GetLobbyAuthServiceMock(),
-                GetQrServiceMock(),
-                GetUserManagerMock("1"));
+                GetQrServiceMock(), null,
+                GetUserManagerMock("1"), null);
 
             var viewResult = await lobbyController.Game("0");
 

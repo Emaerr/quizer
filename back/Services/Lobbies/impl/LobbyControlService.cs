@@ -111,6 +111,12 @@ namespace Quizer.Services.Lobbies.impl
                 _logger.LogInformation(ServiceLogEvents.UserLobbyJoinError, "User {userId} couldn't join because lobby {lobbyGuid} not found", joiningUserId, lobbyGuid);
                 return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
             }
+            
+            if (participatorRepository.GetParticipatorById(joiningUserId) != null)
+            {
+                _logger.LogInformation(ServiceLogEvents.UserLobbyJoinError, "User {userId} couldn't join lobby {lobbyGuid} because he is already joined", joiningUserId, lobbyGuid);
+                return Result.Fail(new UserAlreadyInLobbyError("User has already joined the lobby."));
+            }
 
             Participator participator = new Participator(joiningUserId);
             participatorRepository.InsertParticipator(participator);
@@ -128,7 +134,7 @@ namespace Quizer.Services.Lobbies.impl
             }
             else
             {
-                 _logger.LogInformation(ServiceLogEvents.UserLobbyJoinError, "User {userId} couldn't join because lobby {lobbyGuid} has been already started.", joiningUserId, lobbyGuid);
+                 _logger.LogInformation(ServiceLogEvents.UserLobbyJoinError, "User {userId} couldn't join because lobby {lobbyGuid} has no free slots", joiningUserId, lobbyGuid);
                 return Result.Fail(new MaxParticipatorsError("No free player slot in the lobby."));
             }
 

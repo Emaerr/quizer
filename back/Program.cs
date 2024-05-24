@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
@@ -41,6 +42,7 @@ namespace Quizer
             builder.Services.AddSingleton<IHostedService, LobbyService>();
             builder.Services.AddSingleton<ITimeService, TimeService>();
             builder.Services.AddSingleton<IQrService, QrService>();
+            builder.Services.AddSingleton<ITempUserService, TempUserService>();
 
             builder.Services.Configure<IdentityOptions>(options =>
             {

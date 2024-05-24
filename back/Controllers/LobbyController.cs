@@ -16,6 +16,8 @@ using Quizer.Exceptions.Services;
 using Quizer.Services.Qr;
 using Microsoft.AspNetCore.Http.Extensions;
 using System.Net;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 
 
 namespace Quizer.Controllers
@@ -28,27 +30,29 @@ namespace Quizer.Controllers
         private readonly ILobbyAuthService _lobbyAuthService;
         private readonly ILobbyConductService _lobbyConductService;
         private readonly IQrService _qrService;
+        private readonly ITempUserService _tempUserService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public LobbyController(ILogger<LobbyController> logger, ILobbyControlService lobbyControlService, ILobbyConductService lobbyConductService, ILobbyAuthService lobbyAuthService, IQrService qrService, UserManager<ApplicationUser> userManager)
+        public LobbyController(
+            ILogger<LobbyController> logger, ILobbyControlService lobbyControlService,
+            ILobbyConductService lobbyConductService, ILobbyAuthService lobbyAuthService,
+            IQrService qrService, ITempUserService tempUserService, UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser>  signInManager)
         {
             _logger = logger;
             _lobbyControlService = lobbyControlService;
             _lobbyConductService = lobbyConductService;
             _lobbyAuthService = lobbyAuthService;
             _qrService = qrService;
+            _tempUserService = tempUserService;
             _userManager = userManager;
+            _signInManager = signInManager;
         }
 
         [HttpGet("Join/{lobbyGuid}")]
-        public async Task<IActionResult> Join(string lobbyGuid, string? error)
+        public async Task<IActionResult> Join(string lobbyGuid, string? error = null)
         {
-            ApplicationUser? user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-
             if (error != null)
             {
                 if (error == "NoFreeSlot")
@@ -66,7 +70,6 @@ namespace Quizer.Controllers
             return View();
         }
 
-
         /// <summary>
         /// 
         /// </summary>
@@ -76,17 +79,30 @@ namespace Quizer.Controllers
         /// If lobby is unavailable returns Unavailable view.
         /// If no free slot (lobby reached max participators count) returns NoFreeSlot view.
         /// </returns>
-        [Authorize(Policy = "ParticipatorRights")]
         [HttpPost("JoinConfirm/{lobbyGuid}")]
         public async Task<IActionResult> JoinConfirm(string lobbyGuid, [FromForm] string displayName)
         {
             ApplicationUser? user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return Unauthorized();
+                Result<ApplicationUser> resultUser = await _tempUserService.CreateTempUser(displayName);
+
+                if (resultUser.IsSuccess) {
+                    user = resultUser.Value;
+                    await _signInManager.SignInAsync(user, new AuthenticationProperties { IsPersistent = true, AllowRefresh = true });
+                }
+                else
+                {
+                    return StatusCode(500);
+                }
             }
 
             Result result = await _lobbyControlService.JoinUserAsync(lobbyGuid, user.Id);
+
+            if (result.IsFailed && user.IsTemporal)
+            {
+                await _userManager.DeleteAsync(user);
+            }
 
             if (result.HasError<LobbyUnavailableError>())
             {
@@ -95,6 +111,10 @@ namespace Quizer.Controllers
             if (result.HasError<MaxParticipatorsError>())
             {
                 return View("NoFreeSlot"); ;
+            }
+            if (result.HasError<UserAlreadyInLobbyError>())
+            {
+                return Conflict();
             }
             if (result.HasError<LobbyNotFoundError>())
             {
@@ -432,12 +452,9 @@ namespace Quizer.Controllers
                 return new ForbidResult();
             }
 
+            Result resultUsers = await _tempUserService.DeleteLobbyTempUsers(lobbyGuid);
             Result result = await _lobbyControlService.StopLobbyAsync(lobbyGuid);
 
-            if (result.HasError<UserNotFoundError>())
-            {
-                return StatusCode(500);
-            }
             if (result.HasError<LobbyNotFoundError>())
             {
                 return NotFound();
