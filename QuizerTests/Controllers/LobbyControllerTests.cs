@@ -29,6 +29,12 @@ namespace Quizer.Controllers.Tests
         [TestMethod()]
         public async Task JoinTest()
         {
+
+        }
+
+        [TestMethod()]
+        public async Task JoinConfirmTest()
+        {
             LobbyController lobbyController = new LobbyController(
                 GetLoggerMock(),
                 GetLobbyControlServiceMock(isLobbyStarted: false),
@@ -37,7 +43,7 @@ namespace Quizer.Controllers.Tests
                 GetQrServiceMock(), null,
                 GetUserManagerMock("0"), null);
 
-            var viewResult = await lobbyController.Join("0");
+            var viewResult = await lobbyController.JoinConfirm("0", "test");
             Assert.IsInstanceOfType(viewResult, typeof(RedirectToActionResult));
 
             lobbyController = new LobbyController(
@@ -48,7 +54,7 @@ namespace Quizer.Controllers.Tests
                 GetQrServiceMock(), null,
                 GetUserManagerMock("0"), null);
 
-            viewResult = await lobbyController.Join("0");
+            viewResult = await lobbyController.JoinConfirm("0", "test");
             Assert.IsInstanceOfType(viewResult, typeof(ViewResult));
         }
 
@@ -192,5 +198,6 @@ namespace Quizer.Controllers.Tests
 
             return mgr;
         }
+
     }
 }
