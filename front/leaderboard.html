@@ -1,0 +1,26 @@
+<!--На вход должны приходить 2 переменных count_of_players и list_of_players, при обращению к которому через .player_img, .player_name, .player_score должны выдаваться соответсвующие данные-->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Таблица результатов</title>
+  <link rel="stylesheet" href="resource/css/leaderboard.css">
+</head>
+<body>
+<div class="container"><h1>Всего игроков: @count_of_players</h1></div>
+  <div class="central_container">
+  <table>
+    <tbody>
+	@for (int i = 0; i <= count_of_players; i++) {
+      <tr>
+        <td>@i+1</td>
+		<td>@list_of_players[i].player_img</>
+        <td>@list_of_players[i].player_name</td>
+        <td>@list_of_players[i].player_score</td>
+      </tr>
+    }
+    </tbody>
+  </table>
+  </div>
+</body>
+</html>
