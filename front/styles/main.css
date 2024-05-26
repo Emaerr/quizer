@@ -1,0 +1,192 @@
+body {
+    height: 100%;
+    width: 100%;
+    margin: 0px;
+}
+
+.name {
+    text-align: center;
+    vertical-align: middle;
+    position: absolute;
+    width: 242px;
+    height: 144px;
+    line-height: 34.26px;
+    font-family: 'Chalkboard SE';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 34px;
+    text-align: center;
+    color: #A42FC1;
+    background: #FFFFFF;
+    box-shadow: 0px 20px 8px rgba(221, 185, 223, 0.03), 0px 11px 7px rgba(221, 185, 223, 0.11), 0px 5px 5px rgba(221, 185, 223, 0.18), 0px 1px 3px rgba(221, 185, 223, 0.21);
+    border-radius: 10px;
+    z-index: 70;
+    left: 40px;
+    top: 210px;
+}
+
+.tname {
+    position: relative;
+    top: 2%;
+    line-height: auto;
+}
+
+.emoji {
+    font-family: Chalkboard SE;
+    position: absolute;
+    top: 280px;
+    width: 320px;
+    height: 480px;
+    background: #FFFFFF;
+    border-radius: 50px 50px 15px 15px;
+}
+
+.background {
+    left: 20px;
+    top: 20px;
+    background: #A42FC1;
+    position: absolute;
+    width: 320px;
+    height: 760px;
+    border-radius: 15px;
+}
+
+.inputname {
+    position: relative;
+    width: 190px;
+    height: 45px;
+    top: 100px;
+    left: 65px;
+    gap: 0px;
+    border-radius: 10px 10px 10px 10px;
+    border: 1px 1px 1px 1px;
+    opacity: 0px;    
+    background: rgba(255, 255, 255, 1);
+    border: 1px solid rgba(164, 47, 193, 1);
+    box-shadow: 0px 0px 1px 0px rgba(189, 5, 240, 0.85);
+    box-shadow: 0px 0px 1px 0px rgba(189, 5, 240, 0.5);
+    box-shadow: 0px 0px 1px 0px rgba(189, 5, 240, 0.15);
+    box-shadow: 0px 0px 1px 0px rgba(189, 5, 240, 0.02);
+}
+
+.emogi_imgsrc {
+    position: relative;
+    max-width: 220px;
+    max-height: 220px;
+    top: 115px;
+    left: 55px;
+}
+
+.emogi_imgsrc img {
+    position: relative;
+    padding: 6px;
+}
+
+.button {
+    padding: 0px;
+    position: relative;
+    width: 120px;
+    height: 30px;
+    top: 145px;
+    left: 100px;
+    gap: 0px;
+    border-radius: 10px 10px 10px 10px;
+    border: 1px;
+    opacity: 0px;
+    border-radius: 10px;    
+}
+
+.button {
+    background-color: #FFFFFF;
+    color: #A42FC1;
+    font-family: Chalkboard SE;
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 28.55px;
+    text-align: center;
+    border: 1px solid rgba(164, 47, 193, 1)
+}
+
+.button:hover {
+    background-color: #A42FC1;
+    color: #FFFFFF;
+    font-family: Chalkboard SE;
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 28.55px;
+    text-align: center;
+    border: 1px solid rgba(164, 47, 193, 1)
+}
+
+.Ellipse1 {
+    position: inherit;
+    width: 62px;
+    height: 62px;
+    top: 67px;
+    left: 39px;
+    gap: 0px;
+    opacity: 0px;
+}
+
+.Ellipse2 {
+    position: inherit;
+    width: 92px;
+    height: 92px;
+    top: 45px;
+    left: 205px;
+    gap: 0px;
+    opacity: 0px;
+}
+
+.Ellipse3 {
+    position: inherit;
+    width: 80px;
+    height: 80px;
+    top: 160px;
+    left: 190px;
+    gap: 0px;
+    opacity: 0px;
+}
+
+.timer {
+    border: 3px;
+    min-width: 134px;
+    min-height: 134px;
+    background-image: url(ellipse_t.svg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: inherit;
+    top: 180px;
+    left: 94px;
+    font-family: Chalkboard SE;
+    font-size: 40px;
+    font-weight: 400;
+    text-align: center;
+    line-height: 50px;
+    color: rgba(110, 33, 129, 1);
+}
+
+.waiting {
+    min-width: 250px;
+    min-height: 30px;
+    position: inherit;
+    font-family: Chalkboard SE;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 22.84px;
+    text-align: center;
+    top: 120px;
+    left: 34px;
+    color: rgba(110, 33, 129, 1);
+}
+
+.timer_gif {
+    position: inherit;
+    top: 370px;
+    left: 60px;
+}
