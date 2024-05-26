@@ -22,7 +22,7 @@ a {
 /* Шапка страницы */
 
 .header {
-    background-image: url('../css/bg/bg1.png');
+    background-image: url('bg/bg1.png');
     color: #fff;
     padding: 30px 20px;
     text-align: center;

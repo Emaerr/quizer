@@ -13,7 +13,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: url(../src/bg1.png);
+    background-image: url("bg/bg1.png");
 }
 
 .kube {

@@ -1,8 +1,8 @@
 /* Стили для страницы регистрации */
 
 body {
-  background-image: url("../src/bg1.png");
-  font-family: 'chalkboard se';
+	background-image: url("bg/bg1.png");
+  	font-family: 'chalkboard se';
 }
 
 .container {
