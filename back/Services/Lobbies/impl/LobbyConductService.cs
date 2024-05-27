@@ -34,6 +34,10 @@ namespace Quizer.Services.Lobbies.impl
                 return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
             }
 
+            if (lobby.IsResultTime())
+            {
+                return LobbyStatus.Results;
+            }
             if (lobby.IsStarted)
             {
                 return LobbyStatus.Game;
@@ -44,7 +48,7 @@ namespace Quizer.Services.Lobbies.impl
             }
         }
 
-        public Result<QuestionData> GetCurrentQuestion(string lobbyGuid)
+        public Result<Question> GetCurrentQuestion(string lobbyGuid)
         {
             IServiceScope scope = _scopeFactory.CreateScope();
             ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
@@ -59,6 +63,10 @@ namespace Quizer.Services.Lobbies.impl
             {
                 return Result.Fail(new LobbyUnavailableError("Lobby has't started yet."));
             }
+            if (lobby.IsResultTime())
+            {
+                return Result.Fail(new LobbyUnavailableError("Game has already finished."));
+            }
 
             Question? question = lobby.GetCurrentQuestion();
             if (question == null)
@@ -66,7 +74,7 @@ namespace Quizer.Services.Lobbies.impl
                 return Result.Fail(new QuizNotFoundError("The question is null. Possible reasion is that quiz in lobby is null."));
             }
 
-            return Result.Ok(GetQuestionDataFromQuestion(question));
+            return Result.Ok(question);
         }
 
         public async Task<Result> RegisterTestAnswer(string userId, string lobbyGuid, string? answerGuid)
@@ -94,6 +102,10 @@ namespace Quizer.Services.Lobbies.impl
             {
                 _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register test answer {answerGuid} for user {userId} because lobby {lobbyGuid} isn't started yet", answerGuid, userId, lobbyGuid);
                 return Result.Fail(new LobbyUnavailableError("Lobby has't started yet."));
+            }
+            if (lobby.IsResultTime())
+            {
+                return Result.Fail(new LobbyUnavailableError("Game has already finished."));
             }
 
             Participator? participator = null;
@@ -124,12 +136,18 @@ namespace Quizer.Services.Lobbies.impl
             }
 
             bool isAnswerGuidValid = false;
+            bool isAnswerCorrect = false;
 
             foreach (Answer answer in currentQuestion.Answers)
             {
                 if (answer.Guid == answerGuid)
                 {
                     isAnswerGuidValid = true;
+
+                    if (answer.IsCorrect)
+                    {
+                        isAnswerCorrect = true;
+                    }
                 }
             }
 
@@ -145,6 +163,12 @@ namespace Quizer.Services.Lobbies.impl
             };
 
             participator.Answers.Add(participatorAnswer);
+            
+            if (isAnswerCorrect)
+            {
+                participator.Points++;
+            }
+
             await participatorRepository.SaveAsync();
 
             _logger.LogInformation(ServiceLogEvents.AnswerRegistered, "Succesfully registered test answer {answerGuid} for user {userId} in lobby {lobbyGuid}", answerGuid, userId, lobbyGuid);
@@ -162,7 +186,7 @@ namespace Quizer.Services.Lobbies.impl
             throw new NotImplementedException();
         }
 
-        public Result<IEnumerable<AnswerData>> GetRightAnswers(string lobbyGuid)
+        public Result<IEnumerable<Answer>> GetRightAnswers(string lobbyGuid)
         {
             throw new NotImplementedException();
         }

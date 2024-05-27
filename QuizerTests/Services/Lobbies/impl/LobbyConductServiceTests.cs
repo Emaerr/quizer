@@ -32,7 +32,7 @@ namespace Quizer.Services.Lobbies.impl.Tests
         public async Task GetCurrentQuestionTestAsync()
         {
             ILobbyConductService service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyRepositoryMock(isLobbyStarted: false)), new TestTimeService(), LobbyMocks.GetLoggerMock<LobbyConductService>());
-            Result<QuestionData> result = service.GetCurrentQuestion("0");
+            Result<Question> result = service.GetCurrentQuestion("0");
             Assert.IsTrue(result.IsFailed);
 
             service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyRepositoryMock(isLobbyStarted: true)), new TestTimeService(), LobbyMocks.GetLoggerMock<LobbyConductService>());
@@ -45,7 +45,7 @@ namespace Quizer.Services.Lobbies.impl.Tests
         {
             // check for invalid user
             ILobbyConductService service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyRepositoryMock(isLobbyStarted: false)), new TestTimeService(), LobbyMocks.GetLoggerMock<LobbyConductService>());
-            Result<QuestionData> result = await service.RegisterTestAnswer("0", "0", "0");
+            Result result = await service.RegisterTestAnswer("0", "0", "0");
             Assert.IsTrue(result.IsFailed);
 
             // check for invalid answer guid

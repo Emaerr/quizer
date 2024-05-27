@@ -87,12 +87,16 @@ namespace Quizer.Controllers.Tests
                 mock.Setup(x => x.GetLobbyStatus(It.IsAny<string>())).Returns(Result.Ok(LobbyStatus.Briefing));
             }
 
-            mock.Setup(x => x.GetCurrentQuestion(It.IsAny<string>())).Returns(Result.Ok(new QuestionData("0", new QuestionInfo(0, "test", QuestionType.Test), [])));
+            mock.Setup(x => x.GetCurrentQuestion(It.IsAny<string>())).Returns(
+                Result.Ok(
+                    new Question() { Guid = "0", Type = QuestionType.Test, Title = "test", Position = 0}
+                    )
+                );
             mock.Setup(x => x.RegisterTestAnswer(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(Result.Ok()));
             mock.Setup(x => x.RegisterTextAnswer(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(Result.Ok()));
             mock.Setup(x => x.RegisterNumericalAnswer(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<float>())).Returns(Task.FromResult(Result.Ok()));
             mock.Setup(x => x.GetRightAnswers(It.IsAny<string>())).
-                Returns(Result.Ok((IEnumerable<AnswerData>)new List<AnswerData>() { new AnswerData("0", new AnswerInfo("test_answer", true)) }));
+                Returns(Result.Ok((IEnumerable<Answer>)new List<Answer>() { new Answer() { Guid = "0", IsCorrect = true, Title = "test_answer"} }));
 
             return mock.Object;
         }
@@ -151,7 +155,7 @@ namespace Quizer.Controllers.Tests
             return mock.Object;
         }
 
-        private IQrService GetQrServiceMock()
+            private IQrService GetQrServiceMock()
         {
             var mock = new Mock<IQrService>();
 

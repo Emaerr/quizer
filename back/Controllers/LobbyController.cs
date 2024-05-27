@@ -211,7 +211,7 @@ namespace Quizer.Controllers
                 return new ForbidResult();
             }
 
-            Result<QuestionData> result = _lobbyConductService.GetCurrentQuestion(lobbyGuid);
+            Result<Question> result = _lobbyConductService.GetCurrentQuestion(lobbyGuid);
 
             if (result.HasError<LobbyNotFoundError>())
             {
@@ -233,16 +233,9 @@ namespace Quizer.Controllers
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="lobbyGuid"></param>
-        /// <param name="answerGuid"></param>
-        /// <returns>Question view model, guid of user answer and is this answer correct</returns>
-        /// <example><code>@model (QuestionViewModel question, string userAnswerGuid, bool isUserAnswerCorrect)</code></example>
         [Authorize(Policy = "ParticipatorRights")]
-        [HttpGet("Result/{lobbyGuid}")]
-        public async Task<IActionResult> Result(string lobbyGuid, string? answerGuid)
+        [HttpPost("RegisterAnswer/{lobbyGuid}")]
+        public async Task<IActionResult> RegisterAnswer(string lobbyGuid, string? answerGuid)
         {
             ApplicationUser? user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -265,7 +258,7 @@ namespace Quizer.Controllers
                 return new ForbidResult();
             }
 
-            Result<QuestionData> questionResult = _lobbyConductService.GetCurrentQuestion(lobbyGuid);
+            Result<Question> questionResult = _lobbyConductService.GetCurrentQuestion(lobbyGuid);
 
             Result result = await _lobbyConductService.RegisterTestAnswer(user.Id, lobbyGuid, answerGuid);
 
@@ -274,22 +267,59 @@ namespace Quizer.Controllers
                 return StatusCode(500);
             }
 
-            Result<IEnumerable<AnswerData>> rightAnswers = _lobbyConductService.GetRightAnswers(lobbyGuid);
+            return Ok();
+        }
 
-            if (result.HasError<LobbyNotFoundError>())
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="lobbyGuid"></param>
+        /// <param name="answerGuid"></param>
+        /// <returns>Question view model, guid of user answer and is this answer correct</returns>
+        /// <example><code>@model (QuestionViewModel question, string userAnswerGuid, bool isUserAnswerCorrect)</code></example>
+        [Authorize(Policy = "ParticipatorRights")]
+        [HttpGet("Result/{lobbyGuid}")]
+        public async Task<IActionResult> Result(string lobbyGuid)
+        {
+            ApplicationUser? user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            Result<bool> resultCheck = await _lobbyAuthService.IsUserParticipator(user.Id, lobbyGuid);
+            if (resultCheck.HasError<UserNotFoundError>())
+            {
+                return Unauthorized();
+            }
+            if (resultCheck.HasError<LobbyNotFoundError>())
             {
                 return NotFound();
             }
-            if (result.HasError<QuizNotFoundError>())
+
+            if (!resultCheck.Value)
+            {
+                return new ForbidResult();
+            }
+
+            Result<Question> questionResult = _lobbyConductService.GetCurrentQuestion(lobbyGuid);
+
+            Result<IEnumerable<Answer>> rightAnswers = _lobbyConductService.GetRightAnswers(lobbyGuid);
+
+            if (rightAnswers.HasError<LobbyNotFoundError>())
+            {
+                return NotFound();
+            }
+            if (rightAnswers.HasError<QuizNotFoundError>())
             {
                 return NotFound();
             }
 
             bool isAnswerCorrect = false;
 
-            foreach (AnswerData answerData in questionResult.Value.Answers)
+            foreach (Answer answerData in questionResult.Value.Answers)
             {
-                if (answerData.Info.IsCorrect)
+                if (answerData.IsCorrect)
                 {
                     isAnswerCorrect = true;
                 }
@@ -297,7 +327,7 @@ namespace Quizer.Controllers
 
             QuestionViewModel viewModel = GetQuestionViewModel(questionResult.Value);
 
-            var model = (viewModel, answerGuid, isAnswerCorrect);
+            var model = (viewModel, "answerGuid", isAnswerCorrect);
 
             return View(model);
         }
@@ -527,30 +557,30 @@ namespace Quizer.Controllers
             return Ok();
         }
 
-        private QuestionViewModel GetQuestionViewModel(QuestionData questionData)
+        private QuestionViewModel GetQuestionViewModel(Question Question)
         {
             QuestionViewModel questionViewModel = new()
             {
-                Guid = questionData.Guid,
-                Position = questionData.Info.Position,
-                Title = questionData.Info.Title,
+                Guid = Question.Guid,
+                Position = Question.Position,
+                Title = Question.Title,
             };
 
-            foreach (AnswerData aData in questionData.Answers)
+            foreach (Answer a in Question.Answers)
             {
-                questionViewModel.Answers.Add(GetAnswerViewModel(aData));
+                questionViewModel.Answers.Add(GetAnswerViewModel(a));
             }
 
             return questionViewModel;
         }
 
-        private AnswerViewModel GetAnswerViewModel(AnswerData answerData)
+        private AnswerViewModel GetAnswerViewModel(Answer answer)
         {
             return new AnswerViewModel()
             {
-                Guid = answerData.Guid,
-                Title = answerData.Info.Title,
-                IsCorrect = answerData.Info.IsCorrect,
+                Guid = answer.Guid,
+                Title = answer.Title,
+                IsCorrect = answer.IsCorrect,
             };
         }
 
