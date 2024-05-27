@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Quizer.Exceptions.Services;
 using Quizer.Models.Lobbies;
+using Quizer.Models.Quizzes;
 using Quizer.Models.User;
 using Quizer.Services.Quizzes;
 using Quizer.Services.Util;
@@ -20,28 +21,78 @@ namespace Quizer.Services.Lobbies.impl
             _logger = logger;
         }
 
-        //public Result<> GetUserPoints(string lobbyGuid)
-        //{
-        //    IServiceScope scope = _scopeFactory.CreateScope();
-        //    ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
-        //    IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
-        //    UserManager<ApplicationUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        public async Task<Result<int>> GetUserPoints(string lobbyGuid, string userId)
+        {
+            IServiceScope scope = _scopeFactory.CreateScope();
+            ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
+            IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
+            UserManager<ApplicationUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        //    Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
-        //    if (lobby == null)
-        //    {
-        //        return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
-        //    }
+            Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
+            if (lobby == null)
+            {
+                return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
+            }
 
-        //    Dictionary<string, int> userPoints = [];
+            ApplicationUser? user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return Result.Fail(new UserNotFoundError("Invalid joining user id."));
+            }
 
-        //    foreach (Participator participator in lobby.Participators)
-        //    {
-        //        userPoints.Add(participator.Id, participator.Points);
-        //    }
+            int? points = null;
 
-        //    return Result.Ok(new LobbyStatsData(userPoints));
-        //}
+            foreach (Participator participator in lobby.Participators)
+            {
+                if (participator.Id == userId) { 
+                    points = participator.Points;
+                }
+            }
+
+            if (points == null)
+            {
+                return Result.Fail(new LobbyAccessDeniedError("User is not in the lobby."));
+            }
+
+            return Result.Ok((int)points);
+        }
+
+        public async Task<Result<IEnumerable<ParticipatorAnswer>>> GetUserAnswers(string userId, string lobbyGuid)
+        {
+            IServiceScope scope = _scopeFactory.CreateScope();
+            ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
+            IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
+            UserManager<ApplicationUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+            Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
+            if (lobby == null)
+            {
+                return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
+            }
+
+            ApplicationUser? user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return Result.Fail(new UserNotFoundError("Invalid joining user id."));
+            }
+
+            Participator? participator = null;
+
+            foreach (Participator p in lobby.Participators)
+            {
+                if (p.Id == userId)
+                {
+                    participator = p;
+                }
+            }
+
+            if (participator == null)
+            {
+                return Result.Fail(new LobbyAccessDeniedError("User is not in the lobby."));
+            }
+
+            return Result.Ok((IEnumerable<ParticipatorAnswer>)participator.Answers);
+        }
 
         protected virtual void Dispose(bool disposing)
         {

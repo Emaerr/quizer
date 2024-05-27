@@ -77,6 +77,8 @@ namespace Quizer.Services.Lobbies.impl
             return Result.Ok(question);
         }
 
+
+        // TODO: Test for answer duplication
         public async Task<Result> RegisterTestAnswer(string userId, string lobbyGuid, string? answerGuid)
         {
             IServiceScope scope = _scopeFactory.CreateScope();
@@ -140,7 +142,6 @@ namespace Quizer.Services.Lobbies.impl
 
             ParticipatorAnswer? participatorAnswer = null;
            
-
             foreach (Answer answer in currentQuestion.TestAnswers)
             {
                 if (answer.Guid == answerGuid)
@@ -149,6 +150,7 @@ namespace Quizer.Services.Lobbies.impl
                     participatorAnswer = new ParticipatorAnswer()
                     {
                         TestAnswer = answer,
+                        Question = currentQuestion
                     };
 
                     if (answer.IsCorrect)
@@ -184,11 +186,6 @@ namespace Quizer.Services.Lobbies.impl
         }
 
         public Task<Result> RegisterTextAnswer(string userId, string lobbyGuid, string answer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Result<IEnumerable<Answer>> GetRightAnswers(string lobbyGuid)
         {
             throw new NotImplementedException();
         }

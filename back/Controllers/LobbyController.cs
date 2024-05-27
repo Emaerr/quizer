@@ -304,17 +304,6 @@ namespace Quizer.Controllers
 
             Result<Question> questionResult = _lobbyConductService.GetCurrentQuestion(lobbyGuid);
 
-            Result<IEnumerable<Answer>> rightAnswers = _lobbyConductService.GetRightAnswers(lobbyGuid);
-
-            if (rightAnswers.HasError<LobbyNotFoundError>())
-            {
-                return NotFound();
-            }
-            if (rightAnswers.HasError<QuizNotFoundError>())
-            {
-                return NotFound();
-            }
-
             bool isAnswerCorrect = false;
 
             foreach (Answer answerData in questionResult.Value.TestAnswers)

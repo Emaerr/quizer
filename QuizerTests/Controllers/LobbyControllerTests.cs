@@ -94,9 +94,7 @@ namespace Quizer.Controllers.Tests
                 );
             mock.Setup(x => x.RegisterTestAnswer(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(Result.Ok()));
             mock.Setup(x => x.RegisterTextAnswer(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(Result.Ok()));
-            mock.Setup(x => x.RegisterNumericalAnswer(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<float>())).Returns(Task.FromResult(Result.Ok()));
-            mock.Setup(x => x.GetRightAnswers(It.IsAny<string>())).
-                Returns(Result.Ok((IEnumerable<Answer>)new List<Answer>() { new Answer() { Guid = "0", IsCorrect = true, Title = "test_answer"} }));
+            mock.Setup(x => x.RegisterNumericalAnswer(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<float>())).Returns(Task.FromResult(Result.Ok()));;
 
             return mock.Object;
         }

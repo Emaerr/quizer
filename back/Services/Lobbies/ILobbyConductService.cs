@@ -18,6 +18,5 @@ namespace Quizer.Services.Lobbies
         public Task<Result> RegisterTestAnswer(string userId, string lobbyGuid, string? answerGuid);
         public Task<Result> RegisterNumericalAnswer(string userId, string lobbyGuid, float answer);
         public Task<Result> RegisterTextAnswer(string userId, string lobbyGuid, string answer);
-        public Result<IEnumerable<Answer>> GetRightAnswers(string lobbyGuid);
     }
 }
