@@ -84,7 +84,7 @@ namespace Quizer.Services.Quizzes
         private QuestionData GetQuestionDataFromQuestion(Question question)
         {
             List<AnswerData> answers = [];
-            foreach (Answer answer in question.Answers) {
+            foreach (Answer answer in question.TestAnswers) {
                 AnswerInfo answerInfo = new AnswerInfo(answer.Title, answer.IsCorrect);
                 answers.Add(new AnswerData(answer.Guid, answerInfo));
             }
@@ -102,11 +102,11 @@ namespace Quizer.Services.Quizzes
 
         private void UpdateQuestionAnswers(Question question, List<AnswerInfo> answers)
         {
-            question.Answers.Clear();
+            question.TestAnswers.Clear();
            
             foreach (AnswerInfo answer in answers)
             {
-                question.Answers.Add(new Answer() { Title =  answer.Title, IsCorrect = answer.IsCorrect });
+                question.TestAnswers.Add(new Answer() { Title =  answer.Title, IsCorrect = answer.IsCorrect });
             }
         }
        

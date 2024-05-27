@@ -138,11 +138,18 @@ namespace Quizer.Services.Lobbies.impl
             bool isAnswerGuidValid = false;
             bool isAnswerCorrect = false;
 
-            foreach (Answer answer in currentQuestion.Answers)
+            ParticipatorAnswer? participatorAnswer = null;
+           
+
+            foreach (Answer answer in currentQuestion.TestAnswers)
             {
                 if (answer.Guid == answerGuid)
                 {
                     isAnswerGuidValid = true;
+                    participatorAnswer = new ParticipatorAnswer()
+                    {
+                        TestAnswer = answer,
+                    };
 
                     if (answer.IsCorrect)
                     {
@@ -151,16 +158,11 @@ namespace Quizer.Services.Lobbies.impl
                 }
             }
 
-            if (!isAnswerGuidValid)
+            if (!isAnswerGuidValid || participatorAnswer == null)
             {
                 _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register test answer {answerGuid} for user {userId} in lobby {lobbyGuid} because the answer not found (answer GUID is not valid)", answerGuid, userId, lobbyGuid);
                 return Result.Fail(new InvalidAnswerGuidError("Invalid answer GUID"));
             }
-
-            ParticipatorAnswer participatorAnswer = new ParticipatorAnswer()
-            {
-                TestAnswerGuid = answerGuid,
-            };
 
             participator.Answers.Add(participatorAnswer);
             
@@ -223,7 +225,7 @@ namespace Quizer.Services.Lobbies.impl
         private QuestionData GetQuestionDataFromQuestion(Question question)
         {
             List<AnswerData> answers = [];
-            foreach (Answer answer in question.Answers)
+            foreach (Answer answer in question.TestAnswers)
             {
                 AnswerInfo answerInfo = new AnswerInfo(answer.Title, answer.IsCorrect);
                 answers.Add(new AnswerData(answer.Guid, answerInfo));

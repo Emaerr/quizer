@@ -317,7 +317,7 @@ namespace Quizer.Controllers
 
             bool isAnswerCorrect = false;
 
-            foreach (Answer answerData in questionResult.Value.Answers)
+            foreach (Answer answerData in questionResult.Value.TestAnswers)
             {
                 if (answerData.IsCorrect)
                 {
@@ -566,7 +566,7 @@ namespace Quizer.Controllers
                 Title = Question.Title,
             };
 
-            foreach (Answer a in Question.Answers)
+            foreach (Answer a in Question.TestAnswers)
             {
                 questionViewModel.Answers.Add(GetAnswerViewModel(a));
             }

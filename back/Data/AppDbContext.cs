@@ -25,7 +25,7 @@ namespace Quizer.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Quiz>().Navigation(q => q.Questions).AutoInclude();
-            modelBuilder.Entity<Question>().Navigation(q => q.Answers).AutoInclude();
+            modelBuilder.Entity<Question>().Navigation(q => q.TestAnswers).AutoInclude();
             modelBuilder.Entity<Lobby>().Navigation(q => q.Participators).AutoInclude();
             modelBuilder.Entity<Lobby>().Navigation(q => q.Quiz).AutoInclude();
             modelBuilder.Entity<Participator>().Navigation(q => q.Answers).AutoInclude();

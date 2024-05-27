@@ -103,7 +103,7 @@ namespace QuizerTests.Services.Lobbies.impl
                 {
                     AuthorId = "0",
                     TimeLimit = 10,
-                    Questions = new List<Question>() { new Question() { Position = 0, Answers = new List<Answer>() { new Answer() { Guid = "0"} } }, new Question() { Position = 1 } }
+                    Questions = new List<Question>() { new Question() { Position = 0, TestAnswers = new List<Answer>() { new Answer() { Guid = "0"} } }, new Question() { Position = 1 } }
                 },
                 Participators = new List<Participator>() { new Participator() { Id = "0" } }
             };
@@ -130,7 +130,7 @@ namespace QuizerTests.Services.Lobbies.impl
                 {
                     AuthorId = "0",
                     TimeLimit = 10,
-                    Questions = new List<Question>() { new Question() { Position = 0, Answers = new List<Answer>() { new Answer() { Guid = "0" } } }, new Question() { Position = 1 } }
+                    Questions = new List<Question>() { new Question() { Position = 0, TestAnswers = new List<Answer>() { new Answer() { Guid = "0" } } }, new Question() { Position = 1 } }
                 }
             };
 

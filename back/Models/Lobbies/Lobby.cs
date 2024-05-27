@@ -8,12 +8,14 @@ using System.Xml.Xsl;
 
 namespace Quizer.Models.Lobbies
 {
+
     [Table("Lobbies")]
     public class Lobby
     {
         private int _currentQuestion;
         private int _timeElapsedSinceLastAction; // here action is question finish and break finish
         bool _isBreakTime;
+        bool _isResultTime;
 
         public Lobby()
         {
@@ -38,6 +40,11 @@ namespace Quizer.Models.Lobbies
             return _isBreakTime;
         }
 
+        public bool IsResultTime()
+        {
+            return _isResultTime;
+        }
+
         public Question? GetCurrentQuestion()
         {
             if (Quiz != null) {
@@ -57,7 +64,7 @@ namespace Quizer.Models.Lobbies
 
         public void Update(TimeSpan timeSpan)
         {
-            if (!IsStarted)
+            if (!IsStarted || _isResultTime)
             {
                 return;
             }
@@ -80,6 +87,10 @@ namespace Quizer.Models.Lobbies
                 {
                     _isBreakTime = true;
                     _timeElapsedSinceLastAction = 0;
+                }
+                if (_currentQuestion == Quiz.Questions.Count)
+                {
+                    _isResultTime = true;
                 }
             } else
             {

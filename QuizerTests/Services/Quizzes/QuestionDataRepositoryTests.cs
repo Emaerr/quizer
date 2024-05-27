@@ -83,7 +83,7 @@ namespace Quizer.Services.Quizzes.Tests
             Question question = quizzes.First().Questions.First();
 
             Assert.AreEqual(question.Title, "test_question_updated");
-            Assert.AreEqual(question.Answers.First().Title, "test_answer_updated");
+            Assert.AreEqual(question.TestAnswers.First().Title, "test_answer_updated");
         }
 
         private static AppDbContext GetContextMock(List<Quiz> lstData)
@@ -126,7 +126,7 @@ namespace Quizer.Services.Quizzes.Tests
                 Guid = "0",
                 Id = 0,
                 Position = 0,
-                Answers = new List<Answer>() { answer },
+                TestAnswers = new List<Answer>() { answer },
                 Type = QuestionType.Test
             };
 

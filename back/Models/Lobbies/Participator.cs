@@ -20,5 +20,6 @@ namespace Quizer.Models.Lobbies
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Id { get; set; }
         public List<ParticipatorAnswer> Answers { get; set; } = [];
+        public int Points { get; set; }
     }
 }

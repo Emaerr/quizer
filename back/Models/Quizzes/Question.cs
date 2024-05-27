@@ -13,10 +13,6 @@ namespace Quizer.Models.Quizzes
     [Table("Questions")]
     public class Question
     {
-        public Question()
-        {
-            Answers = [];
-        }
 
         public int Id { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -24,8 +20,11 @@ namespace Quizer.Models.Quizzes
         public int Position { get; set; }
         public string Title { get; set; }
         public QuestionType Type { get; set; }
+        public string? TextAnswer { get; set; }
+        public float? NumericalAnswer { get; set; }
+        public float? NumericalAnswerEpsilon { get; set; }
 
-        public virtual List<Answer> Answers { get; set; }
+        public virtual List<Answer> TestAnswers { get; set; } = [];
 
     }
 }
