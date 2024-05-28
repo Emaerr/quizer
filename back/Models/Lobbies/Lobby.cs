@@ -57,11 +57,9 @@ namespace Quizer.Models.Lobbies
 
         public void NextQuestion()
         {
+            _timeElapsedSinceLastAction = 0;
+            Stage = LobbyStage.Question;
             _currentQuestion++;
-        }
-
-        public void PreviousQuestion() { 
-            _currentQuestion--;
         }
 
         public void Update(TimeSpan timeSpan)
@@ -108,7 +106,6 @@ namespace Quizer.Models.Lobbies
                 if (_timeElapsedSinceLastAction > Quiz.BreakTime)
                 {
                     NextQuestion();
-                    Stage = LobbyStage.Question;
                     _timeElapsedSinceLastAction = _timeElapsedSinceLastAction - Quiz.BreakTime;
                 }
             }

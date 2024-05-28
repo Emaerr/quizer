@@ -296,17 +296,26 @@ namespace Quizer.Controllers
 
             Question question = questionResult.Value;
 
+            Result<QuestionResultViewModel> result = await GetQuestionResultViewModel(question, user.Id, lobbyGuid);
+
+            if (result.HasError<LobbyAccessDeniedError>())
+            {
+                return Forbid();
+            }
+
+            QuestionResultViewModel viewModel = result.Value;
+
             if (question.Type == QuestionType.Test)
             {
-                return View("TestResult", GetQuestionResultViewModel(question, user.Id, lobbyGuid));
+                return View("TestResult", viewModel);
             } 
             else if (question.Type == QuestionType.TextEntry)
             {
-                return View("TextResult", GetQuestionResultViewModel(question, user.Id, lobbyGuid));
+                return View("TextResult", viewModel);
             }
             else if (question.Type == QuestionType.NumberEntry)
             {
-                return View("NumericalResult", GetQuestionResultViewModel(question, user.Id, lobbyGuid));
+                return View("NumericalResult", viewModel);
             } else
             {
                 return StatusCode(500);
