@@ -35,7 +35,7 @@ namespace Quizer.Services.Lobbies.impl
                 return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
             }
 
-            if (lobby.IsResultTime())
+            if (lobby.Stage == LobbyStage.Results)
             {
                 return LobbyStatus.Results;
             }
@@ -64,7 +64,7 @@ namespace Quizer.Services.Lobbies.impl
             {
                 return Result.Fail(new LobbyUnavailableError("Lobby has't started yet."));
             }
-            if (lobby.IsResultTime())
+            if (lobby.Stage == LobbyStage.Results)
             {
                 return Result.Fail(new LobbyUnavailableError("Game has already finished."));
             }
@@ -106,9 +106,9 @@ namespace Quizer.Services.Lobbies.impl
                 _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register test answer {answerGuid} for user {userId} because lobby {lobbyGuid} isn't started yet", answerGuid, userId, lobbyGuid);
                 return Result.Fail(new LobbyUnavailableError("Lobby has't started yet."));
             }
-            if (lobby.IsResultTime())
+            if (!(lobby.Stage == LobbyStage.Answering || lobby.Stage == LobbyStage.Question)) 
             {
-                return Result.Fail(new LobbyUnavailableError("Game has already finished."));
+                return Result.Fail(new NotRightTimeToAnswerError("Not right time to answer."));
             }
 
             Participator? participator = null;
@@ -136,6 +136,12 @@ namespace Quizer.Services.Lobbies.impl
             {
                 _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register test answer {answerGuid} for user {userId} in lobby {lobbyGuid} because current question type is not test", answerGuid, userId, lobbyGuid);
                 return Result.Fail(new InvalidAnswerFormatError("Invalid answer format."));
+            }
+
+            IEnumerable<ParticipatorAnswer> currentQuestionParticipatorAnswers = from a in participator.Answers where a.Question.Guid == currentQuestion.Guid select a;
+            if (currentQuestionParticipatorAnswers.Any())
+            {
+                return Result.Fail(new QuestionAlreadyAnsweredError("Question has already been answered."));
             }
 
             ParticipatorAnswer? participatorAnswer = null;

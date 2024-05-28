@@ -38,31 +38,31 @@ namespace Quizer.Models.Lobbies.Tests
             lobby.Update(new TimeSpan(0, 0, 0));
             Question? q1 = lobby.GetCurrentQuestion();
             Assert.IsNotNull(q1);
-            Assert.IsTrue(lobby.IsQuestionTime());
+            Assert.IsTrue(lobby.Stage == LobbyStage.Question);
             Assert.AreEqual(q1.Position, 0);
 
             lobby.Update(new TimeSpan(0, 0, 9));
             Question? q2 = lobby.GetCurrentQuestion();
             Assert.IsNotNull(q2);
-            Assert.IsTrue(lobby.IsQuestionTime());
+            Assert.IsTrue(lobby.Stage == LobbyStage.Question);
             Assert.AreEqual(q2.Position, 0);
 
             lobby.Update(new TimeSpan(0, 0, 0, 1, 500));
             Question? q3 = lobby.GetCurrentQuestion();
             Assert.IsNotNull(q3);
-            Assert.IsTrue(lobby.IsAnsweringTime());
+            Assert.IsTrue(lobby.Stage == LobbyStage.Answering);
             Assert.AreEqual(q3.Position, 0);
 
             lobby.Update(new TimeSpan(0, 0, 1));
             Question? q4 = lobby.GetCurrentQuestion();
             Assert.IsNotNull(q4);
-            Assert.IsTrue(lobby.IsBreakTime());
+            Assert.IsTrue(lobby.Stage == LobbyStage.Break);
             Assert.AreEqual(q4.Position, 0);
 
             lobby.Update(new TimeSpan(0, 0, 5));
             Question? q5 = lobby.GetCurrentQuestion();
             Assert.IsNotNull(q5);
-            Assert.IsTrue(lobby.IsQuestionTime());
+            Assert.IsTrue(lobby.Stage == LobbyStage.Question);
             Assert.AreEqual(q5.Position, 1);
         }
     }

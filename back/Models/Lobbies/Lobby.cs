@@ -8,7 +8,7 @@ using System.Xml.Xsl;
 
 namespace Quizer.Models.Lobbies
 {
-    enum LobbyTime
+    public enum LobbyStage
     {
         Question,
         Answering,
@@ -22,12 +22,17 @@ namespace Quizer.Models.Lobbies
     {
         private int _currentQuestion;
         private int _timeElapsedSinceLastAction; // here action is question finish and break finish
-        private LobbyTime _lobbyTime;
 
         public Lobby()
         {
             Participators = new List<Participator>();
         }
+
+        public Lobby(LobbyStage lobbyStage)
+        {
+            Stage = lobbyStage;
+        }
+
         public int Id { get; set; }
         [Required]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -37,30 +42,10 @@ namespace Quizer.Models.Lobbies
         [Range(4, 1000)]
         public int MaxParticipators { get; set; }
         public bool IsStarted { get; set; } = false;
+        public LobbyStage Stage { get; private set; } = LobbyStage.Question;
         public int Pin { get; set; }
         public virtual List<Participator> Participators { get; set; }
         public virtual Quiz? Quiz {  get; set; }
-
-
-        public bool IsQuestionTime()
-        {
-            return _lobbyTime == LobbyTime.Question;
-        }
-
-        public bool IsBreakTime()
-        {
-            return _lobbyTime == LobbyTime.Break;
-        }
-
-        public bool IsResultTime()
-        {
-            return _lobbyTime == LobbyTime.Results;
-        }
-
-        public bool IsAnsweringTime()
-        {
-            return _lobbyTime == LobbyTime.Answering;
-        }
 
         public Question? GetCurrentQuestion()
         {
@@ -102,19 +87,19 @@ namespace Quizer.Models.Lobbies
             {
                 if (_timeElapsedSinceLastAction > Quiz.TimeLimit)
                 {
-                    _lobbyTime = LobbyTime.Answering;
+                    Stage = LobbyStage.Answering;
                     _timeElapsedSinceLastAction = _timeElapsedSinceLastAction - Quiz.TimeLimit;
                 }
                 if (_currentQuestion == (Quiz.Questions.Count - 1))
                 {
-                    _lobbyTime = LobbyTime.Results;
+                    Stage = LobbyStage.Results;
                 }
             } 
             else if (IsAnsweringTime())
             {
                 if (_timeElapsedSinceLastAction > 1000)
                 {
-                    _lobbyTime = LobbyTime.Break;
+                    Stage = LobbyStage.Break;
                     _timeElapsedSinceLastAction = _timeElapsedSinceLastAction - 1000;
                 }
             }
@@ -123,7 +108,7 @@ namespace Quizer.Models.Lobbies
                 if (_timeElapsedSinceLastAction > Quiz.BreakTime)
                 {
                     NextQuestion();
-                    _lobbyTime = LobbyTime.Question;
+                    Stage = LobbyStage.Question;
                     _timeElapsedSinceLastAction = _timeElapsedSinceLastAction - Quiz.BreakTime;
                 }
             }
@@ -133,6 +118,26 @@ namespace Quizer.Models.Lobbies
         public void ResetTime()
         {
             _timeElapsedSinceLastAction = 0;
+        }
+
+        private bool IsQuestionTime()
+        {
+            return Stage == LobbyStage.Question;
+        }
+
+        private bool IsBreakTime()
+        {
+            return Stage == LobbyStage.Break;
+        }
+
+        private bool IsResultTime()
+        {
+            return Stage == LobbyStage.Results;
+        }
+
+        private bool IsAnsweringTime()
+        {
+            return Stage == LobbyStage.Answering;
         }
     }
 }

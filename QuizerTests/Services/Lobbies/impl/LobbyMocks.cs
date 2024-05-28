@@ -92,9 +92,9 @@ namespace QuizerTests.Services.Lobbies.impl
             return mgr;
         }
 
-        public static ILobbyRepository GetLobbyWithUserRepositoryMock(bool isLobbyStarted)
+        public static ILobbyRepository GetLobbyWithUserRepositoryMock(bool isLobbyStarted, LobbyStage lobbyStage = LobbyStage.Question)
         {
-            var lobby = new Lobby()
+            var lobby = new Lobby(lobbyStage)
             {
                 IsStarted = isLobbyStarted,
                 MasterId = "0",
@@ -103,9 +103,9 @@ namespace QuizerTests.Services.Lobbies.impl
                 {
                     AuthorId = "0",
                     TimeLimit = 10,
-                    Questions = new List<Question>() { new Question() { Position = 0, Answers = new List<Answer>() { new Answer() { Guid = "0"} } }, new Question() { Position = 1 } }
+                    Questions = new List<Question>() { new Question() { Position = 0, Answers = new List<Answer>() { new Answer() { Guid = "0" } } }, new Question() { Position = 1 } }
                 },
-                Participators = new List<Participator>() { new Participator() { Id = "0" } }
+                Participators = new List<Participator>() { new Participator() { Id = "0" } },
             };
 
             var lobbyRepository = new Mock<ILobbyRepository>();

@@ -15,7 +15,9 @@ namespace Quizer.Models.Quizzes
         [ForeignKey("ApplicationUser")]
         public string AuthorId { get; set; }
         public string Name { get; set; }
+        [Range(5000, 600000)]
         public int TimeLimit { get; set; }
+        [Range(5000, 300000)]
         public int BreakTime { get; set; }
         
 
