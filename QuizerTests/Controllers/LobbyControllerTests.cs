@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Quizer.Controllers;
 using Quizer.Exceptions.Services;
+using Quizer.Models.Lobbies;
 using Quizer.Models.Quizzes;
 using Quizer.Models.User;
 using Quizer.Services.Lobbies;
@@ -40,7 +41,7 @@ namespace Quizer.Controllers.Tests
                 GetLobbyControlServiceMock(isLobbyStarted: false),
                 GetLobbyConductServiceMock(isLobbyStarted: false),
                 GetLobbyAuthServiceMock(),
-                               null,
+                               GetLobbyStatsServiceMock(),
                 GetQrServiceMock(), null,
                 GetUserManagerMock("0"), null);
 
@@ -52,7 +53,7 @@ namespace Quizer.Controllers.Tests
                 GetLobbyControlServiceMock(isLobbyStarted: true),
                 GetLobbyConductServiceMock(isLobbyStarted: true),
                 GetLobbyAuthServiceMock(),
-                null,
+                GetLobbyStatsServiceMock(),
                 GetQrServiceMock(), null,
                 GetUserManagerMock("0"), null);
 
@@ -67,13 +68,36 @@ namespace Quizer.Controllers.Tests
                 GetLoggerMock(),
                 GetLobbyControlServiceMock(isLobbyStarted: true),
                 GetLobbyConductServiceMock(isLobbyStarted: true),
-                GetLobbyAuthServiceMock(), null,
+                GetLobbyAuthServiceMock(), GetLobbyStatsServiceMock(),
                 GetQrServiceMock(), null,
                 GetUserManagerMock("1"), null);
 
             var viewResult = await lobbyController.Game("0");
 
             Assert.IsInstanceOfType(viewResult, typeof(ViewResult));
+        }
+
+        [TestMethod()]
+        public async Task ResultTest()
+        {
+            LobbyController lobbyController = new LobbyController(
+                GetLoggerMock(),
+                GetLobbyControlServiceMock(isLobbyStarted: true),
+                GetLobbyConductServiceMock(isLobbyStarted: true),
+                GetLobbyAuthServiceMock(), GetLobbyStatsServiceMock(),
+                GetQrServiceMock(), null,
+                GetUserManagerMock("1"), null);
+
+            var viewResult = await lobbyController.Result("0") as ViewResult;
+
+            Assert.IsInstanceOfType(viewResult, typeof(ViewResult));
+            Assert.IsInstanceOfType(viewResult.Model, typeof(QuestionResultViewModel));
+
+            var model = viewResult.Model as QuestionResultViewModel;
+
+            Assert.IsNotNull(model);
+            Assert.AreEqual("0", model.QuestionViewModel.Guid);
+            Assert.AreEqual("0", model.ParticipatorAnswer.ParticipatorId);
         }
 
         private ILobbyConductService GetLobbyConductServiceMock(bool isLobbyStarted)
@@ -91,12 +115,12 @@ namespace Quizer.Controllers.Tests
 
             mock.Setup(x => x.GetCurrentQuestion(It.IsAny<string>())).Returns(
                 Result.Ok(
-                    new Question() { Guid = "0", Type = QuestionType.Test, Title = "test", Position = 0}
+                    new Question() { Guid = "0", Type = QuestionType.Test, Title = "test", Position = 0 }
                     )
                 );
             mock.Setup(x => x.RegisterTestAnswer(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(Result.Ok()));
             mock.Setup(x => x.RegisterTextAnswer(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(Result.Ok()));
-            mock.Setup(x => x.RegisterNumericalAnswer(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<float>())).Returns(Task.FromResult(Result.Ok()));;
+            mock.Setup(x => x.RegisterNumericalAnswer(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<float>())).Returns(Task.FromResult(Result.Ok())); ;
 
             return mock.Object;
         }
@@ -155,12 +179,29 @@ namespace Quizer.Controllers.Tests
             return mock.Object;
         }
 
-            private IQrService GetQrServiceMock()
+        private IQrService GetQrServiceMock()
         {
             var mock = new Mock<IQrService>();
 
             mock.Setup(x => x.GenerateQrCode(It.IsAny<string>(), It.IsAny<string>()));
             mock.Setup(x => x.GetQrByName("test_qr")).Returns(Result.Ok(new byte[64]));
+
+            return mock.Object;
+        }
+
+        private ILobbyStatsService GetLobbyStatsServiceMock()
+        {
+            IEnumerable<ParticipatorAnswer> participatorAnswers = new List<ParticipatorAnswer>() { new ParticipatorAnswer() {
+                    IsCorrect = true,
+                    TestAnswer = new Answer() { IsCorrect = true, Guid = "0", Title = "test_answer"},
+                    Question = new Question() { Guid = "0", Type = QuestionType.Test, Title = "test", Position = 0 },
+                    ParticipatorId = "0",
+                }
+            };
+
+            var mock = new Mock<ILobbyStatsService>();
+            mock.Setup(x => x.GetUserAnswers(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(Result.Ok(participatorAnswers)));
+            mock.Setup(x => x.GetUserPoints(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(Result.Ok(1)));
 
             return mock.Object;
         }
@@ -202,6 +243,5 @@ namespace Quizer.Controllers.Tests
 
             return mgr;
         }
-
     }
 }

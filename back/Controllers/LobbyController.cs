@@ -257,8 +257,7 @@ namespace Quizer.Controllers
         /// </summary>
         /// <param name="lobbyGuid"></param>
         /// <param name="answerGuid"></param>
-        /// <returns>Question view model TestResult, TextResult or NumericalResult, user answer or text answer or float number answer and bool is this answer correct</returns>
-        /// <example><code>@model (QuestionViewModel question, Answer answer / string answer / float answer, bool isUserAnswerCorrect)</code></example>
+        /// <returns>Question view with QuestionResultViewModel</returns>
         [Authorize(Policy = "ParticipatorRights")]
         [HttpGet("Result/{lobbyGuid}")]
         public async Task<IActionResult> Result(string lobbyGuid)
@@ -307,15 +306,15 @@ namespace Quizer.Controllers
 
             if (question.Type == QuestionType.Test)
             {
-                return View("TestResult", (viewModel, participatorAnswer));
+                return View("TestResult", new QuestionResultViewModel(viewModel, participatorAnswer));
             } 
             else if (question.Type == QuestionType.TextEntry)
             {
-                return View("TextResult", (viewModel, participatorAnswer));
+                return View("TextResult", new QuestionResultViewModel(viewModel, participatorAnswer));
             }
             else if (question.Type == QuestionType.NumberEntry)
             {
-                return View("NumericalResult", (viewModel, participatorAnswer));
+                return View("NumericalResult", new QuestionResultViewModel(viewModel, participatorAnswer));
             } else
             {
                 return StatusCode(500);
