@@ -15,7 +15,7 @@ namespace Quizer.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return RedirectToAction("Index", "Quiz");
         }
 
         public IActionResult Privacy()

@@ -78,7 +78,7 @@ namespace Quizer.Services.Lobbies.impl
         }
 
 
-        // TODO: Test for answer duplication
+        // TODO: Test for answer duplication and null answerGuid
         public async Task<Result> RegisterTestAnswer(string userId, string lobbyGuid, string? answerGuid)
         {
             IServiceScope scope = _scopeFactory.CreateScope();
@@ -142,7 +142,7 @@ namespace Quizer.Services.Lobbies.impl
 
             ParticipatorAnswer? participatorAnswer = null;
            
-            foreach (Answer answer in currentQuestion.TestAnswers)
+            foreach (Answer answer in currentQuestion.Answers)
             {
                 if (answer.Guid == answerGuid)
                 {
@@ -222,7 +222,7 @@ namespace Quizer.Services.Lobbies.impl
         private QuestionData GetQuestionDataFromQuestion(Question question)
         {
             List<AnswerData> answers = [];
-            foreach (Answer answer in question.TestAnswers)
+            foreach (Answer answer in question.Answers)
             {
                 AnswerInfo answerInfo = new AnswerInfo(answer.Title, answer.IsCorrect);
                 answers.Add(new AnswerData(answer.Guid, answerInfo));

@@ -18,37 +18,19 @@ using Microsoft.AspNetCore.Http.Extensions;
 using System.Net;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Razor.TagHelpers;
+using Microsoft.Data.SqlClient;
 
 
 namespace Quizer.Controllers
 {
     [Route("[controller]")]
-    public class LobbyController : Controller
+    public class LobbyController(
+        ILogger<LobbyController> logger, ILobbyControlService lobbyControlService,
+        ILobbyConductService lobbyConductService, ILobbyAuthService lobbyAuthService, ILobbyStatsService lobbyStatsService,
+        IQrService qrService, ITempUserService tempUserService, UserManager<ApplicationUser> userManager,
+        SignInManager<ApplicationUser> signInManager) : Controller
     {
-        private readonly ILogger<LobbyController> _logger;
-        private readonly ILobbyControlService _lobbyControlService;
-        private readonly ILobbyAuthService _lobbyAuthService;
-        private readonly ILobbyConductService _lobbyConductService;
-        private readonly IQrService _qrService;
-        private readonly ITempUserService _tempUserService;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-
-        public LobbyController(
-            ILogger<LobbyController> logger, ILobbyControlService lobbyControlService,
-            ILobbyConductService lobbyConductService, ILobbyAuthService lobbyAuthService,
-            IQrService qrService, ITempUserService tempUserService, UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser>  signInManager)
-        {
-            _logger = logger;
-            _lobbyControlService = lobbyControlService;
-            _lobbyConductService = lobbyConductService;
-            _lobbyAuthService = lobbyAuthService;
-            _qrService = qrService;
-            _tempUserService = tempUserService;
-            _userManager = userManager;
-            _signInManager = signInManager;
-        }
 
         [HttpGet("Join/{lobbyGuid}")]
         public async Task<IActionResult> Join(string lobbyGuid, string? error = null)
@@ -82,14 +64,14 @@ namespace Quizer.Controllers
         [HttpPost("JoinConfirm/{lobbyGuid}")]
         public async Task<IActionResult> JoinConfirm(string lobbyGuid, [FromForm] string displayName)
         {
-            ApplicationUser? user = await _userManager.GetUserAsync(User);
+            ApplicationUser? user = await userManager.GetUserAsync(User);
             if (user == null)
             {
-                Result<ApplicationUser> resultUser = await _tempUserService.CreateTempUser(displayName);
+                Result<ApplicationUser> resultUser = await tempUserService.CreateTempUser(displayName);
 
                 if (resultUser.IsSuccess) {
                     user = resultUser.Value;
-                    await _signInManager.SignInAsync(user, new AuthenticationProperties { IsPersistent = true, AllowRefresh = true });
+                    await signInManager.SignInAsync(user, new AuthenticationProperties { IsPersistent = true, AllowRefresh = true });
                 }
                 else
                 {
@@ -97,11 +79,11 @@ namespace Quizer.Controllers
                 }
             }
 
-            Result result = await _lobbyControlService.JoinUserAsync(lobbyGuid, user.Id);
+            Result result = await lobbyControlService.JoinUserAsync(lobbyGuid, user.Id);
 
             if (result.IsFailed && user.IsTemporal)
             {
-                await _userManager.DeleteAsync(user);
+                await userManager.DeleteAsync(user);
             }
 
             if (result.HasError<LobbyUnavailableError>())
@@ -132,13 +114,13 @@ namespace Quizer.Controllers
         [HttpPost("Leave/{lobbyGuid}")]
         public async Task<IActionResult> Leave(string lobbyGuid)
         {
-            ApplicationUser? user = await _userManager.GetUserAsync(User);
+            ApplicationUser? user = await userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
             }
 
-            Result result = await _lobbyControlService.KickUserAsync(lobbyGuid, user.Id);
+            Result result = await lobbyControlService.KickUserAsync(lobbyGuid, user.Id);
 
             if (result.HasError<LobbyNotFoundError>())
             {
@@ -152,7 +134,7 @@ namespace Quizer.Controllers
         [HttpGet("Briefing/{lobbyGuid}")]
         public async Task<IActionResult> Briefing(string lobbyGuid)
         {
-            ApplicationUser? user = await _userManager.GetUserAsync(User);
+            ApplicationUser? user = await userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
@@ -164,7 +146,7 @@ namespace Quizer.Controllers
         [HttpGet("LobbyStatus/{lobbyGuid}")]
         public IActionResult Status(string lobbyGuid)
         {
-            Result<LobbyStatus> result = _lobbyConductService.GetLobbyStatus(lobbyGuid);
+            Result<LobbyStatus> result = lobbyConductService.GetLobbyStatus(lobbyGuid);
 
             if (result.HasError<LobbyNotFoundError>())
             {
@@ -189,14 +171,14 @@ namespace Quizer.Controllers
         [HttpGet("Game/{lobbyGuid}")]
         public async Task<IActionResult> Game(string lobbyGuid)
         {
-            ApplicationUser? user = await _userManager.GetUserAsync(User);
+            ApplicationUser? user = await userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
             }
 
-            Result<bool> resultParticipatorCheck = await _lobbyAuthService.IsUserParticipator(user.Id, lobbyGuid);
-            Result<bool> resultMasterCheck = await _lobbyAuthService.IsUserMaster(user.Id, lobbyGuid);
+            Result<bool> resultParticipatorCheck = await lobbyAuthService.IsUserParticipator(user.Id, lobbyGuid);
+            Result<bool> resultMasterCheck = await lobbyAuthService.IsUserMaster(user.Id, lobbyGuid);
 
             if (resultParticipatorCheck.HasError<UserNotFoundError>() || resultMasterCheck.HasError<UserNotFoundError>())
             {
@@ -211,7 +193,7 @@ namespace Quizer.Controllers
                 return new ForbidResult();
             }
 
-            Result<Question> result = _lobbyConductService.GetCurrentQuestion(lobbyGuid);
+            Result<Question> result = lobbyConductService.GetCurrentQuestion(lobbyGuid);
 
             if (result.HasError<LobbyNotFoundError>())
             {
@@ -237,13 +219,13 @@ namespace Quizer.Controllers
         [HttpPost("RegisterAnswer/{lobbyGuid}")]
         public async Task<IActionResult> RegisterAnswer(string lobbyGuid, string? answerGuid)
         {
-            ApplicationUser? user = await _userManager.GetUserAsync(User);
+            ApplicationUser? user = await userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
             }
 
-            Result<bool> resultCheck = await _lobbyAuthService.IsUserParticipator(user.Id, lobbyGuid);
+            Result<bool> resultCheck = await lobbyAuthService.IsUserParticipator(user.Id, lobbyGuid);
             if (resultCheck.HasError<UserNotFoundError>())
             {
                 return Unauthorized();
@@ -258,9 +240,9 @@ namespace Quizer.Controllers
                 return new ForbidResult();
             }
 
-            Result<Question> questionResult = _lobbyConductService.GetCurrentQuestion(lobbyGuid);
+            Result<Question> questionResult = lobbyConductService.GetCurrentQuestion(lobbyGuid);
 
-            Result result = await _lobbyConductService.RegisterTestAnswer(user.Id, lobbyGuid, answerGuid);
+            Result result = await lobbyConductService.RegisterTestAnswer(user.Id, lobbyGuid, answerGuid);
 
             if (result.IsFailed)
             {
@@ -275,19 +257,19 @@ namespace Quizer.Controllers
         /// </summary>
         /// <param name="lobbyGuid"></param>
         /// <param name="answerGuid"></param>
-        /// <returns>Question view model, guid of user answer and is this answer correct</returns>
-        /// <example><code>@model (QuestionViewModel question, string userAnswerGuid, bool isUserAnswerCorrect)</code></example>
+        /// <returns>Question view model TestResult, TextResult or NumericalResult, user answer or text answer or float number answer and bool is this answer correct</returns>
+        /// <example><code>@model (QuestionViewModel question, Answer answer / string answer / float answer, bool isUserAnswerCorrect)</code></example>
         [Authorize(Policy = "ParticipatorRights")]
         [HttpGet("Result/{lobbyGuid}")]
         public async Task<IActionResult> Result(string lobbyGuid)
         {
-            ApplicationUser? user = await _userManager.GetUserAsync(User);
+            ApplicationUser? user = await userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
             }
 
-            Result<bool> resultCheck = await _lobbyAuthService.IsUserParticipator(user.Id, lobbyGuid);
+            Result<bool> resultCheck = await lobbyAuthService.IsUserParticipator(user.Id, lobbyGuid);
             if (resultCheck.HasError<UserNotFoundError>())
             {
                 return Unauthorized();
@@ -302,23 +284,42 @@ namespace Quizer.Controllers
                 return new ForbidResult();
             }
 
-            Result<Question> questionResult = _lobbyConductService.GetCurrentQuestion(lobbyGuid);
+            Result<Question> questionResult = lobbyConductService.GetCurrentQuestion(lobbyGuid);
 
-            bool isAnswerCorrect = false;
-
-            foreach (Answer answerData in questionResult.Value.TestAnswers)
+            if (questionResult.HasError<LobbyUnavailableError>())
             {
-                if (answerData.IsCorrect)
-                {
-                    isAnswerCorrect = true;
-                }
+                return Forbid();
             }
+
+            Question question = questionResult.Value;
+
+            Result<IEnumerable<ParticipatorAnswer>> participatorAnswersResult = await lobbyStatsService.GetUserAnswers(user.Id, lobbyGuid);
+            if (participatorAnswersResult.HasError<LobbyAccessDeniedError>())
+            {
+                return Forbid();
+            }
+            IEnumerable<ParticipatorAnswer> participatorAnswers = participatorAnswersResult.Value;
+
+            ParticipatorAnswer participatorAnswer = (
+                from pA in participatorAnswers where pA.Question.Guid == question.Guid select pA).First();
 
             QuestionViewModel viewModel = GetQuestionViewModel(questionResult.Value);
 
-            var model = (viewModel, "answerGuid", isAnswerCorrect);
-
-            return View(model);
+            if (question.Type == QuestionType.Test)
+            {
+                return View("TestResult", (viewModel, participatorAnswer));
+            } 
+            else if (question.Type == QuestionType.TextEntry)
+            {
+                return View("TextResult", (viewModel, participatorAnswer));
+            }
+            else if (question.Type == QuestionType.NumberEntry)
+            {
+                return View("NumericalResult", (viewModel, participatorAnswer));
+            } else
+            {
+                return StatusCode(500);
+            }
         }
 
         /// <summary>
@@ -331,7 +332,7 @@ namespace Quizer.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> Create(string quizGuid, int maxParticipators)
         {
-            ApplicationUser? user = await _userManager.GetUserAsync(User);
+            ApplicationUser? user = await userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
@@ -341,7 +342,7 @@ namespace Quizer.Controllers
                 return BadRequest();
             }
 
-            Result<string> result = await _lobbyControlService.CreateAsync(user.Id, quizGuid, (int)maxParticipators);
+            Result<string> result = await lobbyControlService.CreateAsync(user.Id, quizGuid, (int)maxParticipators);
 
             if (result.IsFailed)
             {
@@ -350,7 +351,7 @@ namespace Quizer.Controllers
 
             Uri uri = new Uri($"{Request.Scheme}://{Request.Host}/Lobby/Join/{result.Value}");
 
-            _qrService.GenerateQrCode(result.Value, uri.ToString());
+            qrService.GenerateQrCode(result.Value, uri.ToString());
 
             return RedirectToAction("Manage", new { lobbyGuid = result.Value });
         }
@@ -359,13 +360,13 @@ namespace Quizer.Controllers
         [HttpGet("Manage/{lobbyGuid}")]
         public async Task<IActionResult> Manage(string lobbyGuid)
         {
-            ApplicationUser? user = await _userManager.GetUserAsync(User);
+            ApplicationUser? user = await userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
             }
 
-            Result<bool> resultCheck = await _lobbyAuthService.IsUserMaster(user.Id, lobbyGuid);
+            Result<bool> resultCheck = await lobbyAuthService.IsUserMaster(user.Id, lobbyGuid);
             if (resultCheck.HasError<UserNotFoundError>())
             {
                 return Unauthorized();
@@ -394,7 +395,7 @@ namespace Quizer.Controllers
         [HttpGet("Qr/{lobbyGuid:guid}")]
         public IActionResult Qr(string lobbyGuid)
         {
-            Result<byte[]> result = _qrService.GetQrByName(lobbyGuid);
+            Result<byte[]> result = qrService.GetQrByName(lobbyGuid);
 
             if (result.IsFailed)
             {
@@ -413,13 +414,13 @@ namespace Quizer.Controllers
         [HttpPost("Start/{lobbyGuid}")]
         public async Task<IActionResult> Start(string lobbyGuid)
         {
-            ApplicationUser? user = await _userManager.GetUserAsync(User);
+            ApplicationUser? user = await userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
             }
 
-            Result<bool> resultCheck = await _lobbyAuthService.IsUserMaster(user.Id, lobbyGuid);
+            Result<bool> resultCheck = await lobbyAuthService.IsUserMaster(user.Id, lobbyGuid);
             if (resultCheck.HasError<UserNotFoundError>())
             {
                 return Unauthorized();
@@ -433,7 +434,7 @@ namespace Quizer.Controllers
                 return new ForbidResult();
             }
 
-            Result result = await _lobbyControlService.StartLobbyAsync(lobbyGuid);
+            Result result = await lobbyControlService.StartLobbyAsync(lobbyGuid);
 
             if (result.HasError<UserNotFoundError>())
             {
@@ -451,13 +452,13 @@ namespace Quizer.Controllers
         [HttpPost("Stop/{lobbyGuid}")]
         public async Task<IActionResult> Stop(string lobbyGuid)
         {
-            ApplicationUser? user = await _userManager.GetUserAsync(User);
+            ApplicationUser? user = await userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
             }
 
-            Result<bool> resultCheck = await _lobbyAuthService.IsUserMaster(user.Id, lobbyGuid);
+            Result<bool> resultCheck = await lobbyAuthService.IsUserMaster(user.Id, lobbyGuid);
             if (resultCheck.HasError<UserNotFoundError>())
             {
                 return Unauthorized();
@@ -471,8 +472,8 @@ namespace Quizer.Controllers
                 return new ForbidResult();
             }
 
-            Result resultUsers = await _tempUserService.DeleteLobbyTempUsers(lobbyGuid);
-            Result result = await _lobbyControlService.StopLobbyAsync(lobbyGuid);
+            Result resultUsers = await tempUserService.DeleteLobbyTempUsers(lobbyGuid);
+            Result result = await lobbyControlService.StopLobbyAsync(lobbyGuid);
 
             if (result.HasError<LobbyNotFoundError>())
             {
@@ -486,13 +487,13 @@ namespace Quizer.Controllers
         [HttpPost("Kick/{lobbyGuid}")]
         public async Task<IActionResult> Kick(string lobbyGuid, string userToKickId)
         {
-            ApplicationUser? user = await _userManager.GetUserAsync(User);
+            ApplicationUser? user = await userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
             }
 
-            Result<bool> resultCheck = await _lobbyAuthService.IsUserMaster(user.Id, lobbyGuid);
+            Result<bool> resultCheck = await lobbyAuthService.IsUserMaster(user.Id, lobbyGuid);
             if (resultCheck.HasError<UserNotFoundError>())
             {
                 return Unauthorized();
@@ -506,7 +507,7 @@ namespace Quizer.Controllers
                 return new ForbidResult();
             }
 
-            Result result = await _lobbyControlService.KickUserAsync(lobbyGuid, userToKickId);
+            Result result = await lobbyControlService.KickUserAsync(lobbyGuid, userToKickId);
 
             if (result.HasError<LobbyNotFoundError>())
             {
@@ -521,13 +522,13 @@ namespace Quizer.Controllers
         [HttpPost("ForceNextQuestion/{lobbyGuid}")]
         public async Task<IActionResult> ForceNextQuestion(string lobbyGuid)
         {
-            ApplicationUser? user = await _userManager.GetUserAsync(User);
+            ApplicationUser? user = await userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
             }
 
-            Result<bool> resultCheck = await _lobbyAuthService.IsUserMaster(user.Id, lobbyGuid);
+            Result<bool> resultCheck = await lobbyAuthService.IsUserMaster(user.Id, lobbyGuid);
             if (resultCheck.HasError<UserNotFoundError>())
             {
                 return Unauthorized();
@@ -541,7 +542,7 @@ namespace Quizer.Controllers
                 return new ForbidResult();
             }
 
-            _lobbyControlService.ForceNextQuestionAsync(lobbyGuid); // ignore result, because the only error it can return is LobbyNotFound
+            lobbyControlService.ForceNextQuestionAsync(lobbyGuid); // ignore result, because the only error it can return is LobbyNotFound
 
             return Ok();
         }
@@ -555,7 +556,7 @@ namespace Quizer.Controllers
                 Title = Question.Title,
             };
 
-            foreach (Answer a in Question.TestAnswers)
+            foreach (Answer a in Question.Answers)
             {
                 questionViewModel.Answers.Add(GetAnswerViewModel(a));
             }

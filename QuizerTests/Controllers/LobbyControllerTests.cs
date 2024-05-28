@@ -40,6 +40,7 @@ namespace Quizer.Controllers.Tests
                 GetLobbyControlServiceMock(isLobbyStarted: false),
                 GetLobbyConductServiceMock(isLobbyStarted: false),
                 GetLobbyAuthServiceMock(),
+                               null,
                 GetQrServiceMock(), null,
                 GetUserManagerMock("0"), null);
 
@@ -51,6 +52,7 @@ namespace Quizer.Controllers.Tests
                 GetLobbyControlServiceMock(isLobbyStarted: true),
                 GetLobbyConductServiceMock(isLobbyStarted: true),
                 GetLobbyAuthServiceMock(),
+                null,
                 GetQrServiceMock(), null,
                 GetUserManagerMock("0"), null);
 
@@ -65,7 +67,7 @@ namespace Quizer.Controllers.Tests
                 GetLoggerMock(),
                 GetLobbyControlServiceMock(isLobbyStarted: true),
                 GetLobbyConductServiceMock(isLobbyStarted: true),
-                GetLobbyAuthServiceMock(),
+                GetLobbyAuthServiceMock(), null,
                 GetQrServiceMock(), null,
                 GetUserManagerMock("1"), null);
 
