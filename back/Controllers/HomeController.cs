@@ -15,7 +15,17 @@ namespace Quizer.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("Index", "Quiz");
+            if (User.Identity == null)
+            {
+                return Unauthorized();
+            }
+
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Quiz");
+            }
+
+            return View();
         }
 
         public IActionResult Privacy()
