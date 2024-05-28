@@ -8,14 +8,21 @@ using System.Xml.Xsl;
 
 namespace Quizer.Models.Lobbies
 {
+    enum LobbyTime
+    {
+        Question,
+        Answering,
+        Break,
+        Results
+    }
+
 
     [Table("Lobbies")]
     public class Lobby
     {
         private int _currentQuestion;
         private int _timeElapsedSinceLastAction; // here action is question finish and break finish
-        bool _isBreakTime;
-        bool _isResultTime;
+        private LobbyTime _lobbyTime;
 
         public Lobby()
         {
@@ -35,14 +42,24 @@ namespace Quizer.Models.Lobbies
         public virtual Quiz? Quiz {  get; set; }
 
 
+        public bool IsQuestionTime()
+        {
+            return _lobbyTime == LobbyTime.Question;
+        }
+
         public bool IsBreakTime()
         {
-            return _isBreakTime;
+            return _lobbyTime == LobbyTime.Break;
         }
 
         public bool IsResultTime()
         {
-            return _isResultTime;
+            return _lobbyTime == LobbyTime.Results;
+        }
+
+        public bool IsAnsweringTime()
+        {
+            return _lobbyTime == LobbyTime.Answering;
         }
 
         public Question? GetCurrentQuestion()
@@ -64,7 +81,7 @@ namespace Quizer.Models.Lobbies
 
         public void Update(TimeSpan timeSpan)
         {
-            if (!IsStarted || _isResultTime)
+            if (!IsStarted || IsResultTime())
             {
                 return;
             }
@@ -73,7 +90,7 @@ namespace Quizer.Models.Lobbies
             {
                 try
                 {
-                    _timeElapsedSinceLastAction = (int)timeSpan.TotalMilliseconds;
+                    _timeElapsedSinceLastAction += (int)timeSpan.TotalMilliseconds;
                 }
                 catch (OverflowException e)
                 {
@@ -81,24 +98,33 @@ namespace Quizer.Models.Lobbies
                 }
             }
 
-            if (!_isBreakTime)
+            if (IsQuestionTime())
             {
-                if ((float)_timeElapsedSinceLastAction / 1000.0f >= Quiz.TimeLimit)
+                if (_timeElapsedSinceLastAction > Quiz.TimeLimit)
                 {
-                    _isBreakTime = true;
-                    _timeElapsedSinceLastAction = 0;
+                    _lobbyTime = LobbyTime.Answering;
+                    _timeElapsedSinceLastAction = _timeElapsedSinceLastAction - Quiz.TimeLimit;
                 }
-                if (_currentQuestion == Quiz.Questions.Count)
+                if (_currentQuestion == (Quiz.Questions.Count - 1))
                 {
-                    _isResultTime = true;
+                    _lobbyTime = LobbyTime.Results;
                 }
-            } else
+            } 
+            else if (IsAnsweringTime())
             {
-                if ((float)_timeElapsedSinceLastAction / 1000.0f >= Quiz.BreakTime)
+                if (_timeElapsedSinceLastAction > 1000)
+                {
+                    _lobbyTime = LobbyTime.Break;
+                    _timeElapsedSinceLastAction = _timeElapsedSinceLastAction - 1000;
+                }
+            }
+            else if (IsBreakTime())
+            {
+                if (_timeElapsedSinceLastAction > Quiz.BreakTime)
                 {
                     NextQuestion();
-                    _isBreakTime = false;
-                    _timeElapsedSinceLastAction = 0;
+                    _lobbyTime = LobbyTime.Question;
+                    _timeElapsedSinceLastAction = _timeElapsedSinceLastAction - Quiz.BreakTime;
                 }
             }
 
