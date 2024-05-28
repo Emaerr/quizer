@@ -6,6 +6,6 @@
         /// string - user display name
         /// int - points
         /// </summary>
-        Dictionary<string, int> UserPoints { get;} = [];
+        public Dictionary<string, int> UserPoints { get; set; } = [];
     }
 }

@@ -6,6 +6,7 @@ using System.Diagnostics.Contracts;
 
 namespace Quizer.Models.Lobbies
 {
+    [Table("ParticipatorAnswers")]
     public class ParticipatorAnswer
     {
         [Required]
@@ -14,11 +15,12 @@ namespace Quizer.Models.Lobbies
         [Required]
         [ForeignKey("Participator")]
         public string ParticipatorId { get; set; }
-        [ForeignKey("Question")]
-        public Question Question { get; set; }
+        [Required]
+        [ForeignKey("Questions")]
+        public virtual Question Question { get; set; }
         public bool IsCorrect { get; set; }
         [ForeignKey("Answer")]
-        public Answer? TestAnswer { get; set; }
+        public virtual Answer? TestAnswer { get; set; }
         public float? NumberAnswer { get; set; }
         public string? TextAnswer {  get; set; }
     }

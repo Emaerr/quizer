@@ -277,14 +277,18 @@ namespace Quizer.Controllers
             {
                 return NotFound();
             }
-
             if (!resultCheck.Value)
             {
                 return new ForbidResult();
             }
 
-            Result<Question> questionResult = lobbyConductService.GetCurrentQuestion(lobbyGuid);
+            Result<LobbyStatus> lobbyStatusResult = lobbyConductService.GetLobbyStatus(lobbyGuid);
+            if (lobbyStatusResult.Value == LobbyStatus.Results)
+            {
+                return View("QuizResults", GetStatsViewModel(lobbyGuid));
+            }
 
+            Result<Question> questionResult = lobbyConductService.GetCurrentQuestion(lobbyGuid);
             if (questionResult.HasError<LobbyUnavailableError>())
             {
                 return Forbid();
@@ -292,29 +296,17 @@ namespace Quizer.Controllers
 
             Question question = questionResult.Value;
 
-            Result<IEnumerable<ParticipatorAnswer>> participatorAnswersResult = await lobbyStatsService.GetUserAnswers(user.Id, lobbyGuid);
-            if (participatorAnswersResult.HasError<LobbyAccessDeniedError>())
-            {
-                return Forbid();
-            }
-            IEnumerable<ParticipatorAnswer> participatorAnswers = participatorAnswersResult.Value;
-
-            ParticipatorAnswer participatorAnswer = (
-                from pA in participatorAnswers where pA.Question.Guid == question.Guid select pA).First();
-
-            QuestionViewModel viewModel = GetQuestionViewModel(questionResult.Value);
-
             if (question.Type == QuestionType.Test)
             {
-                return View("TestResult", new QuestionResultViewModel(viewModel, participatorAnswer));
+                return View("TestResult", GetQuestionResultViewModel(question, user.Id, lobbyGuid));
             } 
             else if (question.Type == QuestionType.TextEntry)
             {
-                return View("TextResult", new QuestionResultViewModel(viewModel, participatorAnswer));
+                return View("TextResult", GetQuestionResultViewModel(question, user.Id, lobbyGuid));
             }
             else if (question.Type == QuestionType.NumberEntry)
             {
-                return View("NumericalResult", new QuestionResultViewModel(viewModel, participatorAnswer));
+                return View("NumericalResult", GetQuestionResultViewModel(question, user.Id, lobbyGuid));
             } else
             {
                 return StatusCode(500);
@@ -544,6 +536,38 @@ namespace Quizer.Controllers
             lobbyControlService.ForceNextQuestionAsync(lobbyGuid); // ignore result, because the only error it can return is LobbyNotFound
 
             return Ok();
+        }
+
+        private async Task<StatsViewModel> GetStatsViewModel(string lobbyGuid)
+        {
+            StatsViewModel statsViewModel = new StatsViewModel();
+
+            var result = await lobbyControlService.GetUsersInLobby(lobbyGuid);
+
+            foreach (ApplicationUser lobbyUser in result.Value)
+            {
+                var pointsResult = await lobbyStatsService.GetUserPoints(lobbyUser.Id, lobbyGuid);
+                statsViewModel.UserPoints.Add(lobbyUser.DisplayName != null ? lobbyUser.DisplayName : "null", pointsResult.Value);
+            }
+
+            return statsViewModel;
+        }
+
+        private async Task<Result<QuestionResultViewModel>> GetQuestionResultViewModel(Question question, string userId, string lobbyGuid)
+        {
+            Result<IEnumerable<ParticipatorAnswer>> participatorAnswersResult = await lobbyStatsService.GetUserAnswers(userId, lobbyGuid);
+            if (participatorAnswersResult.HasError<LobbyAccessDeniedError>())
+            {
+                return FluentResults.Result.Fail(participatorAnswersResult.Errors.First());
+            }
+            IEnumerable<ParticipatorAnswer> participatorAnswers = participatorAnswersResult.Value;
+
+            ParticipatorAnswer participatorAnswer = (
+                from pA in participatorAnswers where pA.Question.Guid == question.Guid select pA).First();
+
+            QuestionViewModel viewModel = GetQuestionViewModel(question);
+
+            return new QuestionResultViewModel(viewModel, participatorAnswer);
         }
 
         private QuestionViewModel GetQuestionViewModel(Question Question)
