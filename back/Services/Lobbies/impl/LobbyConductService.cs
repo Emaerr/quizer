@@ -1,5 +1,6 @@
 ﻿using FluentResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using Quizer.Exceptions.Services;
 using Quizer.Models.Lobbies;
 using Quizer.Models.Quizzes;
@@ -137,42 +138,39 @@ namespace Quizer.Services.Lobbies.impl
                 return Result.Fail(new InvalidAnswerFormatError("Invalid answer format."));
             }
 
-            bool isAnswerGuidValid = false;
-            bool isAnswerCorrect = false;
-
             ParticipatorAnswer? participatorAnswer = null;
-           
-            foreach (Answer answer in currentQuestion.Answers)
-            {
-                if (answer.Guid == answerGuid)
-                {
-                    isAnswerGuidValid = true;
-                    participatorAnswer = new ParticipatorAnswer()
-                    {
-                        TestAnswer = answer,
-                        Question = currentQuestion
-                    };
 
-                    if (answer.IsCorrect)
-                    {
-                        isAnswerCorrect = true;
-                    }
+            if (answerGuid == null)
+            {
+                participatorAnswer = new ParticipatorAnswer()
+                {
+                    TestAnswer = null,
+                    Question = currentQuestion
+                };
+            }
+
+            IEnumerable<Answer> answers = from a in currentQuestion.Answers where a.Guid == answerGuid select a;
+            if (!answers.IsNullOrEmpty())
+            {
+                Answer answer = answers.First();
+                participatorAnswer = new ParticipatorAnswer()
+                {
+                    TestAnswer = answer,
+                    Question = currentQuestion
+                };
+                if (answer.IsCorrect)
+                {
+                    participator.Points++;
                 }
             }
 
-            if (!isAnswerGuidValid || participatorAnswer == null)
+            if (participatorAnswer == null)
             {
                 _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register test answer {answerGuid} for user {userId} in lobby {lobbyGuid} because the answer not found (answer GUID is not valid)", answerGuid, userId, lobbyGuid);
                 return Result.Fail(new InvalidAnswerGuidError("Invalid answer GUID"));
             }
 
             participator.Answers.Add(participatorAnswer);
-            
-            if (isAnswerCorrect)
-            {
-                participator.Points++;
-            }
-
             await participatorRepository.SaveAsync();
 
             _logger.LogInformation(ServiceLogEvents.AnswerRegistered, "Succesfully registered test answer {answerGuid} for user {userId} in lobby {lobbyGuid}", answerGuid, userId, lobbyGuid);
