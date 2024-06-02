@@ -13,14 +13,12 @@ namespace Quizer.Services.Lobbies.impl
     public class LobbyConductService : ILobbyConductService, IDisposable
     {
         private readonly IServiceScopeFactory _scopeFactory;
-        private readonly ITimeService _timeService;
         private readonly ILogger<LobbyConductService> _logger;
         private bool disposedValue;
 
-        public LobbyConductService(IServiceScopeFactory scopeFactory, ITimeService timeService, ILogger<LobbyConductService> logger)
+        public LobbyConductService(IServiceScopeFactory scopeFactory, ILogger<LobbyConductService> logger)
         {
             _scopeFactory = scopeFactory;
-            _timeService = timeService;
             _logger = logger;
         }
 
@@ -79,46 +77,27 @@ namespace Quizer.Services.Lobbies.impl
         }
 
 
-        // TODO: Test for answer duplication and null answerGuid
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="lobbyGuid"></param>
+        /// <param name="answerGuid">Should be a valid question answer GUID if the user answered, and null if the user didn't answer</param>
+        /// <returns></returns>
         public async Task<Result> RegisterTestAnswer(string userId, string lobbyGuid, string? answerGuid)
         {
             IServiceScope scope = _scopeFactory.CreateScope();
-            ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
-            UserManager<ApplicationUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             IParticipatorRepository participatorRepository = scope.ServiceProvider.GetRequiredService<IParticipatorRepository>();
 
-            ApplicationUser? user = await userManager.FindByIdAsync(userId);
-            if (user == null)
+            Result<Lobby> lobbyResult = await GetLobbyForAnswerRegistration(userId, lobbyGuid, answerGuid, QuestionType.Test);
+            if (lobbyResult.IsFailed)
             {
-                _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register test answer {answerGuid} in lobby {lobbyGuid} because user {userId} is not found",answerGuid, lobbyGuid, userId);
-                return Result.Fail(new UserNotFoundError("Invalid user ID."));
+                return Result.Fail(lobbyResult.Errors.First());
             }
 
-            Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
-            if (lobby == null)
-            {
-                _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register test answer {answerGuid} for user {userId} because lobby {lobbyGuid} is not found", answerGuid, userId, lobbyGuid);
-                return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
-            }
+            Lobby lobby = lobbyResult.Value;
 
-            if (!lobby.IsStarted)
-            {
-                _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register test answer {answerGuid} for user {userId} because lobby {lobbyGuid} isn't started yet", answerGuid, userId, lobbyGuid);
-                return Result.Fail(new LobbyUnavailableError("Lobby has't started yet."));
-            }
-            if (!(lobby.Stage == LobbyStage.Answering || lobby.Stage == LobbyStage.Question)) 
-            {
-                return Result.Fail(new NotRightTimeToAnswerError("Not right time to answer."));
-            }
-
-            Participator? participator = null;
-            foreach (Participator p in lobby.Participators)
-            {
-                if (p.Id == userId)
-                {
-                    participator = p;
-                }
-            }
+            Participator? participator = GetLobbyParticipator(lobby, userId);
             if (participator == null)
             {
                 _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register test answer {answerGuid} because user {userId} doesn't participate in lobby {lobbyGuid}", answerGuid, userId, lobbyGuid);
@@ -128,7 +107,7 @@ namespace Quizer.Services.Lobbies.impl
             Question? currentQuestion = lobby.GetCurrentQuestion();
             if (currentQuestion == null)
             {
-                _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register test answer {answerGuid} for user {userId} {lobbyGuid} bacause currentQuestion not found (is null)", answerGuid, userId, lobbyGuid);
+                _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register test answer {answerGuid} for user {userId} in {lobbyGuid} bacause currentQuestion not found (is null)", answerGuid, userId, lobbyGuid);
                 return Result.Fail(new QuizNotFoundError("The question is null. Possible reasion is that quiz in lobby is null."));
             }
 
@@ -184,14 +163,172 @@ namespace Quizer.Services.Lobbies.impl
             return Result.Ok();
         }
 
-        public Task<Result> RegisterNumericalAnswer(string userId, string lobbyGuid, float answer)
+        public async Task<Result> RegisterNumericalAnswer(string userId, string lobbyGuid, float? answer)
         {
-            throw new NotImplementedException();
+            IServiceScope scope = _scopeFactory.CreateScope();
+            IParticipatorRepository participatorRepository = scope.ServiceProvider.GetRequiredService<IParticipatorRepository>();
+
+            Result<Lobby> lobbyResult = await GetLobbyForAnswerRegistration(userId, lobbyGuid, answer.ToString(), QuestionType.NumberEntry);
+            if (lobbyResult.IsFailed)
+            {
+                return Result.Fail(lobbyResult.Errors.First());
+            }
+
+            Lobby lobby = lobbyResult.Value;
+
+            Participator? participator = GetLobbyParticipator(lobby, userId);
+            if (participator == null)
+            {
+                _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register numerical answer {answer} because user {userId} doesn't participate in lobby {lobbyGuid}", answer, userId, lobbyGuid);
+                return Result.Fail(new LobbyAccessDeniedError($"User {userId} is not part of the lobby {lobbyGuid}"));
+            }
+
+            Question? currentQuestion = lobby.GetCurrentQuestion();
+            if (currentQuestion == null)
+            {
+                _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register numerical answer {answer} for user {userId} in {lobbyGuid} bacause currentQuestion not found (is null)", answer, userId, lobbyGuid);
+                return Result.Fail(new QuizNotFoundError("The question is null. Possible reasion is that quiz in lobby is null."));
+            }
+
+            if (currentQuestion.Type != QuestionType.NumberEntry)
+            {
+                _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register numerical answer {answer} for user {userId} in lobby {lobbyGuid} because current question type is not NumberEntry", answer, userId, lobbyGuid);
+                return Result.Fail(new InvalidAnswerFormatError("Invalid answer format."));
+            }
+
+            IEnumerable<ParticipatorAnswer> currentQuestionParticipatorAnswers = from a in participator.Answers where a.Question.Guid == currentQuestion.Guid select a;
+            if (currentQuestionParticipatorAnswers.Any())
+            {
+                return Result.Fail(new QuestionAlreadyAnsweredError("Question has already been answered."));
+            }
+
+            ParticipatorAnswer? participatorAnswer = null;
+
+            if (answer == null)
+            {
+                participatorAnswer = new ParticipatorAnswer()
+                {
+                    NumberAnswer = null,
+                    Question = currentQuestion
+                };
+            } 
+            else 
+            {
+                IEnumerable<Answer> answers = from a in currentQuestion.Answers where a.NumericalAnswer != null && a.NumericalAnswerEpsilon != null select a;
+
+                if (!answers.Any())
+                {
+                    _logger.LogWarning(ServiceLogEvents.AnswerRegistrationError,
+                        "Every numerical answer or numerical answer epsilon in question {questionGuid} is null", currentQuestion.Guid);
+                    return Result.Fail("Every numerical answer or numerical answer epsilon is null");
+                }
+
+                bool isCorrect = false;
+                foreach (Answer a in answers) {
+                    if ((Math.Abs((double)a.NumericalAnswer! - (double)answer!) < a.NumericalAnswerEpsilon) && a.IsCorrect)
+                    {
+                        isCorrect = true;
+                        break;
+                    }
+                }
+
+                participatorAnswer = new ParticipatorAnswer()
+                {
+                    NumberAnswer = answer,
+                    Question = currentQuestion,
+                    IsCorrect = isCorrect
+                };
+            }
+
+            participator.Answers.Add(participatorAnswer);
+            await participatorRepository.SaveAsync();
+
+            return Result.Ok();
         }
 
-        public Task<Result> RegisterTextAnswer(string userId, string lobbyGuid, string answer)
+        public async Task<Result> RegisterTextAnswer(string userId, string lobbyGuid, string? answer)
         {
-            throw new NotImplementedException();
+            IServiceScope scope = _scopeFactory.CreateScope();
+            IParticipatorRepository participatorRepository = scope.ServiceProvider.GetRequiredService<IParticipatorRepository>();
+
+            Result<Lobby> lobbyResult = await GetLobbyForAnswerRegistration(userId, lobbyGuid, answer, QuestionType.TextEntry);
+            if (lobbyResult.IsFailed)
+            {
+                return Result.Fail(lobbyResult.Errors.First());
+            }
+
+            Lobby lobby = lobbyResult.Value;
+
+            Participator? participator = GetLobbyParticipator(lobby, userId);
+            if (participator == null)
+            {
+                _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register text answer {answer} because user {userId} doesn't participate in lobby {lobbyGuid}", answer, userId, lobbyGuid);
+                return Result.Fail(new LobbyAccessDeniedError($"User {userId} is not part of the lobby {lobbyGuid}"));
+            }
+
+            Question? currentQuestion = lobby.GetCurrentQuestion();
+            if (currentQuestion == null)
+            {
+                _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register text answer {answer} for user {userId} in {lobbyGuid} bacause currentQuestion not found (is null)", answer, userId, lobbyGuid);
+                return Result.Fail(new QuizNotFoundError("The question is null. Possible reasion is that quiz in lobby is null."));
+            }
+
+            if (currentQuestion.Type != QuestionType.TextEntry)
+            {
+                _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register text answer {answer} for user {userId} in lobby {lobbyGuid} because current question type is not NumberEntry", answer, userId, lobbyGuid);
+                return Result.Fail(new InvalidAnswerFormatError("Invalid answer format."));
+            }
+
+            IEnumerable<ParticipatorAnswer> currentQuestionParticipatorAnswers = from a in participator.Answers where a.Question.Guid == currentQuestion.Guid select a;
+            if (currentQuestionParticipatorAnswers.Any())
+            {
+                return Result.Fail(new QuestionAlreadyAnsweredError("Question has already been answered."));
+            }
+
+            ParticipatorAnswer? participatorAnswer = null;
+
+            if (answer == null)
+            {
+                participatorAnswer = new ParticipatorAnswer()
+                {
+                    TextAnswer = null,
+                    Question = currentQuestion
+                };
+            }
+            else
+            {
+                IEnumerable<Answer> answers = from a in currentQuestion.Answers where a.TextAnswer != null select a;
+
+                if (!answers.Any())
+                {
+                    _logger.LogWarning(ServiceLogEvents.AnswerRegistrationError,
+                        "Every text answer in question {questionGuid} is null", currentQuestion.Guid);
+                    return Result.Fail("Every text answer is null");
+                }
+
+                bool isCorrect = false;
+                foreach (Answer a in answers)
+                {
+                    bool isUserAnswerEqualToQuestionAnswer = answer.Trim().Equals(a.TextAnswer!.Trim(), StringComparison.CurrentCultureIgnoreCase);
+                    if (isUserAnswerEqualToQuestionAnswer && a.IsCorrect)
+                    {
+                        isCorrect = true;
+                        break;
+                    }
+                }
+
+                participatorAnswer = new ParticipatorAnswer()
+                {
+                    TextAnswer = answer,
+                    Question = currentQuestion,
+                    IsCorrect = isCorrect
+                };
+            }
+
+            participator.Answers.Add(participatorAnswer);
+            await participatorRepository.SaveAsync();
+
+            return Result.Ok();
         }
 
         protected virtual void Dispose(bool disposing)
@@ -223,18 +360,50 @@ namespace Quizer.Services.Lobbies.impl
             GC.SuppressFinalize(this);
         }
 
-        private QuestionData GetQuestionDataFromQuestion(Question question)
+        private Participator? GetLobbyParticipator(Lobby lobby, string userId)
         {
-            List<AnswerData> answers = [];
-            foreach (Answer answer in question.Answers)
+            Participator? participator = null;
+            foreach (Participator p in lobby.Participators)
             {
-                AnswerInfo answerInfo = new AnswerInfo(answer.Title, answer.IsCorrect);
-                answers.Add(new AnswerData(answer.Guid, answerInfo));
+                if (p.Id == userId)
+                {
+                    participator = p;
+                }
+            }
+            return participator;
+        }
+
+        private async Task<Result<Lobby>> GetLobbyForAnswerRegistration(string userId, string lobbyGuid, string? answer, QuestionType type)
+        {
+            IServiceScope scope = _scopeFactory.CreateScope();
+            ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
+            UserManager<ApplicationUser> userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+            ApplicationUser? user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register {type} answer '{answer}' in lobby {lobbyGuid} because user {userId} is not found", type.ToString(), answer, lobbyGuid, userId);
+                return Result.Fail(new UserNotFoundError("Invalid user ID."));
             }
 
-            QuestionInfo info = new QuestionInfo(question.Position, question.Title, question.Type);
+            Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
+            if (lobby == null)
+            {
+                _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register {type} answer '{answer}' for user {userId} because lobby {lobbyGuid} is not found", type.ToString(), answer, userId, lobbyGuid);
+                return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
+            }
 
-            return new QuestionData(question.Guid, info, answers);
+            if (!lobby.IsStarted)
+            {
+                _logger.LogInformation(ServiceLogEvents.AnswerRegistrationError, "Couldn't register {type} answer '{answer}' for user {userId} because lobby {lobbyGuid} isn't started yet", type.ToString(), answer, userId, lobbyGuid);
+                return Result.Fail(new LobbyUnavailableError("Lobby has't started yet."));
+            }
+            if (!(lobby.Stage == LobbyStage.Answering || lobby.Stage == LobbyStage.Question))
+            {
+                return Result.Fail(new NotRightTimeToAnswerError("Not right time to answer."));
+            }
+
+            return Result.Ok(lobby);
         }
     }
 }

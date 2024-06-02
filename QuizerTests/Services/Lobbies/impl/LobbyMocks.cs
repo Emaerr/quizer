@@ -92,7 +92,7 @@ namespace QuizerTests.Services.Lobbies.impl
             return mgr;
         }
 
-        public static ILobbyRepository GetLobbyWithUserRepositoryMock(bool isLobbyStarted, LobbyStage lobbyStage = LobbyStage.Question)
+        public static ILobbyRepository GetLobbyWithUserRepositoryMock(bool isLobbyStarted, LobbyStage lobbyStage = LobbyStage.Question, QuestionType questionType = QuestionType.Test)
         {
             var lobby = new Lobby(lobbyStage)
             {
@@ -103,9 +103,9 @@ namespace QuizerTests.Services.Lobbies.impl
                 {
                     AuthorId = "0",
                     TimeLimit = 10,
-                    Questions = new List<Question>() { new Question() { Position = 0, Answers = new List<Answer>() { new Answer() { Guid = "0" } } }, new Question() { Position = 1 } }
+                    Questions = new List<Question>() { new Question() { Guid = "0", Type = questionType, Position = 0, Answers = new List<Answer>() { new Answer() { Guid = "0", TextAnswer = "test", NumericalAnswer = 0, NumericalAnswerEpsilon = 0.1f } } }, new Question() { Guid = "1", Type = questionType, Position = 1 } }
                 },
-                Participators = new List<Participator>() { new Participator() { Id = "0" } },
+                Participators = new List<Participator>() { new Participator() { Id = "0", Answers = { new ParticipatorAnswer() { Question = new Question() { Guid = "1" } } } } },
             };
 
             var lobbyRepository = new Mock<ILobbyRepository>();
@@ -119,7 +119,7 @@ namespace QuizerTests.Services.Lobbies.impl
             return lobbyRepository.Object;
         }
 
-        public static ILobbyRepository GetLobbyRepositoryMock(bool isLobbyStarted)
+        public static ILobbyRepository GetLobbyRepositoryMock(bool isLobbyStarted, QuestionType questionType = QuestionType.Test)
         {
             var lobby = new Lobby()
             {
@@ -130,7 +130,7 @@ namespace QuizerTests.Services.Lobbies.impl
                 {
                     AuthorId = "0",
                     TimeLimit = 10,
-                    Questions = new List<Question>() { new Question() { Position = 0, Answers = new List<Answer>() { new Answer() { Guid = "0" } } }, new Question() { Position = 1 } }
+                    Questions = new List<Question>() { new Question() { Type = questionType, Position = 0, Answers = new List<Answer>() { new Answer() { Guid = "0", TextAnswer = "test", NumericalAnswer = 0, NumericalAnswerEpsilon = 0.1f } } }, new Question() { Type = questionType, Position = 1 } }
                 }
             };
 
