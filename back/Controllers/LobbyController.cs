@@ -32,8 +32,14 @@ namespace Quizer.Controllers
         SignInManager<ApplicationUser> signInManager) : Controller
     {
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="lobbyGuid"></param>
+        /// <param name="error"></param>
+        /// <returns>Join view with lobbyGuid in ViewData, or NoFreeSlot or Unavailable views in the case of error</returns>
         [HttpGet("Join/{lobbyGuid}")]
-        public async Task<IActionResult> Join(string lobbyGuid, string? error = null)
+        public IActionResult Join(string lobbyGuid, string? error = null)
         {
             if (error != null)
             {
@@ -88,11 +94,11 @@ namespace Quizer.Controllers
 
             if (result.HasError<LobbyUnavailableError>())
             {
-                return View("Unavailable");
+                return RedirectToAction("Join", new { lobbyGuid, error = "Unavailable" }); ;
             }
             if (result.HasError<MaxParticipatorsError>())
             {
-                return View("NoFreeSlot"); ;
+                return RedirectToAction("Join", new { lobbyGuid, error = "NoFreeSlot" }); ;
             }
             if (result.HasError<UserAlreadyInLobbyError>())
             {
@@ -110,6 +116,11 @@ namespace Quizer.Controllers
             return RedirectToAction("Briefing", new { lobbyGuid });
         }
 
+        /// <summary>
+        /// Kicks the user from the lobby. Available only for user to kick.
+        /// </summary>
+        /// <param name="lobbyGuid"></param>
+        /// <returns></returns>
         [Authorize(Policy = "ParticipatorRights")]
         [HttpPost("Leave/{lobbyGuid}")]
         public async Task<IActionResult> Leave(string lobbyGuid)
@@ -130,6 +141,11 @@ namespace Quizer.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="lobbyGuid"></param>
+        /// <returns></returns>
         [Authorize(Policy = "ParticipatorRights")]
         [HttpGet("Briefing/{lobbyGuid}")]
         public async Task<IActionResult> Briefing(string lobbyGuid)
@@ -143,6 +159,11 @@ namespace Quizer.Controllers
             return View();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="lobbyGuid"></param>
+        /// <returns>Lobby status (Briefing, Game, Results)</returns>
         [HttpGet("LobbyStatus/{lobbyGuid}")]
         public IActionResult Status(string lobbyGuid)
         {
@@ -203,11 +224,15 @@ namespace Quizer.Controllers
             {
                 return NotFound();
             }
+            if (result.HasError<LobbyUnavailableError>())
+            {
+                return Forbid();
+            }
 
             QuestionViewModel viewModel = GetQuestionViewModel(result.Value);
 
             if (resultMasterCheck.Value)
-            {
+            { 
                 return View("GameMaster", viewModel);
             } else
             {
@@ -215,6 +240,13 @@ namespace Quizer.Controllers
             }
         }
 
+        /// <summary>
+        /// Registers user answer
+        /// </summary>
+        /// <param name="lobbyGuid"></param>
+        /// <param name="answerGuid">Should be VALID answer GUID or null in case of test answer, otherwise error will occur,
+        /// or just answer or null in the case of text and numerical answer</param>
+        /// <returns></returns>
         [Authorize(Policy = "ParticipatorRights")]
         [HttpPost("RegisterAnswer/{lobbyGuid}")]
         public async Task<IActionResult> RegisterAnswer(string lobbyGuid, string? answerGuid)
@@ -257,7 +289,8 @@ namespace Quizer.Controllers
         /// </summary>
         /// <param name="lobbyGuid"></param>
         /// <param name="answerGuid"></param>
-        /// <returns>Question view with QuestionResultViewModel</returns>
+        /// <returns>TestResult, TextResult or NumericalResult view with QuestionResultViewModel between the questions, 
+        /// or QuizResults view with StatsViewModel</returns>
         [Authorize(Policy = "ParticipatorRights")]
         [HttpGet("Result/{lobbyGuid}")]
         public async Task<IActionResult> Result(string lobbyGuid)
@@ -356,6 +389,11 @@ namespace Quizer.Controllers
             return RedirectToAction("Manage", new { lobbyGuid = result.Value });
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="lobbyGuid"></param>
+        /// <returns>Manage view with lobbyGuid in ViewData</returns>
         [Authorize(Policy = "MemberRights")]
         [HttpGet("Manage/{lobbyGuid}")]
         public async Task<IActionResult> Manage(string lobbyGuid)
@@ -406,7 +444,7 @@ namespace Quizer.Controllers
         }
 
         /// <summary>
-        /// Starts the lobby.
+        /// Starts the lobby. Available only for game master.
         /// </summary>
         /// <param name="lobbyGuid"></param>
         /// <returns></returns>
@@ -448,6 +486,11 @@ namespace Quizer.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Stops the lobby. This method removes lobby permanently. Available only for game master.
+        /// </summary>
+        /// <param name="lobbyGuid"></param>
+        /// <returns></returns>
         [Authorize(Policy = "MemberRights")]
         [HttpPost("Stop/{lobbyGuid}")]
         public async Task<IActionResult> Stop(string lobbyGuid)
@@ -483,6 +526,12 @@ namespace Quizer.Controllers
             return StatusCode(418);
         }
 
+        /// <summary>
+        /// Kicks the user from the lobby. Available only for game master.
+        /// </summary>
+        /// <param name="lobbyGuid"></param>
+        /// <param name="userToKickId"></param>
+        /// <returns></returns>
         [Authorize(Policy = "ParticipatorRights")]
         [HttpPost("Kick/{lobbyGuid}")]
         public async Task<IActionResult> Kick(string lobbyGuid, string userToKickId)
@@ -517,7 +566,11 @@ namespace Quizer.Controllers
             return Ok();
         }
 
-
+        /// <summary>
+        /// Forces next question. Available only for game master.
+        /// </summary>
+        /// <param name="lobbyGuid"></param>
+        /// <returns></returns>
         [Authorize(Policy = "MemberRights")]
         [HttpPost("ForceNextQuestion/{lobbyGuid}")]
         public async Task<IActionResult> ForceNextQuestion(string lobbyGuid)
