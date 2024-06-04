@@ -105,7 +105,7 @@ namespace QuizerTests.Services.Lobbies.impl
                     TimeLimit = 10,
                     Questions = new List<Question>() { new Question() { Guid = "0", Type = questionType, Position = 0, Answers = new List<Answer>() { new Answer() { Guid = "0", TextAnswer = "test", NumericalAnswer = 0, NumericalAnswerEpsilon = 0.1f } } }, new Question() { Guid = "1", Type = questionType, Position = 1 } }
                 },
-                Participators = new List<Participator>() { new Participator() { Id = "0", Answers = { new ParticipatorAnswer() { Question = new Question() { Guid = "1" } } } } },
+                Participators = new List<Participator>() { new Participator() {UserId = "0", Id = "0", Answers = { new ParticipatorAnswer() { Question = new Question() { Guid = "1" } } } } },
             };
 
             var lobbyRepository = new Mock<ILobbyRepository>();

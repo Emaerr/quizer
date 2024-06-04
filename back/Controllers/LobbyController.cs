@@ -117,7 +117,7 @@ namespace Quizer.Controllers
         }
 
         /// <summary>
-        /// Kicks the user from the lobby. Available only for user to kick.
+        /// Kicks the user from the lobby.
         /// </summary>
         /// <param name="lobbyGuid"></param>
         /// <returns></returns>
@@ -516,7 +516,7 @@ namespace Quizer.Controllers
             }
 
             Result resultUsers = await tempUserService.DeleteLobbyTempUsers(lobbyGuid);
-            Result result = await lobbyControlService.StopLobbyAsync(lobbyGuid);
+            Result result = lobbyControlService.StopLobby(lobbyGuid);
 
             if (result.HasError<LobbyNotFoundError>())
             {

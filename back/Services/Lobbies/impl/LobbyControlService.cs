@@ -198,9 +198,27 @@ namespace Quizer.Services.Lobbies.impl
             return Result.Ok();
         }
 
-        public async Task<Result> StopLobbyAsync(string lobbyGuid)
+        public Result StopLobby(string lobbyGuid)
         {
+            IServiceScope scope = _scopeFactory.CreateScope();
+            ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
 
+            Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
+            if (lobby == null)
+            {
+                _logger.LogInformation(ServiceLogEvents.LobbyStopError, "Lobby {lobbyGuid} couldn't be stoppeds because it's not found", lobbyGuid);
+                return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
+            }
+
+            lobby.IsStarted = false;
+
+            _logger.LogInformation(ServiceLogEvents.LobbyStopped, "Lobby {lobbyGuid} has been succefully stopped", lobbyGuid);
+
+            return Result.Ok();
+        }
+
+        public async Task<Result> DeleteLobbyAsync(string lobbyGuid)
+        {
             IServiceScope scope = _scopeFactory.CreateScope();
             ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
             IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
@@ -209,11 +227,9 @@ namespace Quizer.Services.Lobbies.impl
             Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
             if (lobby == null)
             {
-                _logger.LogInformation(ServiceLogEvents.LobbyStopError, "Lobby {lobbyGuid} couldn't be started because it's not found", lobbyGuid);
+                _logger.LogInformation(ServiceLogEvents.LobbyStopError, "Lobby {lobbyGuid} couldn't be deleted because it's not found", lobbyGuid);
                 return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
             }
-
-            lobby.IsStarted = false;
 
             foreach (Participator participator in lobby.Participators)
             {
@@ -225,7 +241,7 @@ namespace Quizer.Services.Lobbies.impl
             lobbyRepository.DeleteLobby(lobby.Id);
             await lobbyRepository.SaveAsync();
 
-            _logger.LogInformation(ServiceLogEvents.LobbyStopped, "Lobby {lobbyGuid} has been succefully stopped", lobbyGuid);
+            _logger.LogInformation(ServiceLogEvents.LobbyStopped, "Lobby {lobbyGuid} has been succefully deleted", lobbyGuid);
 
             return Result.Ok();
         }

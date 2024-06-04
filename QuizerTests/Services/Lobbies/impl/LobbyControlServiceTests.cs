@@ -68,10 +68,10 @@ namespace Quizer.Services.Lobbies.impl.Tests
         }
 
         [TestMethod()]
-        public async Task StopLobbyAsyncTestAsync()
+        public void StopLobbyAsyncTestAsync()
         {
             ILobbyControlService service = new LobbyControlService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyRepositoryMock(isLobbyStarted: true)), new TestTimeService(), LobbyMocks.GetLoggerMock<LobbyControlService>());
-            Result<string> result = await service.StopLobbyAsync("0");
+            Result<string> result = service.StopLobby("0");
             Assert.IsTrue(result.IsSuccess);
         }
 

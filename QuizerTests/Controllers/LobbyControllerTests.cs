@@ -38,8 +38,8 @@ namespace Quizer.Controllers.Tests
         {
             LobbyController lobbyController = new LobbyController(
                 GetLoggerMock(),
-                GetLobbyControlServiceMock(isLobbyStarted: false),
-                GetLobbyConductServiceMock(isLobbyStarted: false),
+                GetLobbyControlServiceMock(isLobbyStarted: true),
+                GetLobbyConductServiceMock(isLobbyStarted: true),
                 GetLobbyAuthServiceMock(),
                                GetLobbyStatsServiceMock(),
                 GetQrServiceMock(), null,
@@ -47,18 +47,24 @@ namespace Quizer.Controllers.Tests
 
             var viewResult = await lobbyController.JoinConfirm("0", "test");
             Assert.IsInstanceOfType(viewResult, typeof(RedirectToActionResult));
+            var result = viewResult as RedirectToActionResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Join", result.ActionName);
 
             lobbyController = new LobbyController(
                 GetLoggerMock(),
-                GetLobbyControlServiceMock(isLobbyStarted: true),
-                GetLobbyConductServiceMock(isLobbyStarted: true),
+                GetLobbyControlServiceMock(isLobbyStarted: false),
+                GetLobbyConductServiceMock(isLobbyStarted: false),
                 GetLobbyAuthServiceMock(),
                 GetLobbyStatsServiceMock(),
                 GetQrServiceMock(), null,
                 GetUserManagerMock("0"), null);
 
             viewResult = await lobbyController.JoinConfirm("0", "test");
-            Assert.IsInstanceOfType(viewResult, typeof(ViewResult));
+            Assert.IsInstanceOfType(viewResult, typeof(RedirectToActionResult));
+            result = viewResult as RedirectToActionResult;
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Briefing", result.ActionName);
         }
 
         [TestMethod()]
@@ -162,7 +168,7 @@ namespace Quizer.Controllers.Tests
         {
             var mock = new Mock<ILobbyControlService>();
             mock.Setup(x => x.StartLobbyAsync(It.IsAny<string>())).Returns(Task.FromResult(Result.Ok()));
-            mock.Setup(x => x.StopLobbyAsync(It.IsAny<string>())).Returns(Task.FromResult(Result.Ok()));
+            mock.Setup(x => x.StopLobby(It.IsAny<string>())).Returns(Result.Ok());
             mock.Setup(x => x.GetUsersInLobby(It.IsAny<string>())).Returns(Task.FromResult(Result.Ok(new List<ApplicationUser>() { new ApplicationUser() { Id = "0" } })));
             mock.Setup(x => x.CreateAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>())).Returns(Task.FromResult(Result.Ok("0")));
             if (isLobbyStarted)

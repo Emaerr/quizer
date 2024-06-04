@@ -6,9 +6,9 @@ namespace Quizer.Models.Lobbies
 {
     public class Participator
     {
-        public Participator(string id)
+        public Participator(string userId)
         {
-            Id = id;
+            UserId = userId;
         }
 
         public Participator()
@@ -18,7 +18,9 @@ namespace Quizer.Models.Lobbies
 
         [Required]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public string Id { get; set; }
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        [ForeignKey("ApplicationUser")]
+        public string? UserId { get; set; } 
         public List<ParticipatorAnswer> Answers { get; set; } = [];
         public int Points { get; set; }
     }

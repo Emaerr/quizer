@@ -365,7 +365,7 @@ namespace Quizer.Services.Lobbies.impl
             Participator? participator = null;
             foreach (Participator p in lobby.Participators)
             {
-                if (p.Id == userId)
+                if (p.UserId == userId)
                 {
                     participator = p;
                 }

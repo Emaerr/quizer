@@ -31,7 +31,8 @@ namespace Quizer.Services.Lobbies.impl
                 Email = $"{Id}@skibidistov.net",
                 NormalizedUserName = $"participator_{Id}".ToUpper(),
                 NormalizedEmail = $"{Id}@skibidistov.net".ToUpper(),
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                IsTemporal = true
             };
             await userManager.CreateAsync(user);
             await userManager.AddToRoleAsync(user, "Participator");
@@ -54,7 +55,12 @@ namespace Quizer.Services.Lobbies.impl
 
             foreach (Participator participator in lobby.Participators)
             {
-                ApplicationUser? user = await userManager.FindByIdAsync(participator.Id);
+                if (participator.UserId == null)
+                {
+                    continue;
+                }
+
+                ApplicationUser? user = await userManager.FindByIdAsync(participator.UserId);
                 if (user == null)
                 {
                     continue;
