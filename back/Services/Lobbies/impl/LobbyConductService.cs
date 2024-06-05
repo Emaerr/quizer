@@ -7,6 +7,7 @@ using Quizer.Models.Quizzes;
 using Quizer.Models.User;
 using Quizer.Services.Quizzes;
 using Quizer.Services.Util;
+using static Quizer.Services.Lobbies.ILobbyConductService;
 
 namespace Quizer.Services.Lobbies.impl
 {
@@ -22,6 +23,47 @@ namespace Quizer.Services.Lobbies.impl
             _logger = logger;
         }
 
+        public Result SubsribeToLobbyStatusUpdateEvent(string lobbyGuid, LobbyStatusUpdateHandler handler)
+        {
+            IServiceScope scope = _scopeFactory.CreateScope();
+            ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
+
+            Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
+            if (lobby == null)
+            {
+                return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
+            }
+
+            lobby.OnLobbyStageChange += (stage) =>
+            {
+                if (lobby.IsStarted)
+                {
+                    if (lobby.Stage == LobbyStage.Results)
+                    {
+                        handler(LobbyStatus.Results);
+                    }
+                    else if (lobby.Stage == LobbyStage.Question)
+                    {
+                        handler(LobbyStatus.Question);
+                    }
+                    else if (lobby.Stage == LobbyStage.Answering)
+                    {
+                        handler(LobbyStatus.Answering);
+                    }
+                    else if (lobby.Stage == LobbyStage.Break)
+                    {
+                        handler(LobbyStatus.Break);
+                    }
+                }
+                else
+                {
+                    handler(LobbyStatus.Briefing);
+                }
+            };
+
+            return Result.Ok();
+        }
+
         public Result<LobbyStatus> GetLobbyStatus(string lobbyGuid)
         {
             IServiceScope scope = _scopeFactory.CreateScope();
@@ -33,15 +75,26 @@ namespace Quizer.Services.Lobbies.impl
                 return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
             }
 
-            if (lobby.Stage == LobbyStage.Results)
-            {
-                return LobbyStatus.Results;
-            }
             if (lobby.IsStarted)
             {
-                return LobbyStatus.Game;
-            }
-            else
+                if (lobby.Stage == LobbyStage.Results)
+                {
+                    return LobbyStatus.Results;
+                }
+                else if (lobby.Stage == LobbyStage.Question)
+                {
+                    return LobbyStatus.Question;
+                }
+                else if (lobby.Stage == LobbyStage.Answering)
+                {
+                    return LobbyStatus.Answering;
+                }
+                else if (lobby.Stage == LobbyStage.Break)
+                {
+                    return LobbyStatus.Break;
+                }
+                throw new Exception("Something is wrong with else if in LobbyConductService GetLobbyStatus");
+            } else
             {
                 return LobbyStatus.Briefing;
             }

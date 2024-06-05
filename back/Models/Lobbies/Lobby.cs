@@ -23,6 +23,9 @@ namespace Quizer.Models.Lobbies
         private int _currentQuestion;
         private int _timeElapsedSinceLastAction; // here action is question finish and break finish
 
+        public delegate void LobbyStageChange(LobbyStage stage);
+        public event LobbyStageChange OnLobbyStageChange;
+
         public Lobby()
         {
             Participators = new List<Participator>();
@@ -42,7 +45,7 @@ namespace Quizer.Models.Lobbies
         [Range(4, 1000)]
         public int MaxParticipators { get; set; }
         public bool IsStarted { get; set; } = false;
-        public LobbyStage Stage { get; private set; } = LobbyStage.Question;
+        public LobbyStage Stage { get; private set; } = LobbyStage.Question; // probably onLobbyStageChange should be here in the setter
         public int Pin { get; set; }
         public virtual List<Participator> Participators { get; set; }
         public virtual Quiz? Quiz {  get; set; }
@@ -60,6 +63,10 @@ namespace Quizer.Models.Lobbies
             _timeElapsedSinceLastAction = 0;
             Stage = LobbyStage.Question;
             _currentQuestion++;
+            if (OnLobbyStageChange != null)
+            {
+                OnLobbyStageChange(LobbyStage.Question);
+            }
         }
 
         public void Update(TimeSpan timeSpan)
@@ -87,10 +94,18 @@ namespace Quizer.Models.Lobbies
                 {
                     Stage = LobbyStage.Answering;
                     _timeElapsedSinceLastAction = _timeElapsedSinceLastAction - Quiz.TimeLimit;
+                    if (OnLobbyStageChange != null)
+                    {
+                        OnLobbyStageChange(LobbyStage.Answering);
+                    }
                 }
                 if (_currentQuestion == (Quiz.Questions.Count - 1))
                 {
                     Stage = LobbyStage.Results;
+                    if (OnLobbyStageChange != null)
+                    {
+                        OnLobbyStageChange(LobbyStage.Results);
+                    }
                 }
             } 
             else if (IsAnsweringTime())
@@ -99,6 +114,10 @@ namespace Quizer.Models.Lobbies
                 {
                     Stage = LobbyStage.Break;
                     _timeElapsedSinceLastAction = _timeElapsedSinceLastAction - 1000;
+                    if (OnLobbyStageChange != null)
+                    {
+                        OnLobbyStageChange(LobbyStage.Break);
+                    }
                 }
             }
             else if (IsBreakTime())

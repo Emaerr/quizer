@@ -112,7 +112,7 @@ namespace Quizer.Controllers.Tests
 
             if (isLobbyStarted)
             {
-                mock.Setup(x => x.GetLobbyStatus(It.IsAny<string>())).Returns(Result.Ok(LobbyStatus.Game));
+                mock.Setup(x => x.GetLobbyStatus(It.IsAny<string>())).Returns(Result.Ok(LobbyStatus.Question));
             }
             else
             {

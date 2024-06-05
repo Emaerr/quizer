@@ -44,22 +44,22 @@ namespace Quizer.Services.Lobbies.impl.Tests
         public async Task RegisterTestAnswerTestAsync()
         {
             // check for invalid user
-            ILobbyConductService service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyRepositoryMock(isLobbyStarted: false)),  LobbyMocks.GetLoggerMock<LobbyConductService>());
+            ILobbyConductService service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyRepositoryMock(isLobbyStarted: false)), LobbyMocks.GetLoggerMock<LobbyConductService>());
             Result result = await service.RegisterTestAnswer("0", "0", "0");
             Assert.IsTrue(result.IsFailed);
 
             // check for invalid time
-            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: false, LobbyStage.Question)),  LobbyMocks.GetLoggerMock<LobbyConductService>());
+            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: false, LobbyStage.Question)), LobbyMocks.GetLoggerMock<LobbyConductService>());
             result = await service.RegisterTestAnswer("0", "0", "0");
             Assert.IsTrue(result.IsFailed);
 
             // check for invalid answer guid
-            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: false, LobbyStage.Answering)),  LobbyMocks.GetLoggerMock<LobbyConductService>());
+            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: false, LobbyStage.Answering)), LobbyMocks.GetLoggerMock<LobbyConductService>());
             result = await service.RegisterTestAnswer("0", "0", "invalid_guid");
             Assert.IsTrue(result.IsFailed);
 
             // check for lobby not started
-            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: false, LobbyStage.Answering)),  LobbyMocks.GetLoggerMock<LobbyConductService>());
+            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: false, LobbyStage.Answering)), LobbyMocks.GetLoggerMock<LobbyConductService>());
             result = await service.RegisterTestAnswer("0", "0", "0");
             Assert.IsTrue(result.IsFailed);
 
@@ -70,12 +70,12 @@ namespace Quizer.Services.Lobbies.impl.Tests
             Assert.IsTrue(result.IsFailed);
 
             // should be success
-            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: true, LobbyStage.Answering)),  LobbyMocks.GetLoggerMock<LobbyConductService>());
+            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: true, LobbyStage.Answering)), LobbyMocks.GetLoggerMock<LobbyConductService>());
             result = await service.RegisterTestAnswer("0", "0", null);
             Assert.IsTrue(result.IsSuccess);
 
             // should be success
-            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: true, LobbyStage.Answering)),  LobbyMocks.GetLoggerMock<LobbyConductService>());
+            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: true, LobbyStage.Answering)), LobbyMocks.GetLoggerMock<LobbyConductService>());
             result = await service.RegisterTestAnswer("0", "0", "0");
             Assert.IsTrue(result.IsSuccess);
         }
@@ -84,34 +84,34 @@ namespace Quizer.Services.Lobbies.impl.Tests
         public async Task RegisterNumericalAnswerTest()
         {
             // check for invalid user
-            ILobbyConductService service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyRepositoryMock(isLobbyStarted: false, questionType: QuestionType.NumberEntry)),  LobbyMocks.GetLoggerMock<LobbyConductService>());
+            ILobbyConductService service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyRepositoryMock(isLobbyStarted: false, questionType: QuestionType.NumberEntry)), LobbyMocks.GetLoggerMock<LobbyConductService>());
             Result result = await service.RegisterNumericalAnswer("0", "0", 0);
             Assert.IsTrue(result.IsFailed);
 
             // check for invalid time
-            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: false, LobbyStage.Question, questionType: QuestionType.NumberEntry)),  LobbyMocks.GetLoggerMock<LobbyConductService>());
+            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: false, LobbyStage.Question, questionType: QuestionType.NumberEntry)), LobbyMocks.GetLoggerMock<LobbyConductService>());
             result = await service.RegisterNumericalAnswer("0", "0", 0);
             Assert.IsTrue(result.IsFailed);
 
             // check for lobby not started
-            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: false, LobbyStage.Answering, questionType: QuestionType.NumberEntry)),  LobbyMocks.GetLoggerMock<LobbyConductService>());
+            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: false, LobbyStage.Answering, questionType: QuestionType.NumberEntry)), LobbyMocks.GetLoggerMock<LobbyConductService>());
             result = await service.RegisterNumericalAnswer("0", "0", 0);
             Assert.IsTrue(result.IsFailed);
 
             // check for answer duplication
             ILobbyRepository lobbyRepository = LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: true, LobbyStage.Answering, questionType: QuestionType.NumberEntry);
             lobbyRepository.GetLobbyByGuid("0")!.NextQuestion();
-            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(lobbyRepository),  LobbyMocks.GetLoggerMock<LobbyConductService>());
+            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(lobbyRepository), LobbyMocks.GetLoggerMock<LobbyConductService>());
             result = await service.RegisterNumericalAnswer("0", "0", 0);
             Assert.IsTrue(result.IsFailed);
 
             // should be success
-            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: true, LobbyStage.Answering, questionType: QuestionType.NumberEntry)),  LobbyMocks.GetLoggerMock<LobbyConductService>());
+            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: true, LobbyStage.Answering, questionType: QuestionType.NumberEntry)), LobbyMocks.GetLoggerMock<LobbyConductService>());
             result = await service.RegisterNumericalAnswer("0", "0", null);
             Assert.IsTrue(result.IsSuccess);
 
             // should be success
-            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: true, LobbyStage.Answering, questionType: QuestionType.NumberEntry)),  LobbyMocks.GetLoggerMock<LobbyConductService>());
+            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: true, LobbyStage.Answering, questionType: QuestionType.NumberEntry)), LobbyMocks.GetLoggerMock<LobbyConductService>());
             result = await service.RegisterNumericalAnswer("0", "0", 0);
             Assert.IsTrue(result.IsSuccess);
         }
@@ -120,17 +120,17 @@ namespace Quizer.Services.Lobbies.impl.Tests
         public async Task RegisterTextAnswerTest()
         {
             // check for invalid user
-            ILobbyConductService service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyRepositoryMock(isLobbyStarted: false, questionType: QuestionType.TextEntry)),  LobbyMocks.GetLoggerMock<LobbyConductService>());
+            ILobbyConductService service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyRepositoryMock(isLobbyStarted: false, questionType: QuestionType.TextEntry)), LobbyMocks.GetLoggerMock<LobbyConductService>());
             Result result = await service.RegisterTextAnswer("0", "0", "test");
             Assert.IsTrue(result.IsFailed);
 
             // check for invalid time
-            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: false, LobbyStage.Question, questionType: QuestionType.TextEntry)),  LobbyMocks.GetLoggerMock<LobbyConductService>());
+            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: false, LobbyStage.Question, questionType: QuestionType.TextEntry)), LobbyMocks.GetLoggerMock<LobbyConductService>());
             result = await service.RegisterTextAnswer("0", "0", "test");
             Assert.IsTrue(result.IsFailed);
 
             // check for lobby not started
-            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: false, LobbyStage.Answering, questionType: QuestionType.TextEntry)),  LobbyMocks.GetLoggerMock<LobbyConductService>());
+            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: false, LobbyStage.Answering, questionType: QuestionType.TextEntry)), LobbyMocks.GetLoggerMock<LobbyConductService>());
             result = await service.RegisterTextAnswer("0", "0", "test");
             Assert.IsTrue(result.IsFailed);
 
@@ -142,14 +142,26 @@ namespace Quizer.Services.Lobbies.impl.Tests
             Assert.IsTrue(result.IsFailed);
 
             // should be success
-            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: true, LobbyStage.Answering, questionType: QuestionType.TextEntry)),  LobbyMocks.GetLoggerMock<LobbyConductService>());
+            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: true, LobbyStage.Answering, questionType: QuestionType.TextEntry)), LobbyMocks.GetLoggerMock<LobbyConductService>());
             result = await service.RegisterTextAnswer("0", "0", null);
             Assert.IsTrue(result.IsSuccess);
 
             // should be success
-            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: true, LobbyStage.Answering, questionType: QuestionType.TextEntry)),  LobbyMocks.GetLoggerMock<LobbyConductService>());
+            service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: true, LobbyStage.Answering, questionType: QuestionType.TextEntry)), LobbyMocks.GetLoggerMock<LobbyConductService>());
             result = await service.RegisterTextAnswer("0", "0", "test");
             Assert.IsTrue(result.IsSuccess);
+        }
+
+        [TestMethod()]
+        public void SubsribeToLobbyStatusUpdateEventTest()
+        {
+            bool isEventRaised = false;
+            ILobbyRepository lobbyRepository = LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: true, LobbyStage.Answering, questionType: QuestionType.NumberEntry);
+            var service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(lobbyRepository), LobbyMocks.GetLoggerMock<LobbyConductService>());
+            service.SubsribeToLobbyStatusUpdateEvent("0", (status) => isEventRaised = true);
+            lobbyRepository.GetLobbyByGuid("0")!.NextQuestion();
+
+            Assert.IsTrue(isEventRaised);
         }
     }
 }
