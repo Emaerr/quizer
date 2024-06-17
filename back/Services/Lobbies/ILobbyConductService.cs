@@ -10,14 +10,14 @@ namespace Quizer.Services.Lobbies
         Question,
         Answering,
         Break,
-        Results
+        Result
     }
 
     public interface ILobbyConductService
     {
         delegate void LobbyStatusUpdateHandler(LobbyStatus lobbyStatus);
 
-        Result SubsribeToLobbyStatusUpdateEvent(string lobbyGuid, LobbyStatusUpdateHandler handler);
+        Result SubscribeToLobbyStatusUpdateEvent(string lobbyGuid, LobbyStatusUpdateHandler handler);
         Result<LobbyStatus> GetLobbyStatus(string lobbyGuid);
         Result<Question> GetCurrentQuestion(string lobbyGuid);
         Task<Result> RegisterTestAnswer(string userId, string lobbyGuid, string? answerGuid);

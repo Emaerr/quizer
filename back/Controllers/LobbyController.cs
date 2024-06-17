@@ -20,6 +20,10 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Data.SqlClient;
+using static Quizer.Services.Lobbies.ILobbyConductService;
+using Quizer.Hubs;
+using Microsoft.AspNetCore.SignalR;
+using System.Text.RegularExpressions;
 
 
 namespace Quizer.Controllers
@@ -29,7 +33,7 @@ namespace Quizer.Controllers
         ILogger<LobbyController> logger, ILobbyControlService lobbyControlService,
         ILobbyConductService lobbyConductService, ILobbyAuthService lobbyAuthService, ILobbyStatsService lobbyStatsService,
         IQrService qrService, ITempUserService tempUserService, UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager) : Controller
+        SignInManager<ApplicationUser> signInManager, IHubContext<LobbyHub, ILobbyClient> hubContext) : Controller
     {
 
         /// <summary>
@@ -62,13 +66,16 @@ namespace Quizer.Controllers
         /// 
         /// </summary>
         /// <param name="lobbyGuid"></param>
+        /// <param name="connectionId">SignalR connection ID</param>
+        /// <param name="displayName">User chosen display name</param>
         /// <returns>
+        /// Pass the Connection ID from the client side: https://stackoverflow.com/a/50394456/15028432
         /// If all ok redirects to Briefing.
         /// If lobby is unavailable returns Unavailable view.
         /// If no free slot (lobby reached max participators count) returns NoFreeSlot view.
         /// </returns>
         [HttpPost("JoinConfirm/{lobbyGuid}")]
-        public async Task<IActionResult> JoinConfirm(string lobbyGuid, [FromForm] string displayName)
+        public async Task<IActionResult> JoinConfirm(string lobbyGuid, string connectionId, [FromForm] string displayName)
         {
             ApplicationUser? user = await userManager.GetUserAsync(User);
             if (user == null)
@@ -113,6 +120,10 @@ namespace Quizer.Controllers
                 return StatusCode(500);
             }
 
+            await AddToLobbyGroup(lobbyGuid, connectionId);
+            user.HubConnectionId = connectionId;
+            await userManager.UpdateAsync(user);
+
             return RedirectToAction("Briefing", new { lobbyGuid });
         }
 
@@ -136,6 +147,11 @@ namespace Quizer.Controllers
             if (result.HasError<LobbyNotFoundError>())
             {
                 return NotFound();
+            }
+
+            if (user.HubConnectionId != null)
+            {
+                await RemoveFromLobbyGroup(lobbyGuid, user.HubConnectionId);
             }
 
             return RedirectToAction("Index", "Home");
@@ -316,7 +332,7 @@ namespace Quizer.Controllers
             }
 
             Result<LobbyStatus> lobbyStatusResult = lobbyConductService.GetLobbyStatus(lobbyGuid);
-            if (lobbyStatusResult.Value == LobbyStatus.Results)
+            if (lobbyStatusResult.Value == LobbyStatus.Result)
             {
                 return View("QuizResults", GetStatsViewModel(lobbyGuid));
             }
@@ -383,8 +399,26 @@ namespace Quizer.Controllers
             }
 
             Uri uri = new Uri($"{Request.Scheme}://{Request.Host}/Lobby/Join/{result.Value}");
-
             qrService.GenerateQrCode(result.Value, uri.ToString());
+
+            lobbyConductService.SubscribeToLobbyStatusUpdateEvent(result.Value, async (status) => {
+                if (status == LobbyStatus.Question)
+                {
+                    await hubContext.Clients.Group("lobby_" + result.Value).RedirectToQuestion();
+                }
+                else if (status == LobbyStatus.Answering)
+                {
+                    await hubContext.Clients.Group("lobby_" + result.Value).SendAnswer();
+                }
+                else if (status == LobbyStatus.Break)
+                {
+                    await hubContext.Clients.Group("lobby_" + result.Value).RedirectToBreak();
+                }
+                else if (status == LobbyStatus.Result)
+                {
+                    await hubContext.Clients.Group("lobby_" + result.Value).RedirectToResult();
+                }
+            });
 
             return RedirectToAction("Manage", new { lobbyGuid = result.Value });
         }
@@ -563,6 +597,8 @@ namespace Quizer.Controllers
                 return NotFound();
             }
 
+            await RemoveUserFromLobbyGroupById(lobbyGuid, userToKickId);
+
             return Ok();
         }
 
@@ -659,5 +695,30 @@ namespace Quizer.Controllers
             };
         }
 
+        private async Task AddToLobbyGroup(string lobbyGuid, string connectionId)
+        {
+            await hubContext.Groups.AddToGroupAsync(connectionId, "lobby_" + lobbyGuid);
+        }
+
+        private async Task RemoveFromLobbyGroup(string lobbyGuid, string connectionId)
+        {
+            await hubContext.Groups.RemoveFromGroupAsync(connectionId, "lobby_" + lobbyGuid);
+        }
+
+        private async Task RemoveUserFromLobbyGroupById(string lobbyGuid, string userId)
+        {
+            ApplicationUser? user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return;
+            }
+
+            if (user.HubConnectionId == null)
+            {
+                return;
+            }
+
+            await hubContext.Groups.RemoveFromGroupAsync(user.HubConnectionId, "lobby_" + lobbyGuid);
+        }
     }
 }

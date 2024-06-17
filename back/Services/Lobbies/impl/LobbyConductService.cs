@@ -23,7 +23,7 @@ namespace Quizer.Services.Lobbies.impl
             _logger = logger;
         }
 
-        public Result SubsribeToLobbyStatusUpdateEvent(string lobbyGuid, LobbyStatusUpdateHandler handler)
+        public Result SubscribeToLobbyStatusUpdateEvent(string lobbyGuid, LobbyStatusUpdateHandler handler)
         {
             IServiceScope scope = _scopeFactory.CreateScope();
             ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
@@ -40,7 +40,7 @@ namespace Quizer.Services.Lobbies.impl
                 {
                     if (lobby.Stage == LobbyStage.Results)
                     {
-                        handler(LobbyStatus.Results);
+                        handler(LobbyStatus.Result);
                     }
                     else if (lobby.Stage == LobbyStage.Question)
                     {
@@ -79,7 +79,7 @@ namespace Quizer.Services.Lobbies.impl
             {
                 if (lobby.Stage == LobbyStage.Results)
                 {
-                    return LobbyStatus.Results;
+                    return LobbyStatus.Result;
                 }
                 else if (lobby.Stage == LobbyStage.Question)
                 {

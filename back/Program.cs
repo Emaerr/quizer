@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Quizer.Data;
+using Quizer.Hubs;
 using Quizer.Models.User;
 using Quizer.Services.Lobbies;
 using Quizer.Services.Lobbies.impl;
@@ -24,6 +25,8 @@ namespace Quizer
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(connectionString));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+            builder.Services.AddSignalR();
 
             builder.Services.AddDefaultIdentity<ApplicationUser>()
             .AddRoles<IdentityRole>()
@@ -100,6 +103,8 @@ namespace Quizer
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+
+            app.MapHub<LobbyHub>("/LobbyHub");
 
             app.MapRazorPages();
 

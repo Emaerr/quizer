@@ -2,11 +2,14 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Quizer.Controllers;
 using Quizer.Exceptions.Services;
+using Quizer.Hubs;
 using Quizer.Models.Lobbies;
 using Quizer.Models.Quizzes;
 using Quizer.Models.User;
@@ -43,9 +46,9 @@ namespace Quizer.Controllers.Tests
                 GetLobbyAuthServiceMock(),
                                GetLobbyStatsServiceMock(),
                 GetQrServiceMock(), null,
-                GetUserManagerMock("0"), null);
+                GetUserManagerMock("0"), null, MockHubContext());
 
-            var viewResult = await lobbyController.JoinConfirm("0", "test");
+            var viewResult = await lobbyController.JoinConfirm("0", "test", "test_id");
             Assert.IsInstanceOfType(viewResult, typeof(RedirectToActionResult));
             var result = viewResult as RedirectToActionResult;
             Assert.IsNotNull(result);
@@ -58,9 +61,9 @@ namespace Quizer.Controllers.Tests
                 GetLobbyAuthServiceMock(),
                 GetLobbyStatsServiceMock(),
                 GetQrServiceMock(), null,
-                GetUserManagerMock("0"), null);
+                GetUserManagerMock("0"), null, MockHubContext());
 
-            viewResult = await lobbyController.JoinConfirm("0", "test");
+            viewResult = await lobbyController.JoinConfirm("0", "test", "test_id");
             Assert.IsInstanceOfType(viewResult, typeof(RedirectToActionResult));
             result = viewResult as RedirectToActionResult;
             Assert.IsNotNull(result);
@@ -76,7 +79,7 @@ namespace Quizer.Controllers.Tests
                 GetLobbyConductServiceMock(isLobbyStarted: true),
                 GetLobbyAuthServiceMock(), GetLobbyStatsServiceMock(),
                 GetQrServiceMock(), null,
-                GetUserManagerMock("1"), null);
+                GetUserManagerMock("1"), null, MockHubContext());
 
             var viewResult = await lobbyController.Game("0");
 
@@ -92,7 +95,7 @@ namespace Quizer.Controllers.Tests
                 GetLobbyConductServiceMock(isLobbyStarted: true),
                 GetLobbyAuthServiceMock(), GetLobbyStatsServiceMock(),
                 GetQrServiceMock(), null,
-                GetUserManagerMock("1"), null);
+                GetUserManagerMock("1"), null, MockHubContext());
 
             var viewResult = await lobbyController.Result("0") as ViewResult;
 
@@ -248,6 +251,15 @@ namespace Quizer.Controllers.Tests
             mgr.Setup(x => x.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync(ls.First());
 
             return mgr;
+        }
+
+        private IHubContext<LobbyHub, ILobbyClient> MockHubContext()
+        {
+            Mock<IHubContext<LobbyHub, ILobbyClient>> mock = new Mock<IHubContext<LobbyHub, ILobbyClient>>();
+
+            mock.SetupGet(x => x.Groups).Returns(new Mock<IGroupManager>().Object);
+
+            return mock.Object;
         }
     }
 }

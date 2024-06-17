@@ -6,5 +6,6 @@ namespace Quizer.Models.User
     {
         public string? DisplayName { get; set; }
         public bool IsTemporal { get; set; }
+        public string? HubConnectionId { get; set; }
     }
 }

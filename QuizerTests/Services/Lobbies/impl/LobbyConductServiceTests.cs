@@ -158,7 +158,7 @@ namespace Quizer.Services.Lobbies.impl.Tests
             bool isEventRaised = false;
             ILobbyRepository lobbyRepository = LobbyMocks.GetLobbyWithUserRepositoryMock(isLobbyStarted: true, LobbyStage.Answering, questionType: QuestionType.NumberEntry);
             var service = new LobbyConductService(LobbyMocks.GetScopeFactoryMock(lobbyRepository), LobbyMocks.GetLoggerMock<LobbyConductService>());
-            service.SubsribeToLobbyStatusUpdateEvent("0", (status) => isEventRaised = true);
+            service.SubscribeToLobbyStatusUpdateEvent("0", (status) => isEventRaised = true);
             lobbyRepository.GetLobbyByGuid("0")!.NextQuestion();
 
             Assert.IsTrue(isEventRaised);
