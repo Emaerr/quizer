@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../styles/create.css" />
+    <title>Квиз</title>
+  </head>
+  <body>
+    <div class="quiz-container">
+      <div class="header">
+        <div class="circle left-circle"></div>
+        <div class="circle right-circle"></div>
+      </div>
+      <div class="content">
+        <div class="quiz-sidebar">
+          <h1>Название квиза</h1>
+          <div class="question-box">
+            <div class="close-button"><img src="../src/close.png" width="30px" height="30px" /></div>
+            <h2>Введи вопрос</h2>
+            <div class="question-input-box">
+              <span>1</span>
+              <input type="text" class="question-input" />
+            </div>
+            <div class="answers">
+              <div class="input-box-answer">
+                <input type="text" placeholder="" />
+                <input type="text" placeholder="" />
+              </div>
+              <div class="input-box-answer_2">
+                <input type="text" placeholder="" />
+                <input type="text" placeholder="" />
+              </div>
+            </div>
+          </div>
+          <button>Новый вопрос</button>
+        </div>
+        <div class="quiz-main">
+          <h2>Вопрос 1</h2>
+          <textarea type="text" placeholder="Нажми, чтобы ввести вопрос"></textarea>
+          <div class="upload-info">
+            <div class="time-to-questin">
+              <p>Время на ответ</p>
+              <input type="text"/>
+            </div>
+            <div class="image-upload">
+              <p>Может картинку? :)</p>
+              <div class="btn-upload">
+                <button>Из галереи</button>
+                <button>Загрузить</button>
+              </div>
+            </div>
+            <div class="close-button"><img src="../src/close.png" width="30px" height="30px" /></div>
+          </div>
+          <div class="answer-type">
+            <h1>Тип ответа</h1>
+          </div>
+          <div class="answers">
+            <div class="answer">
+              <input type="radio" name="answer" />
+              <input type="text" />
+              <input type="text" />
+              <input type="radio" name="answer" />
+            </div>
+            <div class="answer">
+              <input type="radio" name="answer" />
+              <input type="text" />
+              <input type="text" />
+              <input type="radio" name="answer" />
+            </div>
+          </div>
+          <div class="actions">
+            <button>Назад</button>
+            <button>Подтвердить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
