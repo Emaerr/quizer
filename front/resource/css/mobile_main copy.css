@@ -1,0 +1,81 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.container {
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    width: 360px;
+    height: 800px;
+    text-align: center;
+}
+
+.input-container {
+    padding: 20px;
+    background-color: #9c27b0;
+    color: #ffffff;
+    border-radius: 20px 20px 0 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h2 {
+    font-size: 18px;
+    margin: 0 0 20px;
+}
+
+input[type="text"] {
+    width: 80%;
+    padding: 12px;
+    margin: 10px 0 20px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.emoji-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 10px 0 20px;
+}
+
+.emoji {
+    font-size: 24px;
+    padding: 10px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.emoji:hover {
+    transform: scale(1.2);
+}
+
+button {
+    background-color: #ff4081;
+    color: #ffffff;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: auto;
+}
+
+button:hover {
+    background-color: #e91e63;
+}
+
+.selected {
+    background-color: #fff;
+    border-radius: 50%;
+}
