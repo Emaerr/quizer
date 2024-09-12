@@ -44,8 +44,8 @@
   #root, #__next {
     isolation: isolate;
   }
-body {
-    background-image: url('bg/bg1.svg');
+  body {
+    background-image: url('bg/bg1.png');
     background-size: cover;
     font-family: "Comic Neue", cursive;
     font-weight: 700;
@@ -55,46 +55,7 @@ body {
     align-items: center;
     height: 100vh;
     overflow: hidden;
-}
-
-.top-container {
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 560px;
-    text-align: center;
-    position: relative;
-    top: 3%;
-    z-index: 1;
-}
-
-.question {
-  font-size: 36px;
-  color: #a42fc1;
-  margin: 1%;
-}
-
-.image {
-  box-shadow: 10px 10px 10px 10px rgba(0, 0, 0, 0.1);
-  max-width: 640px;
-  max-height: fit-content;
-  position: relative;
-  border-radius: 10px;
-}
-
-.header {
-    color: #a42fc1;
-    padding: 10px;
-    border-radius: 10px 10px 0 0;
-    position: relative;
-}
-
-.header h1 {
-    margin-top: 15px;
-    font-size: 31px;
-}
-
+    }
 .container {
     background-color: white;
     border-radius: 50px 50px 0px 0px;
@@ -105,41 +66,38 @@ body {
     bottom: 0;
     height: 69%;
 }
-
-.timer {
-    font-size: 48px;
-    position: absolute;
-    right: 230px;
-    top: 30px;
-    color: #a42fc1;
+h2{
+    color: #bf2bc6;
+    margin-top: 2.5%;
+    font-size: 50px;
 }
-
-.options {
+input {
+    border: 2px solid #bf2bc6;
+    border-radius: 8px;
+    outline: none;
+  }
+input:focus {
+    border: 3px solid #bf2bc6;
+  }
+.input1 {
+    width: 20%;
+    height: 70px;
+    font-size: 50px;
+    color: #bf2bc6;
+    margin-top: 2%;
+    text-align: center;
+}
+.formtime{
     display: flex;
-    flex-direction: column;
     justify-content: center;
-    margin-top: 280px;
-    row-gap: 80px;
+    margin-top: 10%;
+    font-size: 50px;
+    gap: 1%;
+    color: #bf2bc6;
 }
-
-.option-wrap {
-  display: flex;
-  gap: 300px;
-  justify-content: center;
-}
-
-.option {
-    background-color: white;
-    border: 2px solid #a42fc1;
-    border-radius: 10px;
-    color: #a42fc1;
-    padding: 10px;
-    font-size: 35px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    width: 350px;
-}
-
-.option:hover {
-    background-color: #f3e4f9;
+.input2 {
+    height: 99.7%;
+    width: 5%;
+    color: #bf2bc6;
+    text-align: center;
 }
