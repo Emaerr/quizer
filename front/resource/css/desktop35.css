@@ -44,10 +44,12 @@
   #root, #__next {
     isolation: isolate;
   }
-body {
-    background-image: url('bg/bg1.png');
+  body {
+    background-image: url('bg/bg1.svg');
     background-size: cover;
-    font-family: Arial, sans-serif;
+    font-family: "Comic Neue", cursive;
+    font-weight: 700;
+    font-style: normal;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -60,30 +62,48 @@ body {
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 600px;
-    padding: 40px;
+    max-width: 560px;
     text-align: center;
     position: relative;
-    top: 10%;
+    top: 13%;
     z-index: 1;
 }
 
+.question {
+  font-size: 36px;
+  color: #a42fc1;
+  margin: 1%;
+}
+
+.image-wrap {
+  width: 560px;
+  position: relative;
+  overflow: hidden;
+  height: 300px;
+  z-index: 2;
+}
+
+.image {
+  position: inherit;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  object-position: 0 0;
+  object-fit: cover;
+  width: 560px;
+  height: 300px;
+}
+
 .header {
-    color: #bf2bc6;
+    color: #a42fc1;
     padding: 10px;
     border-radius: 10px 10px 0 0;
     position: relative;
 }
 
 .header h1 {
-    margin: 0;
+    margin-top: 15px;
     font-size: 31px;
-}
-
-.question p {
-    font-size: 36px;
-    margin: 20px 0;
-    color: #bf2bc6;
 }
 
 .container {
@@ -102,31 +122,60 @@ body {
     position: absolute;
     right: 230px;
     top: 30px;
-    color: #bf2bc6;
+    color: #a42fc1;
 }
 
 .options {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    margin-top: 200px;
-    justify-items: center;
-    row-gap: 120px;
-    align-content: space-around;
-    align-items: baseline;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 280px;
+    row-gap: 80px;
+}
+
+.option-wrap {
+  display: flex;
+  gap: 300px;
+  justify-content: center;
 }
 
 .option {
     background-color: white;
-    border: 2px solid #d08fe5;
+    border: 2px solid #a42fc1;
     border-radius: 10px;
-    color: #d08fe5;
-    padding: 30px;
-    font-size: 16px;
+    color: #a42fc1;
+    padding: 10px;
+    font-size: 35px;
     cursor: pointer;
     transition: background-color 0.3s;
-    width: 400px;
+    width: 350px;
 }
 
 .option:hover {
     background-color: #f3e4f9;
+}
+
+.footer{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 75%;
+}
+
+.bottom-button{
+  background-color: white;
+  border: 2px solid #a42fc1;
+  border-radius: 10px;
+  color: #a42fc1;
+  padding: 10px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 200px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.bottom-button:hover{
+  background-color: #f3e4f9;
 }
