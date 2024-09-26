@@ -1,0 +1,27 @@
+﻿@model Quizer.Models.Quizzes.QuestionViewModel
+
+
+@{
+    ViewData["Title"] = $"Вопрос {@Model.Position}/";
+}
+
+<link href="~/css/Question.css" rel="stylesheet" />
+
+
+<div class="top-container">
+    <div class="header">
+        <h1>Вопрос @Model.Position</h1>
+    </div>
+    <div class="question">
+        <p>@Model.Title</p>
+    </div>
+</div>
+<div class="container">
+    <div class="timer">00:00:42</div>
+    <div class="options">
+        <button class="option">Чёрный конь</button>
+        <button class="option">Красный конь</button>
+        <button class="option">Ослик</button>
+        <button class="option">Не знаю</button>
+    </div>
+</div>

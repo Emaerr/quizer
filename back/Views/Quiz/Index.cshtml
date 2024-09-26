@@ -15,10 +15,11 @@
 <div class="content">
     <table style="width:100%">
         @{bool isFirst = false;}
+        @{bool isNull = false;}
         @foreach (var item in Model)
         {
-
-                <tr>
+            isNull = true;
+            <tr>
                     <div class="quiz-list">
                     <th>
                         <div class="quiz-item">
@@ -31,7 +32,7 @@
                         </div>
                     </th>
 
-                @if (isFirst == false)
+                    @if (isFirst == false)
                 {
                     isFirst = true;
                     <th>
@@ -41,6 +42,17 @@
                     </th>
                 }
                 </tr>
+        }
+        @if (isNull == false)
+        {
+            <tr>
+                <th></th>
+                <th>
+                    <div class="quiz-create">
+                        <a asp-action="Create" class="quiz-create-button">Создать новый квиз</a>
+                    </div>
+                </th>
+            </tr>
         }
     </table>
 </div>
