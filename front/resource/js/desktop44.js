@@ -1,4 +1,4 @@
-let timeLeft = 15
+let timeLeft = 15;
 let timerInterval;
 let userAnswer = null;
 
@@ -15,7 +15,7 @@ function startTimer() {
 }
 
 function fetchNextQuestion() {
-    fetch('/next-question', {  // эндпоинт сервера указать надо будет
+    fetch('http://localhost:3000/questions', {  // эндпоинт сервера указать надо будет
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -33,15 +33,24 @@ function fetchNextQuestion() {
 
 function loadNextQuestion(data) {
     document.getElementById("questionText").textContent = data.question;
-    const buttons = document.querySelectorAll(".option");
+    const buttons = document.querySelectorAll("option");
     buttons.forEach((button, index) => {
         button.textContent = data.answers[index];
         button.setAttribute("data-answer", data.answers[index]);
     });
+    resetTimer();
 }
 
 Array.prototype.forEach.call(document.getElementsByClassName("option"), function(el) {
     el.addEventListener('click', function(e) {
+        const userAnswer = this.getAttribute("data-answer");
         alert("Ответ принят");
+        fetchNextQuestion();
     });
 });
+
+function resetTimer() {
+    timeLeft = 15
+    document.getElementById('countdown').textContent = timeLeft;
+    startTimer();
+}
