@@ -25,31 +25,13 @@
         background-color: #c93ece; /* Пурпурный цвет шариков */ 
         animation: riseAndEnlarge 20s linear forwards; 
     } 
- 
-    .ball_shadow { 
-        position: absolute; 
-        bottom: -10.5%; 
-        transform: translate(-50%, 0); 
-        border-radius: 50%; 
-        background-color: #681D7B; /* тёмно-Пурпурный цвет шариков */ 
-        animation: riseAndEnlarge 20s linear forwards; 
-    } 
- 
-    @keyframes riseAndEnlarge { 
-        0% { 
-            transform: translate(-50%, 0) scale(1); 
-        } 
-        100% { 
-            transform: translate(-50%, -200vh) scale(1.5); 
-        } 
-    } 
 </style> 
 </head> 
 <body> 
  
 <div class="container"> 
     <script> 
-        function createBall(className, random, shadow) { 
+        function createBall(className, random) { 
             const ball = document.createElement('div'); 
             ball.classList.add(className); 
             let randomSize = Math.floor(random * 40) + 60; 
@@ -57,14 +39,9 @@
             ball.style.width = randomSize + 'px'; // Добавляем единицы измерения 
  
             // Генерируем случайное смещение для ball 
-            let randomOffset = Math.random()*10-10; // От -10 до 10 пикселей 
-			if (shadow == 1){
-				ball.style.left = `${random * (window.innerWidth - 145) + 73 + randomOffset}px`; // Случайное положение по горизонтали с учётом смещения 
-				document.body.appendChild(ball); 
-			} else{
-				ball.style.left = `${random * (window.innerWidth - 145) + 73 + randomOffset - 20}px`;
+            randomOffset = Math.random()*10-10; // От -10 до 10 пикселей 
+            ball.style.left = `${random * (window.innerWidth - 145) + 73 + randomOffset - 20}px`;
 				document.body.appendChild(ball);
-			}
 			
 			// Удалить элемент после завершения анимации 
 				ball.addEventListener('animationend', () => { 
@@ -74,7 +51,6 @@
  
         function interval() { 
             let random = Math.random(); 
-            createBall('ball_shadow', random, 1); 
             createBall('ball', random, 0); 
         } 
  

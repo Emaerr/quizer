@@ -1,29 +1,42 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Вопрос 1/20</title>
-    <link rel="stylesheet" href="../resource/css/desktop35.css">
+    <link rel="stylesheet" href="../resource/css/desktop44.css">
 </head>
-<body>
+<body onload="startTimer()">
     <div class="top-container">
         <div class="header">
             <h1>Вопрос 1/20</h1>
         </div>
         <div class="question">
-            <p>Какое животное можно увидеть на логотипе Porsche?</p>
+            <p id="questionText">Какое животное можно увидеть на логотипе Porsche?</p>
         </div>
-        <div class="image"><img src="../resource/image/image.png"></div>
+        <div class="image-wrap">
+            <div class="image"><img src="../resource/image/image.png" alt="horizontal"></img></div>
+        </div>
     </div>
     <div class="container">
         <div id="countdown">15</div>
         <div class="options">
-            <button class="option" data-answer="Чёрный конь">Чёрный конь</button>
-            <button class="option" data-answer="Красный конь">Красный конь</button>
-            <button class="option" data-answer="Ослик">Ослик</button>
-            <button class="option" data-answer="Не знаю">Не знаю</button>
+            <div class="option-wrap">
+                <button class="option" data-answer="Чёрный конь">Чёрный конь</button>
+                <button class="option" data-answer="Красный конь">Красный конь</button>
+            </div>
+            <div class="option-wrap">
+                <button class="option" data-answer="Ослик">Ослик</button>
+                <button class="option" data-answer="Не знаю">Не знаю</button>
+            </div>
         </div>
+        <footer class="footer">
+            <button class="bottom-button">Таблица с результатами</button>
+            <button class="bottom-button">Далее</button>
+        </footer>
     </div>
     <script src="../resource/js/desktop44.js"></script>
 </body>
