@@ -1,3 +1,7 @@
+let timeLeft = 15
+let timerInterval;
+let userAnswer = null;
+
 function startTimer() {
     timerInterval = setInterval(function() {
         timeLeft--;
@@ -24,6 +28,15 @@ function fetchNextQuestion() {
     })
     .catch((error) => {
         console.error('Ошибка при получении данных:', error);
+    });
+}
+
+function loadNextQuestion(data) {
+    document.getElementById("questionText").textContent = data.question;
+    const buttons = document.querySelectorAll(".option");
+    buttons.forEach((button, index) => {
+        button.textContent = data.answers[index];
+        button.setAttribute("data-answer", data.answers[index]);
     });
 }
 
