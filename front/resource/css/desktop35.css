@@ -97,7 +97,7 @@ body {
     height: 69%;
 }
 
-.timer {
+#countdown {
     font-size: 48px;
     position: absolute;
     right: 230px;
