@@ -155,7 +155,7 @@ namespace Quizer.Controllers
             }
             quizRepository.UpdateUserQuizInfo(user.Id, quiz.Guid, new QuizInfo(name, timeLimit));
 
-            return View();
+            return RedirectToAction("Edit", "Quiz");
         }
 
         /// <summary>
