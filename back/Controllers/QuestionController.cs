@@ -6,6 +6,7 @@ using Quizer.Models.File;
 using Quizer.Models.Quizzes;
 using Quizer.Models.User;
 using Quizer.Services.Quizzes;
+using System;
 using System.Configuration;
 using System.Text.Json;
 using static System.Formats.Asn1.AsnWriter;
@@ -203,7 +204,7 @@ namespace Quizer.Controllers
 				}
 				else
 				{
-					return BadRequest();
+					return BadRequest("blyat' irina yob tvoyu mat' cho za JSON takoy yego nikto nakhuy ne kupit blyat' yego dazhe vyyebat' v trubku nevozmozhno ty yebanutaya sovsem prosto prosto yebanutaya quizer quizer");
 				}
 			} catch(Exception exception)
             {
