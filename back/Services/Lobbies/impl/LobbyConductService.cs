@@ -129,15 +129,48 @@ namespace Quizer.Services.Lobbies.impl
             return Result.Ok(question);
         }
 
-
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="lobbyGuid"></param>
-        /// <param name="answerGuid">Should be a valid question answer GUID if the user answered, and null if the user didn't answer</param>
-        /// <returns></returns>
-        public async Task<Result> RegisterTestAnswer(string userId, string lobbyGuid, string? answerGuid)
+        /// <returns>Total count of questions in current quiz.</returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public Result<int> GetQuestionCount(string lobbyGuid)
+		{
+			IServiceScope scope = _scopeFactory.CreateScope();
+			ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
+
+			Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
+			if (lobby == null)
+			{
+				return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
+			}
+
+			if (!lobby.IsStarted)
+			{
+				return Result.Fail(new LobbyUnavailableError("Lobby has't started yet."));
+			}
+			if (lobby.Stage == LobbyStage.Results)
+			{
+				return Result.Fail(new LobbyUnavailableError("Game has already finished."));
+			}
+
+            if (lobby.Quiz == null)
+            {
+				return Result.Fail(new QuizNotFoundError("Lobby doesn't have quiz."));
+			}
+
+            return Result.Ok(lobby.Quiz.Questions.Count);
+		}
+
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="userId"></param>
+		/// <param name="lobbyGuid"></param>
+		/// <param name="answerGuid">Should be a valid question answer GUID if the user answered, and null if the user didn't answer</param>
+		/// <returns></returns>
+		public async Task<Result> RegisterTestAnswer(string userId, string lobbyGuid, string? answerGuid)
         {
             IServiceScope scope = _scopeFactory.CreateScope();
             IParticipatorRepository participatorRepository = scope.ServiceProvider.GetRequiredService<IParticipatorRepository>();
@@ -458,5 +491,5 @@ namespace Quizer.Services.Lobbies.impl
 
             return Result.Ok(lobby);
         }
-    }
+	}
 }

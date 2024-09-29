@@ -122,6 +122,10 @@ namespace Quizer.Controllers.Tests
                 mock.Setup(x => x.GetLobbyStatus(It.IsAny<string>())).Returns(Result.Ok(LobbyStatus.Briefing));
             }
 
+            mock.Setup(x => x.GetQuestionCount(It.IsAny<string>())).Returns(
+                    Result.Ok(1)
+                );
+
             mock.Setup(x => x.GetCurrentQuestion(It.IsAny<string>())).Returns(
                 Result.Ok(
                     new Question() { Guid = "0", Type = QuestionType.Test, Title = "test", Position = 0 }

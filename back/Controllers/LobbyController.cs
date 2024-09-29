@@ -245,6 +245,12 @@ namespace Quizer.Controllers
                 return Forbid();
             }
 
+            Result<int> resultQuestionCount = lobbyConductService.GetQuestionCount(lobbyGuid);
+            if (resultQuestionCount.IsSuccess)
+            {
+                ViewData["questionCount"] = resultQuestionCount.Value;
+            }
+
             QuestionViewModel viewModel = GetQuestionViewModel(result.Value);
 
             if (resultMasterCheck.Value)

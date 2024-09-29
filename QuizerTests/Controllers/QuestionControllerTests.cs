@@ -14,6 +14,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Quizer.Models.Quizzes;
+using Microsoft.Extensions.Configuration;
 
 namespace Quizer.Controllers.Tests
 {
@@ -23,7 +24,14 @@ namespace Quizer.Controllers.Tests
         [TestMethod()]
         public async Task EditTestAsync()
         {
-            QuestionController questionController = new QuestionController(GetScopeFactoryMock(), GetUserManagerMock("0"));
+			var inMemorySettings = new Dictionary<string, string> {
+	{"UserFileDirPath", "kitecat"},
+};
+			IConfiguration configuration = new ConfigurationBuilder()
+				.AddInMemoryCollection(inMemorySettings)
+				.Build();
+
+			QuestionController questionController = new QuestionController(GetScopeFactoryMock(), GetUserManagerMock("0"), configuration);
             await questionController.Edit("0", "0", "{\"Position\" : 1, \"Title\" : \"title_2\", \"Image\" : \"no_image\", \"Answers\" : [{\"Title\" : \"Yep\", \"IsCorrect\" : true}]}}");
         }
 

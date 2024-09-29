@@ -24,6 +24,7 @@ namespace Quizer.Models.Quizzes
         public string Title { get; set; }
         [Required]
         public QuestionType QuestionType { get; set; }
+        public string? ImageGuid { get; set; }
 
         public virtual List<AnswerViewModel> Answers { get; set; }
     }
