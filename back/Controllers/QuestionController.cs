@@ -1,8 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Quizer.Models.File;
 using Quizer.Models.Quizzes;
 using Quizer.Models.User;
 using Quizer.Services.Quizzes;
+using System.Configuration;
 using System.Text.Json;
 using static System.Formats.Asn1.AsnWriter;
 
@@ -14,11 +18,13 @@ namespace Quizer.Controllers
     {
         private readonly IServiceScopeFactory _scopeFactory;
         UserManager<ApplicationUser> _userManager;
+        IConfiguration _configuration;
 
-        public QuestionController(IServiceScopeFactory scopeFactory, UserManager<ApplicationUser> userManager)
+        public QuestionController(IServiceScopeFactory scopeFactory, UserManager<ApplicationUser> userManager, IConfiguration configuration)
         {
             _scopeFactory = scopeFactory;
             _userManager = userManager;
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -90,7 +96,7 @@ namespace Quizer.Controllers
                 return StatusCode(418);
             }
 
-            return RedirectToAction("Edit", new { quizGuid = quizGuid, questionGuid = newQuestionGuid });
+            return CreatedAtAction(nameof(Edit), new {guid = newQuestionGuid});
         }
 
         /// <summary>
@@ -124,7 +130,22 @@ namespace Quizer.Controllers
 
             ViewData["quizGuid"] = quizGuid;
 
-            return View(GetQuestionViewModel(question));
+            string? userFilePath = _configuration["UserFileDirPath"];
+            if (userFilePath == null)
+            {
+                throw new ConfigurationErrorsException("UserFileDirPath setting not found");
+            }
+
+            string path = Path.Combine(userFilePath, "question_" + questionGuid);
+
+            QuestionViewModel questionViewModel = GetQuestionViewModel(question);
+            FileUpload fileUpload = new FileUpload(path, true);
+
+            FileQuestionViewModel fileQuestionViewModel = new FileQuestionViewModel() {
+                FileUpload = fileUpload, Question = questionViewModel 
+            };
+
+            return View(fileQuestionViewModel);
         }
 
         /// <summary>
@@ -138,6 +159,7 @@ namespace Quizer.Controllers
         /// Example of the JSON string:
         /// <code>
         /// {"Position" : 0, "Title" : "Is it a good cat?", "Answers" : [{"Title" : "Yep", "IsCorrect" : true}]}}
+        /// {"Position" : 0, "Title" : "Is it a good cat?", "Image" : "7ac4e327-7e95-49bb-b438-315dcfe4a69c", "Answers" : [{"Title" : "Yep", "IsCorrect" : true}]}}
         /// </code>
         /// </example>
         [HttpPost("Edit/{questionGuid:guid}")]
@@ -176,11 +198,51 @@ namespace Quizer.Controllers
                 QuestionInfo updatedQuestion = new QuestionInfo(questionViewModel.Position, questionViewModel.Title, question.Info.Type);
 
                 questionRepository.UpdateUserQuizQuestion(user.Id, quizGuid, questionGuid, updatedQuestion, answers);
+            } else
+            {
+                return BadRequest();
             }
 
             ViewData["quizGuid"] = quizGuid;
 
             return View();
+        }
+
+        public async Task<IActionResult> UploadImage(IFormFile file)
+        {
+            ApplicationUser? user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            string? userFilePath = _configuration["UserFileDirPath"];
+            if (userFilePath == null)
+
+            {
+                throw new ConfigurationErrorsException("UserFileDirPath setting not found");
+            }
+
+            string? extenstion = Path.GetExtension(file.FileName);
+            if (extenstion == null)
+            {
+                throw new ArgumentException();
+            }
+
+            string fileGuid = Guid.NewGuid().ToString();
+            string fileName = fileGuid + "." + extenstion;
+            string filePath = userFilePath + fileName;
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
+            }
+            
+            string protocolAndDomain = new Uri(HttpContext.Request.GetDisplayUrl()).GetLeftPart(UriPartial.Authority);
+
+            string url = protocolAndDomain + "/images/" + fileName;
+
+            return Created(url, fileGuid);
         }
 
         /// <summary>
