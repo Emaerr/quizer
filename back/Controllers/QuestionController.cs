@@ -186,22 +186,30 @@ namespace Quizer.Controllers
                 return NotFound();
             }
 
-            QuestionViewModel? questionViewModel = JsonSerializer.Deserialize<QuestionViewModel>(body);
-            if (questionViewModel != null)
+            try
             {
-                List<AnswerInfo> answers = [];
-                foreach (AnswerViewModel answerViewModel in questionViewModel.Answers)
-                {
-                    answers.Add(new AnswerInfo(answerViewModel.Title, answerViewModel.IsCorrect));
-                }
+				QuestionViewModel? questionViewModel = JsonSerializer.Deserialize<QuestionViewModel>(body);
+				if (questionViewModel != null)
+				{
+					List<AnswerInfo> answers = [];
+					foreach (AnswerViewModel answerViewModel in questionViewModel.Answers)
+					{
+						answers.Add(new AnswerInfo(answerViewModel.Title, answerViewModel.IsCorrect));
+					}
 
-                QuestionInfo updatedQuestion = new QuestionInfo(questionViewModel.Position, questionViewModel.Title, question.Info.Type);
+					QuestionInfo updatedQuestion = new QuestionInfo(questionViewModel.Position, questionViewModel.Title, question.Info.Type);
 
-                questionRepository.UpdateUserQuizQuestion(user.Id, quizGuid, questionGuid, updatedQuestion, answers);
-            } else
+					questionRepository.UpdateUserQuizQuestion(user.Id, quizGuid, questionGuid, updatedQuestion, answers);
+				}
+				else
+				{
+					return BadRequest();
+				}
+			} catch(JsonException exception)
             {
-                return BadRequest();
+                return BadRequest("blyat' irina yeb tvoyu mat' cho za JSON takoy yego nikto nakhuy ne kupit blyat' yego dazhe vyyebat' v trubku nevozmozhno ty yebanutaya sovsem prosto prosto yebanutaya quizer quizer: \r\n" + exception.Message);
             }
+
 
             ViewData["quizGuid"] = quizGuid;
 
