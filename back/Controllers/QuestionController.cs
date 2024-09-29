@@ -207,7 +207,7 @@ namespace Quizer.Controllers
 				}
 			} catch(JsonException exception)
             {
-                return BadRequest("blyat' irina yeb tvoyu mat' cho za JSON takoy yego nikto nakhuy ne kupit blyat' yego dazhe vyyebat' v trubku nevozmozhno ty yebanutaya sovsem prosto prosto yebanutaya quizer quizer: \r\n" + exception.Message);
+                return BadRequest("blyat' irina yob tvoyu mat' cho za JSON takoy yego nikto nakhuy ne kupit blyat' yego dazhe vyyebat' v trubku nevozmozhno ty yebanutaya sovsem prosto prosto yebanutaya quizer quizer: \r\n" + exception.Message);
             }
 
 
