@@ -10,29 +10,55 @@
     <h4>Quiz</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Name)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Name)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.TimeLimit)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.TimeLimit)
         </dd>
     </dl>
-    
-    @foreach (var question in Model.Questions)
-    {
-        <tr>
-            <td>
-            @Html.DisplayFor(modelItem => question.Title)
-            </td>
-        </tr>
-    }
+
+    <h4>Questions</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Question</th>
+                <th>Answers</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var question in Model.Questions)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => question.Title)
+                    </td>
+                    <td>
+                        <ul>
+                            @foreach (var answer in question.Answers)
+                            {
+                                <li class="@(answer.IsCorrect ? "text-success" : "text-danger")">
+                                    @Html.DisplayFor(modelItem => answer.Title)
+                                    @if (answer.IsCorrect)
+                                    {
+                                        <span class="badge badge-success">Correct</span>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
+
 <div>
     <a asp-controller="Quiz" asp-action="Index">Back to List</a>
 </div>

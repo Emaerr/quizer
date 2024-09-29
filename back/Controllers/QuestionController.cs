@@ -165,11 +165,12 @@ namespace Quizer.Controllers
         /// </example>
         [HttpPost("Edit/{questionGuid:guid}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string questionGuid, string quizGuid, [FromBody] string body)
+        public async Task<IActionResult> Edit(string questionGuid, string quizGuid, [FromBody] QuestionViewModel questionViewModel)
         {
             var scope = _scopeFactory.CreateScope();
             var questionRepository = scope.ServiceProvider.GetService<IQuestionDataRepository>();
             var quizRepository = scope.ServiceProvider.GetService<IQuizDataRepository>();
+
             if (questionRepository == null || quizRepository == null)
             {
                 return StatusCode(500);
@@ -189,68 +190,31 @@ namespace Quizer.Controllers
 
             try
             {
-				QuestionViewModel? questionViewModel = JsonSerializer.Deserialize<QuestionViewModel>(body);
-				if (questionViewModel != null)
-				{
-					List<AnswerInfo> answers = [];
-					foreach (AnswerViewModel answerViewModel in questionViewModel.Answers)
-					{
-						answers.Add(new AnswerInfo(answerViewModel.Title, answerViewModel.IsCorrect));
-					}
+                if (questionViewModel != null)
+                {
+                    List<AnswerInfo> answers = new List<AnswerInfo>();
+                    foreach (var answerViewModel in questionViewModel.Answers)
+                    {
+                        answers.Add(new AnswerInfo(answerViewModel.Title, answerViewModel.IsCorrect));
+                    }
 
-					QuestionInfo updatedQuestion = new QuestionInfo(questionViewModel.Position, questionViewModel.Title, question.Info.Type);
+                    QuestionInfo updatedQuestion = new QuestionInfo(questionViewModel.Position, questionViewModel.Title, question.Info.Type);
 
-					questionRepository.UpdateUserQuizQuestion(user.Id, quizGuid, questionGuid, updatedQuestion, answers);
-				}
-				else
-				{
-					return BadRequest("blyat' irina yob tvoyu mat' cho za JSON takoy yego nikto nakhuy ne kupit blyat' yego dazhe vyyebat' v trubku nevozmozhno ty yebanutaya sovsem prosto prosto yebanutaya quizer quizer");
-				}
-			} catch(Exception exception)
+                    questionRepository.UpdateUserQuizQuestion(user.Id, quizGuid, questionGuid, updatedQuestion, answers);
+                }
+                else
+                {
+                    return BadRequest("Invalid JSON data.");
+                }
+            }
+            catch (Exception exception)
             {
-                return BadRequest("blyat' irina yob tvoyu mat' cho za JSON takoy yego nikto nakhuy ne kupit blyat' yego dazhe vyyebat' v trubku nevozmozhno ty yebanutaya sovsem prosto prosto yebanutaya quizer quizer: \r\n" + exception.Message);
+                return BadRequest("An error occurred while processing the request: \r\n" + exception.Message);
             }
 
             ViewData["quizGuid"] = quizGuid;
 
             return Ok();
-        }
-
-        public async Task<IActionResult> UploadImage(IFormFile file)
-        {
-            ApplicationUser? user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-
-            string? userFilePath = _configuration["UserFileDirPath"];
-            if (userFilePath == null)
-
-            {
-                throw new ConfigurationErrorsException("UserFileDirPath setting not found");
-            }
-
-            string? extenstion = Path.GetExtension(file.FileName);
-            if (extenstion == null)
-            {
-                throw new ArgumentException();
-            }
-
-            string fileGuid = Guid.NewGuid().ToString();
-            string fileName = fileGuid + "." + extenstion;
-            string filePath = userFilePath + fileName;
-
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(fileStream);
-            }
-            
-            string protocolAndDomain = new Uri(HttpContext.Request.GetDisplayUrl()).GetLeftPart(UriPartial.Authority);
-
-            string url = protocolAndDomain + "/images/" + fileName;
-
-            return Created(url, fileGuid);
         }
 
         /// <summary>
