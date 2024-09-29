@@ -205,15 +205,14 @@ namespace Quizer.Controllers
 				{
 					return BadRequest();
 				}
-			} catch(JsonException exception)
+			} catch(Exception exception)
             {
                 return BadRequest("blyat' irina yob tvoyu mat' cho za JSON takoy yego nikto nakhuy ne kupit blyat' yego dazhe vyyebat' v trubku nevozmozhno ty yebanutaya sovsem prosto prosto yebanutaya quizer quizer: \r\n" + exception.Message);
             }
 
-
             ViewData["quizGuid"] = quizGuid;
 
-            return View();
+            return Ok();
         }
 
         public async Task<IActionResult> UploadImage(IFormFile file)
