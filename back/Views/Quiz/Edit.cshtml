@@ -177,8 +177,39 @@
 
 
         function removeQuestion(questionDiv) {
-            questionDiv.remove();  // Удаляем переданный элемент
-            updateQuestionIndices();  // Обновляем индексы вопросов
+            const questionGuid = questionDiv.getAttribute("data-question-guid");
+            const quizGuid = '@Model.Guid'; // Используем quizGuid из модели
+
+            // Удаляем вопрос на клиенте
+            questionDiv.remove();
+
+            // Удаляем вопрос на сервере
+            if (questionGuid && quizGuid) {
+                const formData = new FormData();
+                formData.append("questionGuid", questionGuid);
+                formData.append("quizGuid", quizGuid);
+
+                fetch(`/Question/Delete`, {
+                    method: 'POST', // Используем POST, как указано в контроллере
+                    headers: {
+                    },
+                    body: formData // Передаем параметры в виде формы
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(text => {
+                                throw new Error(`Ошибка при удалении вопроса: ${text}`);
+                            });
+                        }
+                        console.log(`Вопрос с GUID: ${questionGuid} успешно удалён.`);
+                    })
+                    .catch(error => {
+                        console.error("Ошибка при удалении вопроса:", error);
+                        alert(error.message);
+                    });
+            }
+
+            updateQuestionIndices();
         }
 
 

@@ -241,7 +241,7 @@ namespace Quizer.Controllers
 
             questionRepository.DeleteUserQuizQuestion(user.Id, quizGuid, questionGuid);
 
-            return RedirectToAction("Index", new { quizGuid });
+            return Ok();
         }
 
         private QuestionViewModel GetQuestionViewModel(QuestionData qData)
