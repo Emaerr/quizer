@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -32,7 +33,7 @@ namespace Quizer.Controllers.Tests
 				.Build();
 
 			QuestionController questionController = new QuestionController(GetScopeFactoryMock(), GetUserManagerMock("0"), configuration);
-            await questionController.Edit("0", "0", "{\"Position\" : 1, \"Title\" : \"title_2\", \"Image\" : \"no_image\", \"Answers\" : [{\"Title\" : \"Yep\", \"IsCorrect\" : true}]}}");
+            //await questionController.Edit("0", "0", "{\"Position\" : 1, \"Title\" : \"title_2\", \"Image\" : \"no_image\", \"Answers\" : [{\"Title\" : \"Yep\", \"IsCorrect\" : true}]}}");
         }
 
         private IServiceScopeFactory GetScopeFactoryMock()

@@ -73,13 +73,30 @@ namespace Quizer.Services.Quizzes
             }
 
             _context.SaveChanges();
-
         }
 
         public void DeleteUserQuizQuestion(string userId, string quizGuid, string questionGuid)
         {
-            throw new NotImplementedException();
-        }
+			var quizzQuery = from q in _context.Quizzes where (q.AuthorId == userId && q.Guid == quizGuid) select q;
+
+			if (!quizzQuery.IsNullOrEmpty())
+            { 
+				var questionQuerry = from qn in quizzQuery.First().Questions where (qn.Guid == questionGuid) select qn;
+
+				if (!questionQuerry.IsNullOrEmpty())
+				{
+					var questionsBelow = from qn in quizzQuery.First().Questions where (qn.Position > questionQuerry.First().Position) select qn;
+                    foreach (Question question in questionsBelow)
+                    {
+                        question.Position -= 1;
+                        _context.Questions.Update(question);
+                    }
+                    _context.Questions.Remove(questionQuerry.First());
+				}
+			}
+
+			_context.SaveChanges();
+		}
 
         private QuestionData GetQuestionDataFromQuestion(Question question)
         {
