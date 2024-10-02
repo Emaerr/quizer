@@ -426,7 +426,7 @@ namespace Quizer.Controllers
                 }
             });
 
-            return RedirectToAction("Manage", new { lobbyGuid = result.Value });
+            return CreatedAtAction(nameof(Manage), new { lobbyGuid = result.Value });
         }
 
         /// <summary>
