@@ -93,8 +93,7 @@
 
             // Отправляем запрос на сервер для создания лобби с использованием новых параметров
             fetch(`/Lobby/Create?quizGuid=${quizGuid}&maxParticipators=${maxParticipators}`, {
-                method: 'POST',
-                headers: {}
+                method: 'POST'
             })
                 .then(response => {
                     if (response.ok) {
@@ -108,7 +107,7 @@
                 .then(data => {
                     console.log("Лобби успешно создано: " + data);
                     // Перенаправление пользователя на управление лобби
-                    window.location.href = `/Lobby/Manage?lobbyGuid=${data.lobbyGuid}`;
+                    window.location.href = `/Lobby/Manage/${data.lobbyGuid}`;
                 })
                 .catch(error => {
                     console.error("Ошибка при создании лобби:", error);
