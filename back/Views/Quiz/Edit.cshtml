@@ -142,6 +142,7 @@
                 answerInput.type = "text";
                 answerInput.name = "Questions[" + questionIndex + "].Answers[" + j + "].Title";
                 answerInput.className = "form-control answer-title";
+                answerInput.required = true; // Добавляем атрибут required
 
                 var correctAnswerRadio = document.createElement("input");
                 correctAnswerRadio.type = "radio";
@@ -174,6 +175,87 @@
             questionIndex++; // Увеличиваем индекс для следующего вопроса
         }
 
+
+        function validateQuiz() {
+            let isValid = true;
+            const questions = document.querySelectorAll("#questions-container .question-block");
+
+            questions.forEach(questionDiv => {
+                const questionInput = questionDiv.querySelector("input.question-title");
+                const answerInputs = questionDiv.querySelectorAll("input.answer-title");
+                const correctAnswerRadio = questionDiv.querySelectorAll("input.correct-answer-radio:checked");
+
+                // Проверяем, заполнено ли поле для вопроса
+                if (!questionInput.value.trim()) {
+                    isValid = false;
+                    questionInput.classList.add("is-invalid");
+                } else {
+                    questionInput.classList.remove("is-invalid");
+                }
+
+                // Проверяем, заполнены ли все поля для ответов
+                answerInputs.forEach(answerInput => {
+                    if (!answerInput.value.trim()) {
+                        isValid = false;
+                        answerInput.classList.add("is-invalid");
+                    } else {
+                        answerInput.classList.remove("is-invalid");
+                    }
+                });
+
+                // Проверяем, выбран ли правильный ответ
+                if (correctAnswerRadio.length === 0) {
+                    isValid = false;
+                    questionDiv.querySelector(".correct-answer-radio").classList.add("is-invalid");
+                } else {
+                    questionDiv.querySelector(".correct-answer-radio").classList.remove("is-invalid");
+                }
+            });
+
+            return isValid;
+        }
+
+        function submitQuiz() {
+            if (!validateQuiz()) {
+                alert("Заполните все поля вопросов и выберите правильные ответы.");
+                return;
+            }
+
+            var quizForm = document.getElementById("quiz-form");
+
+            // Получаем данные квиза (название и ограничение по времени)
+            var quizName = document.querySelector('input[name="name"]').value;
+            var quizTimeLimit = document.querySelector('input[name="timeLimit"]').value;
+            var quizGuid = '@Model.Guid';
+
+            // Отправляем данные квиза (название и лимит времени)
+            var formData = new FormData(quizForm);
+            formData.append('name', quizName);
+            formData.append('timeLimit', quizTimeLimit);
+
+            fetch(`/Quiz/Edit/${quizGuid}`, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: formData
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`Ошибка при сохранении данных квиза: ${text}`);
+                        });
+                    }
+                    console.log("Quiz data updated successfully!");
+
+                    // Теперь отправляем вопросы
+                    submitQuestions();
+                })
+                .catch(error => {
+                    console.error("Ошибка при сохранении квиза:", error);
+                    alert(error.message);
+                });
+        }
 
 
         function removeQuestion(questionDiv) {
