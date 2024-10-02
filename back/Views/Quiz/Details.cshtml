@@ -59,6 +59,61 @@
     </table>
 </div>
 
+<!-- Поле ввода для максимального количества участников с уменьшенной шириной -->
+<div class="form-group">
+    <label for="maxParticipators">Максимальное количество участников</label>
+    <input type="number" id="maxParticipators" class="form-control w-25" value="10" min="1" />
+</div>
+
+<!-- Кнопка для начала квиза -->
+<div class="form-group">
+    <button type="button" class="btn btn-primary" onclick="startQuiz()">Начать квиз</button>
+</div>
+
 <div>
     <a asp-controller="Quiz" asp-action="Index">Back to List</a>
 </div>
+
+@section Scripts {
+    <script>
+        function startQuiz() {
+            // Получаем quizGuid и максимальное количество участников из поля ввода
+            const quizGuid = '@Model.Guid';
+            const maxParticipators = document.getElementById('maxParticipators').value;
+
+            if (!quizGuid) {
+                alert("Quiz GUID не найден!");
+                return;
+            }
+
+            if (!maxParticipators || maxParticipators <= 0) {
+                alert("Введите корректное количество участников!");
+                return;
+            }
+
+            // Отправляем запрос на сервер для создания лобби с использованием новых параметров
+            fetch(`/Lobby/Create?quizGuid=${quizGuid}&maxParticipators=${maxParticipators}`, {
+                method: 'POST',
+                headers: {}
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        return response.text().then(text => {
+                            throw new Error(`Ошибка: ${text}`);
+                        });
+                    }
+                })
+                .then(data => {
+                    console.log("Лобби успешно создано: " + data);
+                    // Перенаправление пользователя на управление лобби
+                    window.location.href = `/Lobby/Manage?lobbyGuid=${data.lobbyGuid}`;
+                })
+                .catch(error => {
+                    console.error("Ошибка при создании лобби:", error);
+                    alert("Не удалось создать лобби: " + error.message);
+                });
+        }
+    </script>
+}
