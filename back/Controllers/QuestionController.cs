@@ -244,7 +244,44 @@ namespace Quizer.Controllers
             return Ok();
         }
 
-        private QuestionViewModel GetQuestionViewModel(QuestionData qData)
+		public async Task<IActionResult> UploadImage(IFormFile file)
+		{
+			ApplicationUser? user = await _userManager.GetUserAsync(User);
+			if (user == null)
+			{
+				return Unauthorized();
+			}
+
+			string? userFilePath = _configuration["UserFileDirPath"];
+			if (userFilePath == null)
+
+			{
+				throw new ConfigurationErrorsException("UserFileDirPath setting not found");
+			}
+
+			string? extenstion = Path.GetExtension(file.FileName);
+			if (extenstion == null)
+			{
+				throw new ArgumentException();
+			}
+
+			string fileGuid = Guid.NewGuid().ToString();
+			string fileName = fileGuid + "." + extenstion;
+			string filePath = userFilePath + fileName;
+
+			using (var fileStream = new FileStream(filePath, FileMode.Create))
+			{
+				await file.CopyToAsync(fileStream);
+			}
+
+			string protocolAndDomain = new Uri(HttpContext.Request.GetDisplayUrl()).GetLeftPart(UriPartial.Authority);
+
+			string url = protocolAndDomain + "/images/" + fileName;
+
+			return Created(url, fileGuid);
+		}
+
+		private QuestionViewModel GetQuestionViewModel(QuestionData qData)
         {
             QuestionViewModel questionViewModel = new()
             {
