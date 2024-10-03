@@ -62,8 +62,9 @@
             </div>
 
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <input type="submit" value="Сохранить" class="btn btn-primary" id="save-btn" disabled />
             </div>
+
         </form>
     </div>
 </div>
@@ -434,6 +435,66 @@
         }
 
 
+        document.addEventListener("DOMContentLoaded", function () {
+            // Отключаем кнопку Save по умолчанию
+            const saveButton = document.getElementById("save-btn");
+            saveButton.disabled = true;
+
+            // Добавляем обработчики ввода для полей вопроса и ответа
+            document.getElementById("questions-container").addEventListener("input", checkFormValidity);
+            document.getElementById("questions-container").addEventListener("change", checkFormValidity);
+
+            // Проверяем валидность формы и активируем/деактивируем кнопку Save
+            function checkFormValidity() {
+                if (validateQuiz()) {
+                    saveButton.disabled = false; // Если все поля заполнены, активируем кнопку
+                } else {
+                    saveButton.disabled = true;  // Иначе блокируем кнопку
+                }
+            }
+
+            function validateQuiz() {
+                let isValid = true;
+                const questions = document.querySelectorAll("#questions-container .question-block");
+
+                questions.forEach(questionDiv => {
+                    const questionInput = questionDiv.querySelector("input.question-title");
+                    const answerInputs = questionDiv.querySelectorAll("input.answer-title");
+                    const correctAnswerRadio = questionDiv.querySelectorAll("input.correct-answer-radio:checked");
+
+                    // Проверяем, заполнено ли поле для вопроса
+                    if (!questionInput.value.trim()) {
+                        isValid = false;
+                        questionInput.classList.add("is-invalid");
+                    } else {
+                        questionInput.classList.remove("is-invalid");
+                    }
+
+                    // Проверяем, заполнены ли все поля для ответов
+                    answerInputs.forEach(answerInput => {
+                        if (!answerInput.value.trim()) {
+                            isValid = false;
+                            answerInput.classList.add("is-invalid");
+                        } else {
+                            answerInput.classList.remove("is-invalid");
+                        }
+                    });
+
+                    // Проверяем, выбран ли правильный ответ
+                    if (correctAnswerRadio.length === 0) {
+                        isValid = false;
+                        questionDiv.querySelector(".correct-answer-radio").classList.add("is-invalid");
+                    } else {
+                        questionDiv.querySelector(".correct-answer-radio").classList.remove("is-invalid");
+                    }
+                });
+
+                return isValid;
+            }
+
+            // Инициализируем проверку при загрузке страницы
+            checkFormValidity();
+        });
 
 
 
