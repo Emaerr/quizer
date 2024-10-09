@@ -1,0 +1,59 @@
+﻿@model Quizer.Models.User.UserRegistrationInput
+
+@{
+    ViewData["Title"] = "Регистрация";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form asp-action="Register" id="register_form">
+    <div class="form-floating mb-3">
+        <input asp-for="Username" class="form-control" autocomplete="username" aria-required="true" placeholder="Имя пользователя" />
+        <label asp-for="Username">Имя пользователя</label>
+        <span asp-validation-for="Username" class="text-danger"></span>
+    </div>
+    <div class="form-floating mb-3">
+        <input asp-for="Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Пароль" />
+        <label asp-for="Password">Пароль</label>
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+    <div class="form-floating mb-3">
+        <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Пароль" />
+        <label asp-for="ConfirmPassword">Подтвердите пароль</label>
+        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+    </div>
+    <div class="form-floating mb-3">
+        <input asp-for="ControlQuestion1" class="form-control" aria-required="true" placeholder="Контрольный вопрос 1" />
+        <label asp-for="ControlQuestion1">Контрольный вопрос 1</label>
+        <span asp-validation-for="ControlQuestion1" class="text-danger"></span>
+    </div>
+    <div class="form-floating mb-3">
+        <input asp-for="ControlQuestion2" class="form-control" aria-required="true" placeholder="Контрольный вопрос 1" />
+        <label asp-for="ControlQuestion1">Контрольный вопрос 1</label>
+        <span asp-validation-for="ControlQuestion1" class="text-danger"></span>
+    </div>
+    <div class="form-floating mb-3">
+        <input asp-for="ControlQuestion3" class="form-control" aria-required="true" placeholder="Контрольный вопрос 3" />
+        <label asp-for="ControlQuestion3">Контрольный вопрос 3</label>
+        <span asp-validation-for="ControlQuestion3" class="text-danger"></span>
+    </div>
+    <div class="form-floating mb-3">
+        <input asp-for="ControlAnswer1" class="form-control" aria-required="true" placeholder="Контрольный ответ 1" />
+        <label asp-for="ControlAnswer1">Контрольный ответ 1</label>
+        <span asp-validation-for="ControlAnswer1" class="text-danger"></span>
+    </div>
+    <div class="form-floating mb-3">
+        <input asp-for="ControlAnswer2" class="form-control" aria-required="true" placeholder="Контрольный ответ 2" />
+        <label asp-for="ControlAnswer2">Контрольный ответ 2</label>
+        <span asp-validation-for="ControlAnswer2" class="text-danger"></span>
+    </div>
+    <div class="form-floating mb-3">
+        <input asp-for="ControlAnswer3" class="form-control" aria-required="true" placeholder="Контрольный ответ 3" />
+        <label asp-for="ControlAnswer3">Контрольный ответ 3</label>
+        <span asp-validation-for="ControlAnswer3" class="text-danger"></span>
+    </div>
+    <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Зарегистрироваться</button>
+</form>
+
+@{
+}

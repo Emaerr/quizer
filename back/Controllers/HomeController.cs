@@ -1,17 +1,15 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Quizer.Models;
+using Quizer.Models.User;
 using System.Diagnostics;
 
 namespace Quizer.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController(
+        ILogger<HomeController> logger, UserManager<ApplicationUser> userManager
+        ) : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
 
         public IActionResult Index()
         {
@@ -20,7 +18,7 @@ namespace Quizer.Controllers
                 return Unauthorized();
             }
 
-            if (User.Identity.IsAuthenticated)
+            if (User.Identity.IsAuthenticated && userManager.GetUserAsync(User) != null)
             {
                 return RedirectToAction("Index", "Quiz");
             }
