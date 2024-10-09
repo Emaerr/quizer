@@ -54,7 +54,8 @@ namespace Quizer.Controllers
 					logger.LogInformation("User created a new account with password.");
 
 					await signInManager.SignInAsync(user, isPersistent: false);
-				}
+                    await userManager.AddToRoleAsync(user, "Member");
+                }
 
 				return RedirectToAction(nameof(Login));
 			}
