@@ -11,14 +11,14 @@ namespace Quizer.Controllers
         ) : Controller
     {
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             if (User.Identity == null)
             {
                 return Unauthorized();
             }
 
-            if (User.Identity.IsAuthenticated && userManager.GetUserAsync(User) != null)
+            if (User.Identity.IsAuthenticated && await userManager.GetUserAsync(User) != null)
             {
                 return RedirectToAction("Index", "Quiz");
             }
