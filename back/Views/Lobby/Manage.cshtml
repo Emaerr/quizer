@@ -41,7 +41,6 @@
             })
                 .then(response => {
                     if (response.ok) {
-                        alert("Quiz started successfully!");
                         window.location.href = `/Lobby/Game/${lobbyGuid}`;
                     } else if (response.status === 401) {
                         alert("Unauthorized: Please log in.");

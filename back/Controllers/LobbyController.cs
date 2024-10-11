@@ -254,7 +254,8 @@ namespace Quizer.Controllers
             QuestionViewModel viewModel = GetQuestionViewModel(result.Value);
 
             if (resultMasterCheck.Value)
-            { 
+            {
+                ViewData["lobbyGuid"] = lobbyGuid;
                 return View("GameMaster", viewModel);
             } else
             {

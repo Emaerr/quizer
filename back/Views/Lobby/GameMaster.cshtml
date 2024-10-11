@@ -1,5 +1,55 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model Quizer.Models.Quizzes.QuestionViewModel
+
 @{
+    ViewData["Title"] = "Game";
 }
+
+<h4>@ViewData["Title"]</h4>
+
+<div>
+    <h3>@Model.Title</h3>
+
+    <div>
+        <ul>
+            @foreach (var answer in Model.Answers)
+            {
+                <li>@answer.Title</li>
+            }
+        </ul>
+    </div>
+</div>
+
+<div style="margin-top: 20px;">
+    <button id="nextQuestionButton">Следующий вопрос</button>
+</div>
+
+<script>
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/LobbyHub")
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
+    async function start() {
+        try {
+            await connection.start();
+            console.log("SignalR Connected.");
+        } catch (err) {
+            console.log(err);
+            setTimeout(start, 5000);
+        }
+    };
+
+    connection.onclose(async () => {
+        await start();
+    });
+
+    // Start the connection.
+    start();
+
+
+    connection.on("RedirectToResult", (user, message) => {
+        
+    });
+
+    
+</script>
