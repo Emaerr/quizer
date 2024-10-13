@@ -121,8 +121,14 @@ namespace Quizer.Controllers
             }
 
             await AddToLobbyGroup(lobbyGuid, connectionId);
-            user.HubConnectionId = connectionId;
-            await userManager.UpdateAsync(user);
+
+            ApplicationUser? newUser = await userManager.GetUserAsync(User);
+            if (newUser == null)
+            {
+                return StatusCode(500);
+            }
+            newUser.HubConnectionId = connectionId;
+            await userManager.UpdateAsync(newUser);
 
             return RedirectToAction("Briefing", new { lobbyGuid });
         }
@@ -171,6 +177,8 @@ namespace Quizer.Controllers
             {
                 return Unauthorized();
             }
+
+            ViewData["lobbyGuid"] = lobbyGuid;
 
             return View();
         }
