@@ -61,6 +61,8 @@ namespace Quizer.Services.Lobbies.impl
                 }
             };
 
+            lobbyRepository.UpdateLobby(lobby);
+
             return Result.Ok();
         }
 
