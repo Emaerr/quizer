@@ -92,32 +92,46 @@ namespace Quizer.Controllers
                 }
             }
 
-            Result result = await lobbyControlService.JoinUserAsync(lobbyGuid, user.Id);
+            Result<bool> resultIsMaster = await lobbyAuthService.IsUserMaster(user.Id, lobbyGuid);
 
-            if (result.IsFailed && user.IsTemporal)
-            {
-                await userManager.DeleteAsync(user);
-            }
-
-            if (result.HasError<LobbyUnavailableError>())
-            {
-                return RedirectToAction("Join", new { lobbyGuid, error = "Unavailable" }); ;
-            }
-            if (result.HasError<MaxParticipatorsError>())
-            {
-                return RedirectToAction("Join", new { lobbyGuid, error = "NoFreeSlot" }); ;
-            }
-            if (result.HasError<UserAlreadyInLobbyError>())
-            {
-                return Conflict();
-            }
-            if (result.HasError<LobbyNotFoundError>())
+            if (resultIsMaster.HasError<LobbyNotFoundError>())
             {
                 return NotFound();
             }
-            if (result.HasError<UserNotFoundError>())
+            if (resultIsMaster.HasError<UserNotFoundError>())
             {
                 return StatusCode(500);
+            }
+
+            if (!resultIsMaster.Value)
+            {
+                Result result = await lobbyControlService.JoinUserAsync(lobbyGuid, user.Id);
+
+                if (result.IsFailed && user.IsTemporal)
+                {
+                    await userManager.DeleteAsync(user);
+                }
+
+                if (result.HasError<LobbyUnavailableError>())
+                {
+                    return RedirectToAction("Join", new { lobbyGuid, error = "Unavailable" }); ;
+                }
+                if (result.HasError<MaxParticipatorsError>())
+                {
+                    return RedirectToAction("Join", new { lobbyGuid, error = "NoFreeSlot" }); ;
+                }
+                if (result.HasError<UserAlreadyInLobbyError>())
+                {
+                    return Conflict();
+                }
+                if (result.HasError<LobbyNotFoundError>())
+                {
+                    return NotFound();
+                }
+                if (result.HasError<UserNotFoundError>())
+                {
+                    return StatusCode(500);
+                }
             }
 
             await AddToLobbyGroup(lobbyGuid, connectionId);
