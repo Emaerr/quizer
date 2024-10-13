@@ -131,6 +131,15 @@ namespace Quizer.Models.Lobbies
 
         }
 
+        public void Start()
+        {
+            IsStarted = true;
+            if (OnLobbyStageChange != null)
+            {
+                OnLobbyStageChange(LobbyStage.Question);
+            }
+        }
+
         public void ResetTime()
         {
             _timeElapsedSinceLastAction = 0;

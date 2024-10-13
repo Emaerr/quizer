@@ -188,7 +188,7 @@ namespace Quizer.Services.Lobbies.impl
                 return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
             }
 
-            lobby.IsStarted = true;
+            lobby.Start();
 
             lobbyRepository.UpdateLobby(lobby);
             await lobbyRepository.SaveAsync();
