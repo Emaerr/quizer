@@ -11,10 +11,13 @@ using Quizer.Services.Quizzes;
 using Quizer.Services.Util;
 using System;
 using System.Timers;
+using static Quizer.Models.Lobbies.Lobby;
+using static Quizer.Services.Lobbies.ILobbyConductService;
+using static Quizer.Services.Lobbies.ILobbyUpdateService;
 
 namespace Quizer.Services.Lobbies.impl
 {
-    public class LobbyService : BackgroundService, IDisposable
+    public class LobbyService : BackgroundService, IDisposable, ILobbyUpdateService
     {
         private bool disposedValue;
 
@@ -22,13 +25,15 @@ namespace Quizer.Services.Lobbies.impl
         private readonly ITimeService _timeService;
         private readonly ILogger<LobbyService> _logger;
 
+        private Dictionary<string, int> lobbiesTimeElapsedSinceLastAction = new Dictionary<string, int>();
+        private Dictionary<string, LobbyStatusUpdateHandler> lobbyUpdateHandlers = new Dictionary<string, LobbyStatusUpdateHandler>();
+
         public LobbyService(IServiceScopeFactory scopeFactory, ITimeService timeService, ILogger<LobbyService> logger)
         {
             _scopeFactory = scopeFactory;
             _timeService = timeService;
             _logger = logger;
         }
-
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
@@ -51,13 +56,91 @@ namespace Quizer.Services.Lobbies.impl
 
                     foreach (Lobby lobby in lobbies)
                     {
-                        lobby.Update(timeSpan);
+                        UpdateLobby(lobby, timeSpan);
                     }
                 }
             }
             catch (OperationCanceledException)
             {
                 _logger.LogInformation("Timed Hosted Service is stopping.");
+            }
+        }
+
+        public void UpdateLobby(Lobby lobby, TimeSpan timeSpan)
+        {
+            if (!lobby.IsStarted || lobby.IsResultTime())
+            {
+                return;
+            }
+
+            checked
+            {
+                try
+                {
+                    if (!lobbiesTimeElapsedSinceLastAction.ContainsKey(lobby.Guid))
+                    {
+                        lobbiesTimeElapsedSinceLastAction[lobby.Guid] = 0;
+                    }
+                    lobbiesTimeElapsedSinceLastAction[lobby.Guid] += (int)timeSpan.TotalMilliseconds;
+                }
+                catch (OverflowException e)
+                {
+                    throw new ModelException("Given time span is too high.", e);
+                }
+            }
+
+            if (!lobbyUpdateHandlers.TryGetValue(lobby.Guid, out LobbyStatusUpdateHandler onLobbyStageChange)) {
+                return;
+            }
+
+            if (lobby.IsBriefingTime())
+            {
+                lobby.Stage = LobbyStage.Question;
+                if (onLobbyStageChange != null)
+                {
+                    onLobbyStageChange(LobbyStatus.Question);
+                }
+            }
+
+            if (lobby.IsQuestionTime())
+            {
+                if (lobbiesTimeElapsedSinceLastAction[lobby.Guid] > lobby.Quiz.TimeLimit)
+                {
+                    lobby.Stage = LobbyStage.Answering;
+                    lobbiesTimeElapsedSinceLastAction[lobby.Guid] = lobbiesTimeElapsedSinceLastAction[lobby.Guid] - lobby.Quiz.TimeLimit;
+                    if (onLobbyStageChange != null)
+                    {
+                        onLobbyStageChange(LobbyStatus.Answering);
+                    }
+                }
+                if (lobby.CurrentQuestionPosition == (lobby.Quiz.Questions.Count - 1))
+                {
+                    lobby.Stage = LobbyStage.Results;
+                    if (onLobbyStageChange != null)
+                    {
+                        onLobbyStageChange(LobbyStatus.Result);
+                    }
+                }
+            }
+            else if (lobby.IsAnsweringTime())
+            {
+                if (lobbiesTimeElapsedSinceLastAction[lobby.Guid] > 1000)
+                {
+                    lobby.Stage = LobbyStage.Break;
+                    lobbiesTimeElapsedSinceLastAction[lobby.Guid] = lobbiesTimeElapsedSinceLastAction[lobby.Guid] - 1000;
+                    if (onLobbyStageChange != null)
+                    {
+                        onLobbyStageChange(LobbyStatus.Break);
+                    }
+                }
+            }
+            else if (lobby.IsBreakTime())
+            {
+                if (lobbiesTimeElapsedSinceLastAction[lobby.Guid] > lobby.Quiz.BreakTime)
+                {
+                    lobby.NextQuestion();
+                    lobbiesTimeElapsedSinceLastAction[lobby.Guid] = lobbiesTimeElapsedSinceLastAction[lobby.Guid] - lobby.Quiz.BreakTime;
+                }
             }
 
         }
@@ -77,6 +160,21 @@ namespace Quizer.Services.Lobbies.impl
             }
 
             return Task.CompletedTask;
+        }
+        public Result SubscribeToLobbyStatusUpdateEvent(string lobbyGuid, LobbyStatusUpdateHandler handler)
+        {
+            IServiceScope scope = _scopeFactory.CreateScope();
+            ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
+
+            Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
+            if (lobby == null)
+            {
+                return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
+            }
+
+            lobbyUpdateHandlers[lobby.Guid] = handler;
+
+            return Result.Ok();
         }
 
         protected virtual void Dispose(bool disposing)

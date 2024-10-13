@@ -32,6 +32,7 @@ namespace Quizer.Controllers
     public class LobbyController(
         ILogger<LobbyController> logger, ILobbyControlService lobbyControlService,
         ILobbyConductService lobbyConductService, ILobbyAuthService lobbyAuthService, ILobbyStatsService lobbyStatsService,
+        ILobbyUpdateService lobbyUpdateService,
         IQrService qrService, ITempUserService tempUserService, UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager, IHubContext<LobbyHub, ILobbyClient> hubContext) : Controller
     {
@@ -430,7 +431,7 @@ namespace Quizer.Controllers
             Uri uri = new Uri($"{Request.Scheme}://{Request.Host}/Lobby/Join/{result.Value}");
             qrService.GenerateQrCode(result.Value, uri.ToString());
 
-            lobbyConductService.SubscribeToLobbyStatusUpdateEvent(result.Value, async (status) => {
+            lobbyUpdateService.SubscribeToLobbyStatusUpdateEvent(result.Value, async (status) => {
                 if (status == LobbyStatus.Question)
                 {
                     await hubContext.Clients.Group("lobby_" + result.Value).RedirectToQuestion();

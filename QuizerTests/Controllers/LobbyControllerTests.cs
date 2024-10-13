@@ -45,6 +45,7 @@ namespace Quizer.Controllers.Tests
                 GetLobbyConductServiceMock(isLobbyStarted: true),
                 GetLobbyAuthServiceMock(),
                                GetLobbyStatsServiceMock(),
+                               GetLobbyUpdateService(),
                 GetQrServiceMock(), null,
                 GetUserManagerMock("0"), null, MockHubContext());
 
@@ -60,6 +61,7 @@ namespace Quizer.Controllers.Tests
                 GetLobbyConductServiceMock(isLobbyStarted: false),
                 GetLobbyAuthServiceMock(),
                 GetLobbyStatsServiceMock(),
+                GetLobbyUpdateService(),
                 GetQrServiceMock(), null,
                 GetUserManagerMock("0"), null, MockHubContext());
 
@@ -77,7 +79,7 @@ namespace Quizer.Controllers.Tests
                 GetLoggerMock(),
                 GetLobbyControlServiceMock(isLobbyStarted: true),
                 GetLobbyConductServiceMock(isLobbyStarted: true),
-                GetLobbyAuthServiceMock(), GetLobbyStatsServiceMock(),
+                GetLobbyAuthServiceMock(), GetLobbyStatsServiceMock(), GetLobbyUpdateService(),
                 GetQrServiceMock(), null,
                 GetUserManagerMock("1"), null, MockHubContext());
 
@@ -93,7 +95,7 @@ namespace Quizer.Controllers.Tests
                 GetLoggerMock(),
                 GetLobbyControlServiceMock(isLobbyStarted: true),
                 GetLobbyConductServiceMock(isLobbyStarted: true),
-                GetLobbyAuthServiceMock(), GetLobbyStatsServiceMock(),
+                GetLobbyAuthServiceMock(), GetLobbyStatsServiceMock(), GetLobbyUpdateService(),
                 GetQrServiceMock(), null,
                 GetUserManagerMock("1"), null, MockHubContext());
 
@@ -188,6 +190,15 @@ namespace Quizer.Controllers.Tests
             }
             mock.Setup(x => x.KickUserAsync(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(Result.Ok()));
             mock.Setup(x => x.ForceNextQuestionAsync(It.IsAny<string>())).Returns(Result.Ok());
+
+            return mock.Object;
+        }
+
+        private ILobbyUpdateService GetLobbyUpdateService()
+        {
+            var mock = new Mock<ILobbyUpdateService>();
+
+            mock.Setup(x => x.SubscribeToLobbyStatusUpdateEvent(It.IsAny<string>(), It.IsAny<ILobbyUpdateService.LobbyStatusUpdateHandler>()));
 
             return mock.Object;
         }

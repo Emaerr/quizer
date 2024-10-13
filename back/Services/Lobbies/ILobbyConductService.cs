@@ -16,9 +16,6 @@ namespace Quizer.Services.Lobbies
 
     public interface ILobbyConductService
     {
-        delegate void LobbyStatusUpdateHandler(LobbyStatus lobbyStatus);
-
-        Result SubscribeToLobbyStatusUpdateEvent(string lobbyGuid, LobbyStatusUpdateHandler handler);
         Result<LobbyStatus> GetLobbyStatus(string lobbyGuid);
         Result<Question> GetCurrentQuestion(string lobbyGuid);
         Result<int> GetQuestionCount(string lobbyGuid);

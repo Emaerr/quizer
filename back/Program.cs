@@ -43,7 +43,9 @@ namespace Quizer
             builder.Services.AddSingleton<ILobbyControlService, LobbyControlService>();
             builder.Services.AddSingleton<ILobbyAuthService, LobbyAuthService>();
             builder.Services.AddSingleton<ILobbyStatsService, LobbyStatsService>();
-            builder.Services.AddSingleton<IHostedService, LobbyService>();
+            builder.Services.AddSingleton<LobbyService>();
+            builder.Services.AddSingleton<IHostedService>(x => x.GetRequiredService<LobbyService>());
+            builder.Services.AddSingleton<ILobbyUpdateService, LobbyService>(x => x.GetRequiredService<LobbyService>());
             builder.Services.AddSingleton<ITimeService, TimeService>();
             builder.Services.AddSingleton<IQrService, QrService>();
             builder.Services.AddSingleton<ITempUserService, TempUserService>();

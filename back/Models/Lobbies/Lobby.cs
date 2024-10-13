@@ -10,6 +10,7 @@ namespace Quizer.Models.Lobbies
 {
     public enum LobbyStage
     {
+        Briefing,
         Question,
         Answering,
         Break,
@@ -28,6 +29,7 @@ namespace Quizer.Models.Lobbies
 
         public Lobby()
         {
+            Stage = LobbyStage.Briefing;
             Participators = new List<Participator>();
         }
 
@@ -45,7 +47,8 @@ namespace Quizer.Models.Lobbies
         [Range(4, 1000)]
         public int MaxParticipators { get; set; }
         public bool IsStarted { get; set; } = false;
-        public LobbyStage Stage { get; private set; } = LobbyStage.Question; // probably onLobbyStageChange should be here in the setter
+        public LobbyStage Stage { get; set; } = LobbyStage.Question; // probably onLobbyStageChange should be here in the setter
+        public int CurrentQuestionPosition { get; set; }
         public int Pin { get; set; }
         public virtual List<Participator> Participators { get; set; }
         public virtual Quiz? Quiz {  get; set; }
@@ -63,12 +66,17 @@ namespace Quizer.Models.Lobbies
             _timeElapsedSinceLastAction = 0;
             Stage = LobbyStage.Question;
             _currentQuestion++;
-            if (OnLobbyStageChange != null)
-            {
-                OnLobbyStageChange(LobbyStage.Question);
-            }
+            //if (OnLobbyStageChange != null)
+            //{
+            //    OnLobbyStageChange(LobbyStage.Question);
+            //}
         }
 
+        /// <summary>
+        /// DEPRECATED.
+        /// </summary>
+        /// <param name="timeSpan"></param>
+        /// <exception cref="ModelException"></exception>
         public void Update(TimeSpan timeSpan)
         {
             if (!IsStarted || IsResultTime())
@@ -134,10 +142,10 @@ namespace Quizer.Models.Lobbies
         public void Start()
         {
             IsStarted = true;
-            if (OnLobbyStageChange != null)
-            {
-                OnLobbyStageChange(LobbyStage.Question);
-            }
+            //if (OnLobbyStageChange != null)
+            //{
+            //    OnLobbyStageChange(LobbyStage.Question);
+            //}
         }
 
         public void ResetTime()
@@ -145,24 +153,29 @@ namespace Quizer.Models.Lobbies
             _timeElapsedSinceLastAction = 0;
         }
 
-        private bool IsQuestionTime()
+        public bool IsQuestionTime()
         {
             return Stage == LobbyStage.Question;
         }
 
-        private bool IsBreakTime()
+        public bool IsBreakTime()
         {
             return Stage == LobbyStage.Break;
         }
 
-        private bool IsResultTime()
+        public bool IsResultTime()
         {
             return Stage == LobbyStage.Results;
         }
 
-        private bool IsAnsweringTime()
+        public bool IsAnsweringTime()
         {
             return Stage == LobbyStage.Answering;
+        }
+
+        public bool IsBriefingTime()
+        {
+            return Stage == LobbyStage.Briefing;
         }
     }
 }

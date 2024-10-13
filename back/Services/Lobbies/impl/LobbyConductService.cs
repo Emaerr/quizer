@@ -23,48 +23,6 @@ namespace Quizer.Services.Lobbies.impl
             _logger = logger;
         }
 
-        public Result SubscribeToLobbyStatusUpdateEvent(string lobbyGuid, LobbyStatusUpdateHandler handler)
-        {
-            IServiceScope scope = _scopeFactory.CreateScope();
-            ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
-
-            Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
-            if (lobby == null)
-            {
-                return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
-            }
-
-            lobby.OnLobbyStageChange += (stage) =>
-            {
-                if (lobby.IsStarted)
-                {
-                    if (lobby.Stage == LobbyStage.Results)
-                    {
-                        handler(LobbyStatus.Result);
-                    }
-                    else if (lobby.Stage == LobbyStage.Question)
-                    {
-                        handler(LobbyStatus.Question);
-                    }
-                    else if (lobby.Stage == LobbyStage.Answering)
-                    {
-                        handler(LobbyStatus.Answering);
-                    }
-                    else if (lobby.Stage == LobbyStage.Break)
-                    {
-                        handler(LobbyStatus.Break);
-                    }
-                }
-                else
-                {
-                    handler(LobbyStatus.Briefing);
-                }
-            };
-
-            lobbyRepository.UpdateLobby(lobby);
-
-            return Result.Ok();
-        }
 
         public Result<LobbyStatus> GetLobbyStatus(string lobbyGuid)
         {
