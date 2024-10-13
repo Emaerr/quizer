@@ -23,6 +23,8 @@
     <button id="nextQuestionButton">Следующий вопрос</button>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.18/signalr.min.js"></script>
+
 <script>
     const connection = new signalR.HubConnectionBuilder()
         .withUrl("/LobbyHub")
@@ -47,9 +49,12 @@
     start();
 
 
-    connection.on("RedirectToResult", (user, message) => {
+    connection.on("RedirectToBreak", (user, message) => {
         
     });
 
+    connection.on("RedirectToResult", (user, message) => {
+
+    });
     
 </script>

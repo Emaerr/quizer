@@ -2,4 +2,85 @@
 @{
     ViewData["Title"] = "Game";
 }
+
 <h4>GameParticipator</h4>
+
+<!-- Отображение текста вопроса -->
+<div class="question-container">
+    <h2>@Model.Title</h2>
+</div>
+
+<!-- Счётчик времени -->
+<div id="timer">Оставшееся время: <span id="time-left">30</span> секунд</div>
+
+<!-- Отображение ответов в виде кнопок -->
+<div class="answers-container">
+    @for (int i = 0; i < 4 && i < Model.Answers.Count; i++)
+    {
+        <button class="answer-button" data-answer="@Model.Answers[i].Guid">
+            @Model.Answers[i].Title
+        </button>
+    }
+</div>
+
+<!-- Скрытое поле для отслеживания выбранного ответа -->
+<input type="hidden" id="selectedAnswer" name="selectedAnswer" />
+
+<script>
+    // Таймер
+    let timeLeft = 30;
+    const timerElement = document.getElementById("time-left");
+
+    const countdown = setInterval(() => {
+        timeLeft--;
+        timerElement.innerText = timeLeft;
+
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            alert("Время вышло!");
+            // Можно отправить выбранный ответ или отметить, что не был выбран
+        }
+    }, 1000);
+
+    // Обработчик выбора ответа
+    const answerButtons = document.querySelectorAll(".answer-button");
+    answerButtons.forEach(button => {
+        button.addEventListener("click", (e) => {
+            // Снятие выделения со всех кнопок
+            answerButtons.forEach(btn => btn.classList.remove("selected"));
+            // Выделение нажатой кнопки
+            e.currentTarget.classList.add("selected");
+            // Запись выбранного ответа
+            document.getElementById("selectedAnswer").value = e.currentTarget.getAttribute("data-answer");
+        });
+    });
+</script>
+
+<style>
+    .question-container {
+        margin-bottom: 15px;
+    }
+
+    .answers-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .answer-button {
+        padding: 10px;
+        font-size: 16px;
+    }
+
+        .answer-button.selected {
+            background-color: #007bff;
+            color: white;
+        }
+
+    #timer {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+</style>
