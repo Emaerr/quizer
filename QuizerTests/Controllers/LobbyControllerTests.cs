@@ -47,7 +47,7 @@ namespace Quizer.Controllers.Tests
                                GetLobbyStatsServiceMock(),
                                GetLobbyUpdateService(),
                 GetQrServiceMock(), null,
-                GetUserManagerMock("0"), null, MockHubContext());
+                GetUserManagerMock("1"), null, MockHubContext());
 
             var viewResult = await lobbyController.JoinConfirm("0", "test", "test_id");
             Assert.IsInstanceOfType(viewResult, typeof(RedirectToActionResult));
