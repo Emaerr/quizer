@@ -26,6 +26,8 @@
 <!-- Скрытое поле для отслеживания выбранного ответа -->
 <input type="hidden" id="selectedAnswer" name="selectedAnswer" />
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.18/signalr.min.js"></script>
+
 <script>
     // Таймер
     let timeLeft = 30;
@@ -37,8 +39,6 @@
 
         if (timeLeft <= 0) {
             clearInterval(countdown);
-            alert("Время вышло!");
-            // Можно отправить выбранный ответ или отметить, что не был выбран
         }
     }, 1000);
 
@@ -53,6 +53,63 @@
             // Запись выбранного ответа
             document.getElementById("selectedAnswer").value = e.currentTarget.getAttribute("data-answer");
         });
+    });
+
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/LobbyHub")
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
+    async function start() {
+        try {
+            await connection.start();
+            console.log("SignalR Connected.");
+        } catch (err) {
+            console.log(err);
+            setTimeout(start, 5000);
+        }
+    };
+
+    connection.onclose(async () => {
+        await start();
+    });
+
+    // Start the connection.
+    start();
+
+    connection.on("RedirectToQuestion", (user, message) => {
+        window.location.href = '/Lobby/Game/@ViewData["lobbyGuid"]';
+    });
+
+    connection.on("RedirectToBreak", (user, message) => {
+        window.location.href = '/Lobby/Result/@ViewData["lobbyGuid"]';
+    });
+
+    connection.on("RedirectToResult", (user, message) => {
+       window.location.href = '/Lobby/Result/@ViewData["lobbyGuid"]';
+    });
+    connection.on("SendAnswer", (user, message) => {
+        console.log("SendAnswer")
+        let selectedAnswerGuid = document.getElementById("selectedAnswer").value
+        fetch(`/Lobby/RegisterAnswer/@ViewData["lobbyGuid"]?answerGuid=${selectedAnswerGuid}`, {
+            method: "POST"
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert("Answer registered successfully.")
+                } else if (response.status === 401) {
+                    alert("Unauthorized: Please log in.");
+                } else if (response.status === 403) {
+                    alert("Forbidden: Only the lobby master can start the quiz.");
+                } else if (response.status === 404) {
+                    alert("Lobby not found.");
+                } else {
+                    alert("An error occurred while starting the quiz.");
+                }
+            })
+            .catch(error => {
+                console.error("Error starting quiz:", error);
+            });
     });
 </script>
 

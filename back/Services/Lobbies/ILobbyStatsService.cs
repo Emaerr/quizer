@@ -6,7 +6,7 @@ namespace Quizer.Services.Lobbies
 {
     public interface ILobbyStatsService
     { 
-        public Task<Result<int>> GetUserPoints(string userId, string lobbyGuid);
-        public Task<Result<IEnumerable<ParticipatorAnswer>>> GetUserAnswers(string userId, string lobbyGuid);
+        public Task<Result<int>> GetUserPoints(string lobbyGuid, string userId);
+        public Task<Result<IEnumerable<ParticipatorAnswer>>> GetUserAnswers(string lobbyGuid, string userId);
     };
 }

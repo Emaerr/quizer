@@ -44,7 +44,7 @@ namespace Quizer.Services.Lobbies.impl
 
             foreach (Participator participator in lobby.Participators)
             {
-                if (participator.Id == userId) { 
+                if (participator.UserId == userId) { 
                     points = participator.Points;
                 }
             }
@@ -57,7 +57,7 @@ namespace Quizer.Services.Lobbies.impl
             return Result.Ok((int)points);
         }
 
-        public async Task<Result<IEnumerable<ParticipatorAnswer>>> GetUserAnswers(string userId, string lobbyGuid)
+        public async Task<Result<IEnumerable<ParticipatorAnswer>>> GetUserAnswers(string lobbyGuid, string userId)
         {
             IServiceScope scope = _scopeFactory.CreateScope();
             ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();

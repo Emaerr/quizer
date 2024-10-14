@@ -276,9 +276,10 @@ namespace Quizer.Controllers
 
             QuestionViewModel viewModel = GetQuestionViewModel(result.Value);
 
+            ViewData["lobbyGuid"] = lobbyGuid;
+
             if (resultMasterCheck.Value)
             {
-                ViewData["lobbyGuid"] = lobbyGuid;
                 return View("GameMaster", viewModel);
             } else
             {
@@ -364,7 +365,7 @@ namespace Quizer.Controllers
             Result<LobbyStatus> lobbyStatusResult = lobbyConductService.GetLobbyStatus(lobbyGuid);
             if (lobbyStatusResult.Value == LobbyStatus.Result)
             {
-                return View("QuizResults", GetStatsViewModel(lobbyGuid));
+                return View("QuizResults", await GetStatsViewModelAsync(lobbyGuid));
             }
 
             Result<Question> questionResult = lobbyConductService.GetCurrentQuestion(lobbyGuid);
@@ -681,7 +682,7 @@ namespace Quizer.Controllers
             return Ok();
         }
 
-        private async Task<StatsViewModel> GetStatsViewModel(string lobbyGuid)
+        private async Task<StatsViewModel> GetStatsViewModelAsync(string lobbyGuid)
         {
             StatsViewModel statsViewModel = new StatsViewModel();
 
@@ -689,7 +690,7 @@ namespace Quizer.Controllers
 
             foreach (ApplicationUser lobbyUser in result.Value)
             {
-                var pointsResult = await lobbyStatsService.GetUserPoints(lobbyUser.Id, lobbyGuid);
+                var pointsResult = await lobbyStatsService.GetUserPoints(lobbyGuid, lobbyUser.Id);
                 statsViewModel.UserPoints.Add(lobbyUser.DisplayName != null ? lobbyUser.DisplayName : "null", pointsResult.Value);
             }
 
@@ -698,7 +699,7 @@ namespace Quizer.Controllers
 
         private async Task<Result<QuestionResultViewModel>> GetQuestionResultViewModel(Question question, string userId, string lobbyGuid)
         {
-            Result<IEnumerable<ParticipatorAnswer>> participatorAnswersResult = await lobbyStatsService.GetUserAnswers(userId, lobbyGuid);
+            Result<IEnumerable<ParticipatorAnswer>> participatorAnswersResult = await lobbyStatsService.GetUserAnswers(lobbyGuid, userId);
             if (participatorAnswersResult.HasError<LobbyAccessDeniedError>())
             {
                 return FluentResults.Result.Fail(participatorAnswersResult.Errors.First());
@@ -742,7 +743,6 @@ namespace Quizer.Controllers
 
         private async Task AddToLobbyGroup(string lobbyGuid, string connectionId)
         {
-            Console.WriteLine("AddToLobbyGroup " + lobbyGuid);
             await hubContext.Groups.AddToGroupAsync(connectionId, "lobby_" + lobbyGuid);
         }
 
