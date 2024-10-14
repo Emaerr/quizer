@@ -71,7 +71,7 @@ namespace Quizer.Services.Lobbies.impl
 
             foreach (Participator participator in lobby.Participators)
             {
-                if (participator.Id == userId)
+                if (participator.UserId == userId)
                 {
                     return true;
                 }

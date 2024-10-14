@@ -249,7 +249,7 @@ namespace Quizer.Controllers
                 return NotFound();
             }
 
-            if (!resultParticipatorCheck.Value && !resultMasterCheck.Value) {
+            if (!(resultParticipatorCheck.Value || resultMasterCheck.Value)) {
                 return new ForbidResult();
             }
 
@@ -428,6 +428,12 @@ namespace Quizer.Controllers
                 return StatusCode(500);
             }
 
+            Result joinMasterResult = await lobbyControlService.JoinUserAsync(result.Value, user.Id);
+            if (joinMasterResult.IsFailed)
+            {
+                return StatusCode(500);
+            }
+
             Uri uri = new Uri($"{Request.Scheme}://{Request.Host}/Lobby/Join/{result.Value}");
             qrService.GenerateQrCode(result.Value, uri.ToString());
 
@@ -442,7 +448,6 @@ namespace Quizer.Controllers
                 {
                     if (status == LobbyStatus.Question)
                     {
-                        Console.WriteLine("Notify user_" + user.Id);
                         await hubContext.Clients.Group("user_" + user.Id).RedirectToQuestion();
                     }
                     else if (status == LobbyStatus.Answering)
