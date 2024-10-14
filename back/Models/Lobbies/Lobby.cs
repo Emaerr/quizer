@@ -79,6 +79,8 @@ namespace Quizer.Models.Lobbies
         /// <exception cref="ModelException"></exception>
         public void Update(TimeSpan timeSpan)
         {
+            return;
+
             if (!IsStarted || IsResultTime())
             {
                 return;

@@ -24,15 +24,33 @@ namespace Quizer.Services.Lobbies.impl
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ITimeService _timeService;
         private readonly ILogger<LobbyService> _logger;
+        private readonly int _answerTime = 1000;
 
         private Dictionary<string, int> lobbiesTimeElapsedSinceLastAction = new Dictionary<string, int>();
         private Dictionary<string, LobbyStatusUpdateHandler> lobbyUpdateHandlers = new Dictionary<string, LobbyStatusUpdateHandler>();
 
-        public LobbyService(IServiceScopeFactory scopeFactory, ITimeService timeService, ILogger<LobbyService> logger)
+        public LobbyService(IServiceScopeFactory scopeFactory, ITimeService timeService, IConfiguration configuration, ILogger<LobbyService> logger)
         {
             _scopeFactory = scopeFactory;
             _timeService = timeService;
             _logger = logger;
+            try
+            {
+                string? answerTimeStr = configuration["AnswerTimeInMilliseconds"];
+                if (answerTimeStr == null)
+                {
+                    throw new ArgumentNullException(nameof(answerTimeStr));
+                }
+                int result = Int32.Parse(answerTimeStr);
+            }
+            catch (FormatException)
+            {
+                logger.LogError("Can't parse AnswerTimeInMilliseconds from config.");
+            }
+            catch (ArgumentNullException)
+            {
+                logger.LogError("Can't find AnswerTimeInMilliseconds in config.");
+            }
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -57,7 +75,10 @@ namespace Quizer.Services.Lobbies.impl
                     foreach (Lobby lobby in lobbies)
                     {
                         UpdateLobby(lobby, timeSpan);
+                        lobbyRepository.UpdateLobby(lobby);
                     }
+
+                    await lobbyRepository.SaveAsync();
                 }
             }
             catch (OperationCanceledException)
@@ -113,24 +134,26 @@ namespace Quizer.Services.Lobbies.impl
                         onLobbyStageChange(LobbyStatus.Answering);
                     }
                 }
-                if (lobby.CurrentQuestionPosition == (lobby.Quiz.Questions.Count - 1))
-                {
-                    lobby.Stage = LobbyStage.Results;
-                    if (onLobbyStageChange != null)
-                    {
-                        onLobbyStageChange(LobbyStatus.Result);
-                    }
-                }
             }
             else if (lobby.IsAnsweringTime())
             {
-                if (lobbiesTimeElapsedSinceLastAction[lobby.Guid] > 1000)
+                if (lobbiesTimeElapsedSinceLastAction[lobby.Guid] > _answerTime)
                 {
-                    lobby.Stage = LobbyStage.Break;
-                    lobbiesTimeElapsedSinceLastAction[lobby.Guid] = lobbiesTimeElapsedSinceLastAction[lobby.Guid] - 1000;
-                    if (onLobbyStageChange != null)
+                    if (lobby.CurrentQuestionPosition == (lobby.Quiz.Questions.Count - 1))
                     {
-                        onLobbyStageChange(LobbyStatus.Break);
+                        lobby.Stage = LobbyStage.Results;
+                        if (onLobbyStageChange != null)
+                        {
+                            onLobbyStageChange(LobbyStatus.Result);
+                        }
+                    } else
+                    {
+                        lobby.Stage = LobbyStage.Break;
+                        lobbiesTimeElapsedSinceLastAction[lobby.Guid] = lobbiesTimeElapsedSinceLastAction[lobby.Guid] - 1000;
+                        if (onLobbyStageChange != null)
+                        {
+                            onLobbyStageChange(LobbyStatus.Break);
+                        }
                     }
                 }
             }
@@ -142,7 +165,6 @@ namespace Quizer.Services.Lobbies.impl
                     lobbiesTimeElapsedSinceLastAction[lobby.Guid] = lobbiesTimeElapsedSinceLastAction[lobby.Guid] - lobby.Quiz.BreakTime;
                 }
             }
-
         }
 
         public override Task StopAsync(CancellationToken cancellationToken)
