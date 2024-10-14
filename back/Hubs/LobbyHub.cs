@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Quizer.Models.User;
 using Quizer.Services.Lobbies;
+using System.Runtime.InteropServices;
 
 namespace Quizer.Hubs
 {
@@ -16,8 +17,7 @@ namespace Quizer.Hubs
                 return;
             }
 
-            user.HubConnectionId = Context.ConnectionId;
-            await userManager.UpdateAsync(user);
+            await Groups.AddToGroupAsync(Context.ConnectionId, "user_" + user.Id);
         }
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
@@ -27,7 +27,7 @@ namespace Quizer.Hubs
                 return;
             }
 
-            user.HubConnectionId = null;
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, "user_" + user.Id);
         }
 
         public string GetConnectionId()

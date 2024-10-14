@@ -432,21 +432,31 @@ namespace Quizer.Controllers
             qrService.GenerateQrCode(result.Value, uri.ToString());
 
             lobbyUpdateService.SubscribeToLobbyStatusUpdateEvent(result.Value, async (status) => {
-                if (status == LobbyStatus.Question)
+                var usersResult = await lobbyControlService.GetUsersInLobby(result.Value);
+                if (usersResult.IsFailed)
                 {
-                    await hubContext.Clients.Group("lobby_" + result.Value).RedirectToQuestion();
+                    return;
                 }
-                else if (status == LobbyStatus.Answering)
+
+                foreach (ApplicationUser user in usersResult.Value)
                 {
-                    await hubContext.Clients.Group("lobby_" + result.Value).SendAnswer();
-                }
-                else if (status == LobbyStatus.Break)
-                {
-                    await hubContext.Clients.Group("lobby_" + result.Value).RedirectToBreak();
-                }
-                else if (status == LobbyStatus.Result)
-                {
-                    await hubContext.Clients.Group("lobby_" + result.Value).RedirectToResult();
+                    if (status == LobbyStatus.Question)
+                    {
+                        Console.WriteLine("Notify user_" + user.Id);
+                        await hubContext.Clients.Group("user_" + user.Id).RedirectToQuestion();
+                    }
+                    else if (status == LobbyStatus.Answering)
+                    {
+                        await hubContext.Clients.Group("user_" + user.Id).SendAnswer();
+                    }
+                    else if (status == LobbyStatus.Break)
+                    {
+                        await hubContext.Clients.Group("user_" + user.Id).RedirectToBreak();
+                    }
+                    else if (status == LobbyStatus.Result)
+                    {
+                        await hubContext.Clients.Group("user_" + user.Id).RedirectToResult();
+                    }
                 }
             });
 
@@ -727,6 +737,7 @@ namespace Quizer.Controllers
 
         private async Task AddToLobbyGroup(string lobbyGuid, string connectionId)
         {
+            Console.WriteLine("AddToLobbyGroup " + lobbyGuid);
             await hubContext.Groups.AddToGroupAsync(connectionId, "lobby_" + lobbyGuid);
         }
 

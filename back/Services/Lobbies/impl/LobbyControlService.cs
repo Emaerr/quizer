@@ -262,11 +262,15 @@ namespace Quizer.Services.Lobbies.impl
             List<ApplicationUser> users = new List<ApplicationUser>();
             foreach (Participator participator in lobby.Participators)
             {
-                ApplicationUser? userParticipating = await userManager.FindByIdAsync(participator.Id);
+                if (participator.UserId == null)
+                {
+                    return Result.Fail(new UserNotFoundError($"UserId is null in Participator {participator.Id}"));
+                }
+                ApplicationUser? userParticipating = await userManager.FindByIdAsync(participator.UserId);
 
                 if (userParticipating == null)
                 {
-                    return Result.Fail(new UserNotFoundError($"Invalid participating user id {participator.Id}"));
+                    return Result.Fail(new UserNotFoundError($"Invalid participating user id {participator.UserId}"));
                 }
 
                 users.Add(userParticipating);
