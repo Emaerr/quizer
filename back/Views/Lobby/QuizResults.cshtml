@@ -1,0 +1,39 @@
+﻿@model Quizer.Models.Lobbies.StatsViewModel
+@{
+    ViewData["Title"] = "Результаты викторины";
+}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/css/quizResults.css" />
+</head>
+<body>
+    <div class="quiz-results-container">
+        <h1>Результаты викторины</h1>
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Имя пользователя</th>
+                    <th>Очки</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model.UserPoints)
+                {
+                    <tr>
+                        <td>@user.Key</td>
+                        <td>@user.Value</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="actions">
+            <a href="~/Home/Index" class="back-button">Вернуться на главную</a>
+        </div>
+    </div>
+</body>
+</html>
