@@ -36,16 +36,18 @@ namespace Quizer.Services.Lobbies.impl
 
         public void UpdateParticipator(Participator participator) {
             _context.Entry(participator).State = EntityState.Modified;
-            foreach (ParticipatorAnswer participatorAnswer in participator.Answers)
+            foreach (ParticipatorAnswer participatorAnswer in participator.Answers.ToList()) // .ToList because of " System.InvalidOperationException: Collection was modified; enumeration operation may not execute."
             {
+                _context.Attach(participatorAnswer.Question);
+                Console.WriteLine("PA ID: " + participatorAnswer.Id);
                 if (_context.ParticipatorAnswers.Find(participatorAnswer.Id) == null)
                 {
-                    _context.Attach(participatorAnswer.Question);
                     _context.ParticipatorAnswers.Add(participatorAnswer);
-                } else
-                {
-                    _context.ParticipatorAnswers.Update(participatorAnswer);
-                }
+                } 
+                //else
+                //{
+                //    _context.ParticipatorAnswers.Update(participatorAnswer);
+                //}
             }
         }
 
