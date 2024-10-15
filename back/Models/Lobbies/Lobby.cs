@@ -56,7 +56,7 @@ namespace Quizer.Models.Lobbies
         public Question? GetCurrentQuestion()
         {
             if (Quiz != null) {
-                return Quiz.GetQuestionByPosition(_currentQuestion);
+                return Quiz.GetQuestionByPosition(CurrentQuestionPosition);
             }
             return null;
         }
@@ -65,7 +65,7 @@ namespace Quizer.Models.Lobbies
         {
             _timeElapsedSinceLastAction = 0;
             Stage = LobbyStage.Question;
-            _currentQuestion++;
+            CurrentQuestionPosition++;
             //if (OnLobbyStageChange != null)
             //{
             //    OnLobbyStageChange(LobbyStage.Question);
