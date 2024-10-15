@@ -78,12 +78,14 @@
     start();
 
     connection.on("RedirectToQuestion", (user, message) => {
+        console.log("RedirectToQuestion");
         window.location.href = '/Lobby/Game/@ViewData["lobbyGuid"]';
+        window.location.reload();
     });
 
-    connection.on("RedirectToBreak", (user, message) => {
-        window.location.href = '/Lobby/Result/@ViewData["lobbyGuid"]';
-    });
+    // connection.on("RedirectToBreak", (user, message) => {
+    //     window.location.href = '/Lobby/Result/@ViewData["lobbyGuid"]';
+    // });
 
     connection.on("RedirectToResult", (user, message) => {
        window.location.href = '/Lobby/Result/@ViewData["lobbyGuid"]';
@@ -104,7 +106,7 @@
                 } else if (response.status === 404) {
                     alert("Lobby not found.");
                 } else {
-                    alert("An error occurred while starting the quiz.");
+                    alert("An error occurred while sending the answer.");
                 }
             })
             .catch(error => {

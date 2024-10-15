@@ -230,7 +230,7 @@ namespace Quizer.Controllers
         [Authorize(Policy = "ParticipatorRights")]
         [HttpGet("Game/{lobbyGuid}")]
         public async Task<IActionResult> Game(string lobbyGuid)
-        {
+        { 
             ApplicationUser? user = await userManager.GetUserAsync(User);
             if (user == null)
             {
@@ -277,6 +277,7 @@ namespace Quizer.Controllers
             QuestionViewModel viewModel = GetQuestionViewModel(result.Value);
 
             ViewData["lobbyGuid"] = lobbyGuid;
+            ViewData["layout"] = "";
 
             if (resultMasterCheck.Value)
             {
@@ -382,6 +383,15 @@ namespace Quizer.Controllers
             {
                 return Forbid();
             }
+
+            Result<int> resultQuestionCount = lobbyConductService.GetQuestionCount(lobbyGuid);
+            if (resultQuestionCount.IsSuccess)
+            {
+                ViewData["questionCount"] = resultQuestionCount.Value;
+            }
+
+            ViewData["lobbyGuid"] = lobbyGuid;
+            ViewData["layout"] = "";
 
             QuestionResultViewModel viewModel = result.Value;
 

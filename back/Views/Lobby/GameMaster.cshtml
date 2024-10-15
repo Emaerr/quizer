@@ -53,9 +53,9 @@
         window.location.href = '/Lobby/Game/@ViewData["lobbyGuid"]';
     });
 
-    connection.on("RedirectToBreak", (user, message) => {
-        window.location.href = '/Lobby/Result/@ViewData["lobbyGuid"]';
-    });
+    // connection.on("RedirectToBreak", (user, message) => {
+    //     window.location.href = '/Lobby/Result/@ViewData["lobbyGuid"]';
+    // });
 
     connection.on("RedirectToResult", (user, message) => {
         window.location.href = '/Lobby/Result/@ViewData["lobbyGuid"]';

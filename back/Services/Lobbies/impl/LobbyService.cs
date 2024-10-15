@@ -152,17 +152,22 @@ namespace Quizer.Services.Lobbies.impl
                         lobbiesTimeElapsedSinceLastAction[lobby.Guid] = lobbiesTimeElapsedSinceLastAction[lobby.Guid] - 1000;
                         if (onLobbyStageChange != null)
                         {
-                            onLobbyStageChange(LobbyStatus.Break);
+                            //onLobbyStageChange(LobbyStatus.Break);
                         }
                     }
                 }
             }
             else if (lobby.IsBreakTime())
             {
-                if (lobbiesTimeElapsedSinceLastAction[lobby.Guid] > lobby.Quiz.BreakTime)
+                if (lobbiesTimeElapsedSinceLastAction[lobby.Guid] > 0) //TODO lobby.Quiz.BreakTime
                 {
                     lobby.NextQuestion();
-                    lobbiesTimeElapsedSinceLastAction[lobby.Guid] = lobbiesTimeElapsedSinceLastAction[lobby.Guid] - lobby.Quiz.BreakTime;
+                    if (onLobbyStageChange != null)
+                    {
+                        onLobbyStageChange(LobbyStatus.Question);
+                    }
+                    //lobbiesTimeElapsedSinceLastAction[lobby.Guid] = lobbiesTimeElapsedSinceLastAction[lobby.Guid] - lobby.Quiz.BreakTime;
+                    lobbiesTimeElapsedSinceLastAction[lobby.Guid] = 0;
                 }
             }
         }
