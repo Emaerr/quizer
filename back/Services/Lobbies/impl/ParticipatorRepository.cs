@@ -39,7 +39,7 @@ namespace Quizer.Services.Lobbies.impl
             foreach (ParticipatorAnswer participatorAnswer in participator.Answers.ToList()) // .ToList because of " System.InvalidOperationException: Collection was modified; enumeration operation may not execute."
             {
                 _context.Attach(participatorAnswer.Question);
-                Console.WriteLine("PA ID: " + participatorAnswer.Id);
+
                 if (_context.ParticipatorAnswers.Find(participatorAnswer.Id) == null)
                 {
                     _context.ParticipatorAnswers.Add(participatorAnswer);
