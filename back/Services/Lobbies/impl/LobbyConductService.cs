@@ -202,6 +202,7 @@ namespace Quizer.Services.Lobbies.impl
             }
 
             participator.Answers.Add(participatorAnswer);
+            participatorRepository.UpdateParticipator(participator);
             await participatorRepository.SaveAsync();
 
             _logger.LogInformation(ServiceLogEvents.AnswerRegistered, "Succesfully registered test answer {answerGuid} for user {userId} in lobby {lobbyGuid}", answerGuid, userId, lobbyGuid);
@@ -287,6 +288,7 @@ namespace Quizer.Services.Lobbies.impl
             }
 
             participator.Answers.Add(participatorAnswer);
+            participatorRepository.UpdateParticipator(participator);
             await participatorRepository.SaveAsync();
 
             return Result.Ok();
@@ -372,6 +374,7 @@ namespace Quizer.Services.Lobbies.impl
             }
 
             participator.Answers.Add(participatorAnswer);
+            participatorRepository.UpdateParticipator(participator);
             await participatorRepository.SaveAsync();
 
             return Result.Ok();

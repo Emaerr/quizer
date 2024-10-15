@@ -80,7 +80,7 @@ namespace Quizer.Services.Lobbies.impl
 
             foreach (Participator p in lobby.Participators)
             {
-                if (p.Id == userId)
+                if (p.UserId == userId)
                 {
                     participator = p;
                 }
