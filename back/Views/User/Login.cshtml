@@ -1,0 +1,53 @@
+﻿@model Quizer.Models.User.UserLogin
+
+@{
+    ViewData["Title"] = "Вход";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form asp-action="Login" id="login_form">
+    <div class="form-group">
+        <label asp-for="Input.Username" class="control-label"></label>
+        <input asp-for="Input.Username" class="form-control" autocomplete="username" aria-required="true" placeholder="Имя пользователя" />
+        <span asp-validation-for="Input.Username" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Input.Password" class="control-label"></label>
+        <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Пароль" />
+        <span asp-validation-for="Input.Password" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Input.RememberMe" class="form-label">
+            <input class="form-check-input" asp-for="Input.RememberMe" />
+            @Html.DisplayNameFor(m => m.Input.RememberMe)
+        </label>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Save" class="btn btn-primary" />
+    </div>
+    <div>
+        <p>
+            <a id="forgot-password" asp-action="ForgotPassword">Забыли пароль?</a>
+        </p>
+        <p>
+            <a asp-action="Register">Зарегистрироваться, если аккаунта нет</a>
+        </p>
+    </div>
+</form>
+
+@if(Model.ErrorMessage != null)
+{
+    <div class="alert alert-danger alert-dismissible" role="alert">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        @Model.ErrorMessage
+    </div>
+}
+
+@{
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
