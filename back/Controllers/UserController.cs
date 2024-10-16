@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Quizer.Models.User;
+using FluentResults;
 
 namespace Quizer.Controllers
 {
@@ -42,7 +43,7 @@ namespace Quizer.Controllers
                     ControlQuestion3 = userRegistration.ControlQuestion3,
                 };
 				await userStore.SetUserNameAsync(user, userRegistration.Username.Trim(), CancellationToken.None);
-				var hashingResult = user.SetAnswers(passwordHasher, userRegistration.ControlAnswer1, userRegistration.ControlAnswer2, userRegistration.ControlAnswer3);
+				var hashingResult = user.SetAnswers(passwordHasher, userRegistration.ControlAnswer1.Trim().ToLower(), userRegistration.ControlAnswer2.Trim().ToLower(), userRegistration.ControlAnswer3.Trim().ToLower());
 				if (hashingResult.IsFailed)
 				{
                     logger.LogWarning("Hashing failure when registring a new user: " + hashingResult.Reasons.First());
@@ -111,6 +112,63 @@ namespace Quizer.Controllers
 			}
 
 			return View();
+		}
+
+		[HttpGet("ForgotPassword")]
+		public async Task<IActionResult> ForgotPassword()
+		{
+			return View();
+		}
+
+		[HttpPost("Password")]
+		public async Task<IActionResult> ForgotPassword(UserForgotPassword userForgotPassword) 
+		{
+			if (!ModelState.IsValid)
+			{
+				return BadRequest();
+			}
+
+            userForgotPassword.ReturnUrl ??= Url.Content("~/");
+
+            ApplicationUser? user = await userManager.FindByNameAsync(userForgotPassword.Input.Username.Trim());
+			if (user == null) {
+                UserLogin errorUserLogin = new()
+                {
+                    ReturnUrl = userForgotPassword.ReturnUrl,
+                    ErrorMessage = "Пользователь с таким именем не найден."
+                };
+                return View(errorUserLogin);
+            }
+
+			Result<bool> result = user.CheckAnswers(passwordHasher, 
+				userForgotPassword.Input.ControlAnswer1.Trim().ToLower(), 
+				userForgotPassword.Input.ControlAnswer2.Trim().ToLower(),
+				userForgotPassword.Input.ControlAnswer3.Trim().ToLower());
+
+			if (result.IsFailed)
+			{
+				return StatusCode(500);
+			}
+
+			if (result.Value)
+			{
+				var token = await userManager.GeneratePasswordResetTokenAsync(user);
+				var resetResult = await userManager.ResetPasswordAsync(user, token, userForgotPassword.Input.NewPassword.Trim());
+				if (!resetResult.Succeeded)
+				{
+					return StatusCode(500);
+				}
+				return Ok();
+			}
+			else
+			{
+				UserLogin errorUserLogin = new()
+				{
+					ReturnUrl = userForgotPassword.ReturnUrl,
+					ErrorMessage = "Вы ответили неверно, как минимум, на один из трёх вопросов."
+				};
+				return View(errorUserLogin);
+			}
 		}
 	}
 }

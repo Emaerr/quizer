@@ -41,5 +41,38 @@ namespace Quizer.Models.User
 
             return Result.Ok();
         }
+
+        public Result<bool> CheckAnswers(IPasswordHasher<ApplicationUser> hasher, string controlAnswer1, string controlAnswer2, string controlAnswer3)
+        {
+            string hash1 = hasher.HashPassword(this, controlAnswer1);
+            var result1 = hasher.VerifyHashedPassword(this, hash1, controlAnswer1);
+            if (result1 == PasswordVerificationResult.Failed)
+            {
+                return Result.Fail($"Control answer 1 hashing failure.");
+            }
+
+            string hash2 = hasher.HashPassword(this, controlAnswer2);
+            var result2 = hasher.VerifyHashedPassword(this, hash2, controlAnswer2);
+            if (result2 == PasswordVerificationResult.Failed)
+            {
+                return Result.Fail($"Control answer 1 hashing failure.");
+            }
+
+            string hash3 = hasher.HashPassword(this, controlAnswer3);
+            var result3 = hasher.VerifyHashedPassword(this, hash3, controlAnswer3);
+            if (result3 == PasswordVerificationResult.Failed)
+            {
+                return Result.Fail($"Control answer 3 hashing failure.");
+            }
+
+            if (hash1 == ControlAnswer1Hash && hash2 == ControlAnswer2Hash && hash3 == ControlAnswer3Hash)
+            {
+                return Result.Ok(true);
+            }
+            else
+            {
+                return Result.Ok(false);
+            }
+        }
     }
 }
