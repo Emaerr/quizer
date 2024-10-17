@@ -115,35 +115,62 @@ namespace Quizer.Controllers
 		}
 
 		[HttpGet("ForgotPassword")]
-		public async Task<IActionResult> ForgotPassword()
+		public IActionResult ForgotPassword()
 		{
-			return View();
+			ViewData["returnUrl"] = Url.Content("~/");
+            return View();
 		}
 
-		[HttpPost("Password")]
-		public async Task<IActionResult> ForgotPassword(UserForgotPassword userForgotPassword) 
+		[HttpGet("ResetPassword")]
+		public async Task<IActionResult> ResetPassword(string userName, string? returnUrl)
+		{
+            ApplicationUser? user = await userManager.FindByNameAsync(userName);
+            if (user == null)
+            {
+                UserLogin errorUserLogin = new()
+                {
+                    ReturnUrl = returnUrl,
+                    ErrorMessage = "Пользователь с таким именем не найден."
+                };
+                return View(errorUserLogin);
+            }
+
+			UserResetPassword userResetPassword = new UserResetPassword()
+			{
+				Username = userName,
+				ReturnUrl = returnUrl,
+				ControlQuestion1 = user.ControlQuestion1!,
+				ControlQuestion2 = user.ControlQuestion2!,
+				ControlQuestion3 = user.ControlQuestion3!
+			};
+
+			return View(userResetPassword);
+		}
+
+		[HttpPost("ResetPassword")]
+		public async Task<IActionResult> ResetPassword(UserResetPassword userResetPassword) 
 		{
 			if (!ModelState.IsValid)
 			{
 				return BadRequest();
 			}
 
-            userForgotPassword.ReturnUrl ??= Url.Content("~/");
+            userResetPassword.ReturnUrl ??= Url.Content("~/");
 
-            ApplicationUser? user = await userManager.FindByNameAsync(userForgotPassword.Input.Username.Trim());
+            ApplicationUser? user = await userManager.FindByNameAsync(userResetPassword.Username);
 			if (user == null) {
                 UserLogin errorUserLogin = new()
                 {
-                    ReturnUrl = userForgotPassword.ReturnUrl,
+                    ReturnUrl = userResetPassword.ReturnUrl,
                     ErrorMessage = "Пользователь с таким именем не найден."
                 };
                 return View(errorUserLogin);
             }
 
 			Result<bool> result = user.CheckAnswers(passwordHasher, 
-				userForgotPassword.Input.ControlAnswer1.Trim().ToLower(), 
-				userForgotPassword.Input.ControlAnswer2.Trim().ToLower(),
-				userForgotPassword.Input.ControlAnswer3.Trim().ToLower());
+				userResetPassword.Input.ControlAnswer1.Trim().ToLower(), 
+				userResetPassword.Input.ControlAnswer2.Trim().ToLower(),
+				userResetPassword.Input.ControlAnswer3.Trim().ToLower());
 
 			if (result.IsFailed)
 			{
@@ -153,7 +180,7 @@ namespace Quizer.Controllers
 			if (result.Value)
 			{
 				var token = await userManager.GeneratePasswordResetTokenAsync(user);
-				var resetResult = await userManager.ResetPasswordAsync(user, token, userForgotPassword.Input.NewPassword.Trim());
+				var resetResult = await userManager.ResetPasswordAsync(user, token, userResetPassword.Input.NewPassword.Trim());
 				if (!resetResult.Succeeded)
 				{
 					return StatusCode(500);
@@ -164,7 +191,7 @@ namespace Quizer.Controllers
 			{
 				UserLogin errorUserLogin = new()
 				{
-					ReturnUrl = userForgotPassword.ReturnUrl,
+					ReturnUrl = userResetPassword.ReturnUrl,
 					ErrorMessage = "Вы ответили неверно, как минимум, на один из трёх вопросов."
 				};
 				return View(errorUserLogin);
