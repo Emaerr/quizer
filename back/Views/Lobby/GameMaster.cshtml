@@ -4,61 +4,48 @@
     ViewData["Title"] = "Game";
 }
 
-<h4>@ViewData["Title"]</h4>
-
-<div>
-    <h3>@Model.Title</h3>
-
-    <div>
-        <ul>
-            @foreach (var answer in Model.Answers)
-            {
-                <li>@answer.Title</li>
-            }
-        </ul>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вопрос @Model.Position/@ViewData["questionCount"]</title>
+    <link rel="stylesheet" href="/css/desktop44.css">
+</head>
+<body onload="startTimer()">
+    <div class="top-container">
+        <div class="header">
+            <h1>Вопрос @Model.Position/@ViewData["questionCount"]</h1>
+        </div>
+        <div class="question">
+            <p id="questionText">@Model.Title</p>
+        </div>
+        <div class="image-wrap">
+            <div id="image"><img src="/images/image.png" alt="horizontal"/></div>
+        </div>
     </div>
-</div>
-
-<div style="margin-top: 20px;">
-    <button id="nextQuestionButton">Следующий вопрос</button>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.18/signalr.min.js"></script>
-
-<script>
-    const connection = new signalR.HubConnectionBuilder()
-        .withUrl("/LobbyHub")
-        .configureLogging(signalR.LogLevel.Information)
-        .build();
-
-    async function start() {
-        try {
-            await connection.start();
-            console.log("SignalR Connected.");
-        } catch (err) {
-            console.log(err);
-            setTimeout(start, 5000);
-        }
-    };
-
-    connection.onclose(async () => {
-        await start();
-    });
-
-    // Start the connection.
-    start();
-
-
-    connection.on("RedirectToQuestion", (user, message) => {
-        window.location.href = '/Lobby/Game/@ViewData["lobbyGuid"]';
-    });
-
-    // connection.on("RedirectToBreak", (user, message) => {
-    //     window.location.href = '/Lobby/Result/@ViewData["lobbyGuid"]';
-    // });
-
-    connection.on("RedirectToResult", (user, message) => {
-        window.location.href = '/Lobby/Result/@ViewData["lobbyGuid"]';
-    });
-    
-</script>
+    <div class="container">
+        <div id="countdown">15</div>
+        <div class="options">
+            @for (int i = 0; i < Model.Answers.Count; i += 2)
+            {
+                <div class="option-wrap">
+                    <button class="option" data-answer="@Model.Answers[i].Guid">@Model.Answers[i].Title</button>
+                    @if (i + 1 < Model.Answers.Count)
+                    {
+                        <button class="option" data-answer="@Model.Answers[i + 1].Guid">@Model.Answers[i + 1].Title</button>
+                    }
+                </div>
+            }
+        </div>
+        <footer class="footer">
+            <button class="bottom-button">Таблица с результатами</button>
+            <button class="bottom-button">Далее</button>
+        </footer>
+    </div>
+    <script src="/js/desktop44.js"></script>
+</body>
+</html>

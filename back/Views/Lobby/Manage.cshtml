@@ -2,16 +2,30 @@
     ViewData["Title"] = "Manage";
 }
 
-<h1>Manage</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="/css/qr_code.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="container">
+        <div class="qr-code-container">
+            <div class="white-box">
+                <img class="qr-code" id="qrCodeImage" alt="Lobby QR Code" />
+            </div>
+            <div class="button-container">
+                <button class="button" id="startQuizButton">Начать!</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
 
-<div>
-    <h2>Your Lobby QR Code</h2>
-    <img id="qrCodeImage" alt="Lobby QR Code" />
-</div>
 
-<div>
-    <button id="startQuizButton">Start Quiz</button>
-</div>
+
 
 <!-- Добавляем ссылку на SignalR -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.18/signalr.min.js"></script>

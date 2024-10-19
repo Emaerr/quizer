@@ -1,0 +1,105 @@
+﻿/* Стили для страницы "Ваши квизы" */
+
+/* Общие стили */
+
+body {
+    font-family: chalkboard se;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    background-color: #f2f2f2;
+}
+
+a {
+    text-decoration: none;
+    color: #333;
+}
+
+    a:hover {
+        color: #000;
+    }
+
+/* Шапка страницы */
+
+.header {
+    background-image: url('bg/bg1.svg');
+    color: #fff;
+    padding-top: 60px;
+    padding-bottom: 15px;
+    text-align: center;
+}
+
+    .header h1 {
+        width: 561px;
+        height: 203px;
+        border-radius: 10px;
+        background: #fff;
+        color: #A42FC1;
+        font-family: chalkboard se;
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 38px;
+        color: #6E2181;
+        margin: 0 auto;
+        top: 50%;
+    }
+
+    .header a {
+        float: right;
+        margin-top: 10px;
+        font-size: 18px;
+    }
+
+/* Содержимое страницы */
+
+.content {
+    padding: 20px;
+}
+
+/* Список квизов */
+
+.quiz-list {
+    margin-bottom: 20px;
+}
+
+.quiz-item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.quiz-title {
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.quiz-actions {
+    text-align: right;
+}
+
+.quiz-edit,
+.quiz-delete {
+    margin-left: 10px;
+}
+
+/* Кнопка создания нового квиза */
+
+.quiz-create {
+    text-align: center;
+}
+
+.quiz-create-button {
+    font-family: chalkboard se;
+    font-size: 24px;
+    padding: 10px;
+    background-color: #fff;
+    color: #A42FC1;
+    border: 2px solid #A42FC1; /* Параметры рамки */
+    border-radius: 0.4em; /* Радиус скругления */
+    cursor: pointer;
+}
+
+    .quiz-create-button:hover {
+        background-color: #A42FC1;
+        color: #fff;
+    }
