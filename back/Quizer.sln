@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Quizer", "Quizer.csproj", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuizerTests", "..\QuizerTests\QuizerTests.csproj", "{0DA34F83-3D1B-4F59-9063-34DDC0B7063E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuizerMigrations", "..\QuizerMigrations\QuizerMigrations.csproj", "{E72FE5B1-2DAE-43BC-A2F9-6641FFBB2A5E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{0DA34F83-3D1B-4F59-9063-34DDC0B7063E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0DA34F83-3D1B-4F59-9063-34DDC0B7063E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0DA34F83-3D1B-4F59-9063-34DDC0B7063E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E72FE5B1-2DAE-43BC-A2F9-6641FFBB2A5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E72FE5B1-2DAE-43BC-A2F9-6641FFBB2A5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E72FE5B1-2DAE-43BC-A2F9-6641FFBB2A5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E72FE5B1-2DAE-43BC-A2F9-6641FFBB2A5E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

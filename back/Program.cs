@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Pomelo.EntityFrameworkCore.MySql.Migrations.Internal;
 using Quizer.Data;
 using Quizer.Hubs;
 using Quizer.Models.User;
@@ -22,8 +24,18 @@ namespace Quizer
 
             // Add services to the container.
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            
+            ServerVersion? version = null;
+            try
+            {
+                version = ServerVersion.AutoDetect(connectionString);
+            } catch (MySqlConnector.MySqlException)
+            {
+                ServerVersion.TryParse(builder.Configuration["SqlServerVersion"], out version);
+            }
+
             builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+                options.UseMySql(connectionString, version)); //ServerVersion.AutoDetect(connectionString)
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             builder.Services.AddSignalR();
