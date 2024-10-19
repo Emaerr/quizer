@@ -121,3 +121,6 @@ src/.vs/config/applicationhost.config
 # Migrations
 /Data/Migrations/
 /Migrations
+
+#Docker
+*docker.com*
