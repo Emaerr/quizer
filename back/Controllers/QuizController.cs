@@ -153,8 +153,7 @@ namespace Quizer.Controllers
             {
                 return NotFound();
             }
-            int timeLimitInMilliseconds = timeLimit * 1000;
-            quizRepository.UpdateUserQuizInfo(user.Id, quiz.Guid, new QuizInfo(name, timeLimitInMilliseconds));
+            quizRepository.UpdateUserQuizInfo(user.Id, quiz.Guid, new QuizInfo(name, timeLimit));
 
             return RedirectToAction("Edit", "Quiz");
         }
