@@ -1,0 +1,73 @@
+/* Стили для страницы регистрации */
+
+body {
+	background-image: url("bg/bg1.png");
+  	font-family: 'chalkboard se';
+}
+
+.container {
+	width: 560px;
+	background-color: #fff;
+	padding: 10px;
+	border-radius: 10px;
+	position: absolute;
+	left: 0;
+	right: 0;
+	margin: 0 auto;
+	top: 50%;
+	transform: translate(0, -50%);
+}
+
+h1 {
+	color: #6E2181;
+	text-align: center;
+	font-size: 24px;
+	margin-bottom: 10px;
+}
+
+h2 {
+	color: #A42FC1;
+	font-size: 17px;
+	margin-bottom: 24px;
+}
+
+.form-container {
+  display: grid;
+  place-items: center;
+}
+
+form {
+	display: flex;
+	flex-direction: column;
+}
+
+input {
+	display:block;
+	margin:0 auto;
+	width: 90%;
+	padding: 15px;
+	margin-bottom: 20px;
+	border: 1px solid #A42FC1;
+	border-radius: 10px;
+}
+
+.buttons {
+	display: flex;
+	justify-content: space-between;
+}
+
+button {
+	font-family: chalkboard se;
+	font-size: 24px;
+	padding: 10px;
+	background-color: #fff;
+	color: #A42FC1;
+	border-color: #A42FC1;
+	border-radius: 10px;
+	cursor: pointer;
+}
+
+button:hover {
+	background-color:#A42FC1;
+	color: #fff;
+}

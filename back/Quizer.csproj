@@ -35,4 +35,9 @@
     <Folder Include="Views\Index\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\css\bg\bg1.png" />
+    <None Include="wwwroot\css\Index.css" />
+  </ItemGroup>
+
 </Project>

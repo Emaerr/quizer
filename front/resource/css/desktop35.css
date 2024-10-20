@@ -1,0 +1,181 @@
+/*
+  1. Use a more-intuitive box-sizing model.
+*/
+*, *::before, *::after {
+    box-sizing: border-box;
+  }
+  /*
+    2. Remove default margin
+  */
+  * {
+    margin: 0;
+  }
+  /*
+    Typographic tweaks!
+    3. Add accessible line-height
+    4. Improve text rendering
+  */
+  body {
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  /*
+    5. Improve media defaults
+  */
+  img, picture, video, canvas, svg {
+    display: block;
+    max-width: 100%;
+  }
+  /*
+    6. Remove built-in form typography styles
+  */
+  input, button, textarea, select {
+    font: inherit;
+  }
+  /*
+    7. Avoid text overflows
+  */
+  p, h1, h2, h3, h4, h5, h6 {
+    overflow-wrap: break-word;
+  }
+  /*
+    8. Create a root stacking context
+  */
+  #root, #__next {
+    isolation: isolate;
+  }
+  body {
+    background-image: url('bg/bg1.svg');
+    background-size: cover;
+    font-family: "Comic Neue", cursive;
+    font-weight: 700;
+    font-style: normal;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.top-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 560px;
+    text-align: center;
+    position: relative;
+    top: 13%;
+    z-index: 1;
+}
+
+.question {
+  font-size: 36px;
+  color: #a42fc1;
+  margin: 1%;
+}
+
+.image-wrap {
+  width: 560px;
+  position: relative;
+  overflow: hidden;
+  height: 300px;
+  z-index: 2;
+}
+
+.image {
+  position: inherit;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  object-position: 0 0;
+  object-fit: cover;
+  width: 560px;
+  height: 300px;
+}
+
+.header {
+    color: #a42fc1;
+    padding: 10px;
+    border-radius: 10px 10px 0 0;
+    position: relative;
+}
+
+.header h1 {
+    margin-top: 15px;
+    font-size: 31px;
+}
+
+.container {
+    background-color: white;
+    border-radius: 50px 50px 0px 0px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    text-align: center;
+    position: absolute;
+    bottom: 0;
+    height: 69%;
+}
+
+#countdown {
+    font-size: 48px;
+    position: absolute;
+    right: 230px;
+    top: 30px;
+    color: #a42fc1;
+}
+
+.options {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 280px;
+    row-gap: 80px;
+}
+
+.option-wrap {
+  display: flex;
+  gap: 300px;
+  justify-content: center;
+}
+
+.option {
+    background-color: white;
+    border: 2px solid #a42fc1;
+    border-radius: 10px;
+    color: #a42fc1;
+    padding: 10px;
+    font-size: 35px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 350px;
+}
+
+.option:hover {
+    background-color: #f3e4f9;
+}
+
+.footer{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 75%;
+}
+
+.bottom-button{
+  background-color: white;
+  border: 2px solid #a42fc1;
+  border-radius: 10px;
+  color: #a42fc1;
+  padding: 10px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 200px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.bottom-button:hover{
+  background-color: #f3e4f9;
+}
