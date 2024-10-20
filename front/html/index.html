@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index</title>
+    <link rel="stylesheet" href="../resource/css/index_2.css">
+</head>
+<body>
+    <div class="top-container">
+        <div class="top-container-title">
+            <p id="title-text">Мои квизы</p>
+        </div>
+    </div>
+    <div class="container">
+        <div class="button-wrap">
+            <button class="button">Тестовая Кнопка</button>
+            <button class="button">Тестовая Кнопка</button>
+            <button class="button">Тестовая Кнопка</button>
+            <button class="button">Тестовая Кнопка</button>
+            <button class="button">Тестовая Кнопка</button>
+            <button class="button">Тестовая Кнопка</button>
+            <button class="button">Тестовая Кнопка</button>
+            <button class="button">Тестовая Кнопка</button>
+        </div>
+        <div class="button-create-wrap">
+            <button class="button-create-button">Создать новый квиз</button>
+        </div>
+    </div>
+    <div id="popup" class="popup hidden">
+        <ul>
+            <li>Проведение квиза</li>
+            <li>Редактирование квиза</li>
+            <li>Обзор квиза</li>
+            <li>Удалить квиз</li>
+        </ul>
+    </div>
+    <script>
+        const buttons = document.querySelectorAll('.button');
+        const popup = document.getElementById('popup');
+    
+        buttons.forEach(button => {
+            button.addEventListener('click', (event) => {
+                const { pageX: mouseX, pageY: mouseY } = event;
+                popup.style.top = `${mouseY+165}px`;
+                popup.style.left = `${mouseX+165}px`;
+                popup.classList.remove('hidden');
+            });
+        });
+    
+        // Закрытие окна при клике за его пределами
+        document.addEventListener('click', (event) => {
+            if (!popup.contains(event.target) && !event.target.classList.contains('button')) {
+                popup.classList.add('hidden');
+            }
+        });
+    
+        // Добавление кликабельности элементам внутри popup
+        popup.querySelectorAll('li').forEach(item => {
+            item.addEventListener('click', () => {
+                alert(`Вы нажали: ${item.textContent}`);
+            });
+        });
+    </script>
+</body>
