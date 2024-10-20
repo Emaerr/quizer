@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +21,21 @@ namespace Quizer
     {
         public static void Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
+            var builderConf = WebApplication.CreateBuilder(args);
+
+            string? webRootPath = builderConf.Configuration["WebRootPath"];
+
+            string? appDirectory = builderConf.Configuration["AppDirectory"] ?? Directory.GetCurrentDirectory();
+
+            WebApplicationOptions webApplicationOptions = new()
+            {
+                ApplicationName = typeof(Program).Assembly.FullName,
+                ContentRootPath = appDirectory,
+                EnvironmentName = builderConf.Environment.EnvironmentName,
+                WebRootPath = webRootPath ?? Path.Combine(appDirectory, "wwwroot"),
+                Args = args
+            };
+            var builder = WebApplication.CreateBuilder(webApplicationOptions);
 
             // Add services to the container.
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -61,6 +76,8 @@ namespace Quizer
             builder.Services.AddSingleton<ITimeService, TimeService>();
             builder.Services.AddSingleton<IQrService, QrService>();
             builder.Services.AddSingleton<ITempUserService, TempUserService>();
+
+            builder.Services.AddDataProtection().PersistKeysToDbContext<AppDbContext>();
 
             builder.Services.Configure<IdentityOptions>(options =>
             {
@@ -108,7 +125,11 @@ namespace Quizer
             }
 
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
+            StaticFileOptions options = new StaticFileOptions()
+            {
+                RequestPath = builder.Configuration["StaticFileRequestPath"] ?? "",
+            };
+            app.UseStaticFiles(options);
 
             app.UseRouting();
 

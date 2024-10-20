@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Quizer.Models.Lobbies;
 using Quizer.Models.Quizzes;
@@ -6,12 +7,12 @@ using Quizer.Models.User;
 
 namespace Quizer.Data
 {
-    public class AppDbContext : IdentityDbContext<ApplicationUser>
+    public class AppDbContext : IdentityDbContext<ApplicationUser>, IDataProtectionKeyContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
-
+            
         }
 
         public virtual DbSet<Participator> Participators { get; set; } = default!;
@@ -20,6 +21,7 @@ namespace Quizer.Data
         public virtual DbSet<Answer> Answers { get; set; } = default!;
         public virtual DbSet<Lobby> Lobbies { get; set; } = default!;
         public virtual DbSet<ParticipatorAnswer> ParticipatorAnswers { get; set; } = default!;
+        public virtual DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
 
         #region Required
         protected override void OnModelCreating(ModelBuilder modelBuilder)

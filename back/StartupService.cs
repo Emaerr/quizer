@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using Quizer.Models.User;
 using System;
@@ -17,6 +18,7 @@ namespace Quizer
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            //MigrateDatabase();
             SetUpRoles();
         }
 
@@ -24,6 +26,15 @@ namespace Quizer
         {
             return Task.CompletedTask;
         }
+
+        //private async void MigrateDatabase()
+        //{
+        //    var scope = _serviceProvider.CreateScope();
+        //    var serviceProvider = scope.ServiceProvider;
+        //    var migrator = serviceProvider.GetRequiredService<IMigrator>();
+
+        //    await migrator.MigrateAsync();
+        //}
 
         private async void SetUpRoles()
         {
