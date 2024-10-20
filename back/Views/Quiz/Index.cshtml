@@ -1,12 +1,12 @@
 ﻿@model IEnumerable<Quizer.Models.Quizzes.QuizViewModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Ваши квизы";
 }
 
-<link rel="stylesheet" href="/css/Index.css" />
+<link rel="stylesheet" href="/css/quiz_index.css" />
 
-<title>Ваши квизы</title>
+<title>@ViewData["Title"]</title>
 <div class="top-container">
     <div class="header">
         @* <a href="#" class="help">?</a> *@
