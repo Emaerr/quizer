@@ -146,7 +146,7 @@
     font-size: 30px;
 }
 .answer:focus {
-    color: #bf2bc6;
+  color: #a42fc1;
     caret-color: auto;
 }
 .answer-field{
