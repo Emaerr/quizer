@@ -1,105 +1,215 @@
-﻿/* Стили для страницы "Ваши квизы" */
-
-/* Общие стили */
+﻿/*
+  1. Use a more-intuitive box-sizing model.
+*/
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+/*  
+    2. Remove default margin
+  */
+* {
+    margin: 0;
+}
+/*
+    Typographic tweaks!
+    3. Add accessible line-height
+    4. Improve text rendering
+  */
+body {
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+/*
+    5. Improve media defaults
+  */
+img, picture, video, canvas, svg {
+    display: block;
+    max-width: 100%;
+}
+/*
+    6. Remove built-in form typography styles
+  */
+input, button, textarea, select {
+    font: inherit;
+}
+/*
+    7. Avoid text overflows
+  */
+p, h1, h2, h3, h4, h5, h6 {
+    overflow-wrap: break-word;
+}
+/*
+    8. Create a root stacking context
+  */
+#root, #__next {
+    isolation: isolate;
+}
 
 body {
-    font-family: chalkboard se;
-    margin: 0;
-    padding: 0;
-    color: #333;
-    background-color: #f2f2f2;
-}
-
-a {
-    text-decoration: none;
-    color: #333;
-}
-
-    a:hover {
-        color: #000;
-    }
-
-/* Шапка страницы */
-
-.header {
     background-image: url('bg/bg1.svg');
-    color: #fff;
-    padding-top: 60px;
-    padding-bottom: 15px;
+    background-size: cover;
+    font-family: "Comic Neue", cursive;
+    font-weight: 700;
+    font-style: normal;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh; /* Убрали height и добавили min-height */
+}
+
+.top-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 10px 10px 10px 10px rgba(0, 0, 0, 0.1);
+    width: 560px;
+    height: 200px;
     text-align: center;
+    position: relative;
+    top: 50px;
+    z-index: 1;
 }
 
-    .header h1 {
-        width: 561px;
-        height: 203px;
-        border-radius: 10px;
-        background: #fff;
-        color: #A42FC1;
-        font-family: chalkboard se;
-        text-align: center;
-        margin-bottom: 20px;
-        font-size: 38px;
-        color: #6E2181;
-        margin: 0 auto;
-        top: 50%;
-    }
-
-    .header a {
-        float: right;
-        margin-top: 10px;
-        font-size: 18px;
-    }
-
-/* Содержимое страницы */
-
-.content {
-    padding: 20px;
+.top-container-title {
+    font-size: 50px;
+    color: #a42fc1;
+    margin: 60px;
 }
 
-/* Список квизов */
-
-.quiz-list {
-    margin-bottom: 20px;
-}
-
-.quiz-item {
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin-bottom: 10px;
-}
-
-.quiz-title {
-    font-size: 18px;
-    margin-bottom: 5px;
-}
-
-.quiz-actions {
-    text-align: right;
-}
-
-.quiz-edit,
-.quiz-delete {
-    margin-left: 10px;
-}
-
-/* Кнопка создания нового квиза */
-
-.quiz-create {
+.container {
+    display: flex;
+    background-color: white;
+    border-radius: 50px 50px 0px 0px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
     text-align: center;
+    padding-bottom: 50px; /* Добавили отступ снизу */
+    justify-content: space-around;
+    gap: 650px;
+    position: relative; /* Убрали absolute */
+    flex-grow: 1; /* Чтобы контейнер занимал всё оставшееся пространство */
 }
 
-.quiz-create-button {
-    font-family: chalkboard se;
-    font-size: 24px;
+.button-wrap {
+    margin-top: 100px; /* Уменьшили значение для лучшего выравнивания */
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+}
+
+.button {
+    background-color: white;
+    border: 2px solid #a42fc1;
+    border-radius: 10px;
+    color: #a42fc1;
     padding: 10px;
-    background-color: #fff;
-    color: #A42FC1;
-    border: 2px solid #A42FC1; /* Параметры рамки */
-    border-radius: 0.4em; /* Радиус скругления */
+    font-size: 35px;
     cursor: pointer;
+    transition: background-color 0.3s;
+    width: 350px;
 }
 
-    .quiz-create-button:hover {
-        background-color: #A42FC1;
-        color: #fff;
+    .button:hover {
+        background-color: #f3e4f9;
     }
+
+#button-active {
+    box-shadow: inset 2px 2px 2px 2px rgba(0, 0, 0, 0.2);
+}
+
+.button-create-wrap {
+    margin-top: 100px; /* Уменьшили значение для лучшего выравнивания */
+    display: flex;
+    flex-direction: column;
+}
+
+.button-create-button {
+    background-color: white;
+    border: 2px solid #a42fc1;
+    border-radius: 10px;
+    color: #a42fc1;
+    padding: 10px;
+    font-size: 35px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 350px;
+}
+
+.button-create-button:hover {
+    background-color: #f3e4f9;
+    }
+.button-create-button:active {
+    box-shadow: inset 2px 2px 2px 2px rgba(0, 0, 0, 0.2);
+    }
+
+.popup {
+    position: absolute;
+    background-color: white;
+    border: 2px solid #a42fc1;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    font-size: 25px;
+    color: #a42fc1;
+    z-index: 10;
+    width: 315px;
+    transform: translate(-50%, -50%);
+}
+
+.popup ul {
+    list-style: none;
+    padding: 0;
+}
+
+.popup li {
+    margin: 10px 0;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.popup li:hover {
+    background-color: #f3e4f9;
+}
+
+.delete-popup {
+    position: absolute;
+    background-color: white;
+    border: 2px solid #a42fc1;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    font-size: 25px;
+    color: #a42fc1;
+    z-index: 10;
+    width: 315px;
+    transform: translate(-50%, -50%);
+    left: 55%;
+    top: 50%;
+}
+
+.delete-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.conduct-popup {
+    position: absolute;
+    background-color: white;
+    border: 2px solid #a42fc1;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    font-size: 25px;
+    color: #a42fc1;
+    z-index: 10;
+    width: 315px;
+    transform: translate(-50%, -50%);
+    left: 55%;
+    top: 50%;
+}
+
+.hidden {
+    display: block;
+    visibility: hidden;
+}
