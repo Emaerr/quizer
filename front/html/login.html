@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz second</title>
     <link rel="stylesheet" href="../resource/css/login.css">
-    <link href = "fonts/roboto/stylesheet.css" rel = "stylesheet" type = "text/css" />
 </head>
 <body>
     <div class="wrapper">
@@ -19,15 +21,15 @@
                     <p class="password">Пароль</p>
                 </div>
                 <div class="input-box">
-                    <input asp-for="Input.Username" class="form-control" autocomplete="username" aria-required="true" placeholder="login" />
+                    <input asp-for="Input.Username" type="text" class="form-control" autocomplete="username" />
                 </div>
                 <div class="input-box">
-                    <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
+                    <input asp-for="Input.Password" type="password" class="form-control" autocomplete="current-password" />
                 </div>
 
                 <div class="remember-forgot">
-                    <label><input type="checkbox"> Запомнить меня
-                        <span></span>
+                    <label class="remember-wrap">
+                        <input type="checkbox"> Запомнить меня
                     </label>
                     <a href="reset.html">Забыл пароль?</a>
                 </div>
