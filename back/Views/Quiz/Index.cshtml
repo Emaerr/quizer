@@ -4,123 +4,170 @@
     ViewData["Title"] = "Ваши квизы";
 }
 
-<link rel="stylesheet" href="/css/quiz_index.css" />
 
-<title>@ViewData["Title"]</title>
-<div class="top-container">
-    <div class="header">
-        @* <a href="#" class="help">?</a> *@
-        <h1><br>Ваши квизы</h1>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Index</title>
+<link rel="stylesheet" href="/css/quiz_index.css"/>
+
+<body>
+    <div class="top-container">
+        <div class="top-container-title">
+            <p id="title-text">Мои квизы</p>
+        </div>
     </div>
-</div>
-<div class="</div>">
-    <table style="width:100%">
-        @{
-            bool isFirst = false;
-        }
-        @{
-            bool isNull = false;
-        }
-        @foreach (var item in Model)
-        {
-            isNull = true;
-            <tr>
-                <div class="quiz-list">
-                <th>
-                    <div class="quiz-item">
-                        <div class="quiz-title">@Html.DisplayFor(modelItem => item.Name)</div>
-                        <div class="quiz-actions">
-                            <a asp-controller="Quiz" asp-action="Edit" asp-route-id="@item.Guid">Редактировать</a> |
-                            <a asp-controller="Quiz" asp-action="Details" asp-route-id="@item.Guid">Детали</a> |
-                            <a asp-controller="Quiz" asp-action="Delete" asp-route-id="@item.Guid">Удалить</a>
-                        </div>
-                    </div>
-                </th>
+    <div class="container">
+        <div class="button-wrap">
+            @foreach (var item in Model)
+            {
+                <button class="button" data-guid=@item.Guid>@item.Name</button>
+            }
+        </div>
+        <div class="button-create-wrap">
+            <a asp-action="Create" class="button-create-button">Создать новый квиз</a>
+        </div>
+    </div>
 
-                    @if (isFirst == false)
-                    {
-                        isFirst = true;
-                    <th>
-                        <div class="quiz-create">
-                            <a asp-action="Create" class="quiz-create-button">Создать новый квиз</a>
-                        </div>
-                    </th>
+    <div id="popup" class="popup hidden">
+        <ul>
+            <li id="conduct">Проведение квиза</li>
+            <li id="edit">Редактирование квиза</li>
+            <li id="details">Обзор квиза</li>
+            <li id="delete">Удалить квиз</li>
+        </ul>
+    </div>
+
+    <div id="delete-popup" class="delete-popup hidden">
+        <p>Вы точно хотите удалить (форэва!) ваш невъебенно ценный квиз?</p>
+        <div class="delete-container">
+            <button id="delete-button">ЕбашЪ!</button>
+            <button id="close-delete-button">Не надо дядя</button>
+        </div>
+    </div>
+
+    <div id="conduct-popup" class="conduct-popup hidden">
+        <input type="number" id="max-participators-input" name="max-participators" min="1"/>
+        <button id="conduct-button">Провести квиз</button>
+    </div>
+
+    <script>
+        const buttons = document.querySelectorAll(".button");
+        const popup = document.getElementById("popup");
+        const deletePopup = document.getElementById("delete-popup");
+        const deleteButton = document.getElementById("delete-button");
+        const closeDeleteButton = document.getElementById("close-delete-button");
+        const conductPopup = document.getElementById("conduct-popup");
+        const conductButton = document.getElementById("conduct-button");
+        const maxParticipatorsInput = document.getElementById("max-participators-input");
+
+        buttons.forEach(button => {
+            button.addEventListener("click", (event) => {
+                buttons.forEach(button => {
+                    button.id = ""
+                });
+                const { pageX: mouseX, pageY: mouseY } = event;
+                const offsetY = 75;
+                const offsetX = 165;
+                const popupHeight = popup.offsetHeight;
+                const bottomY = window.innerHeight + window.scrollY; // Adjust for scrollable pages
+                const popupPosX = button.getBoundingClientRect().right + offsetX;
+
+                let popupPosY = button.getBoundingClientRect().bottom + window.scrollY + offsetY;
+
+                // Check if the popup would go below the visible part of the window
+                if (popupPosY + popupHeight * 0.5 > bottomY) {
+                    // Show the popup above the button if it"s too close to the bottom
+                    popupPosY = bottomY - (popupHeight * 0.5);
+                    // Ensure it doesn"t go above the window
+                    if (popupPosY < window.scrollY) {
+                        popupPosY = window.scrollY; // Stick to the top if there"s not enough space
                     }
-            </tr>
-        }
-        @if (isNull == false)
-        {
-            <tr>
-                <th></th>
-                <th>
-                    <div class="quiz-create">
-                        <a asp-action="Create" class="quiz-create-button">Создать новый квиз</a>
-                    </div>
-                </th>
-            </tr>
-        }
-    </table>
-</div>
+                }
 
+                popup.style.top = `${popupPosY}px`;
+                popup.style.left = `${popupPosX}px`;
+                popup.classList.remove("hidden");
+                button.id = "button-active";
+                deletePopup.classList.add("hidden");
+                conductPopup.classList.add("hidden");
+            });
+        });
 
+        // Закрытие окна при клике за его пределами
+        document.addEventListener("click", (event) => {
+            if (!popup.contains(event.target) 
+            && !event.target.classList.contains("button") 
+            && event.target.id != "max-participators-input" 
+            && event.target.id != "conduct-button")
+            {
+                popup.classList.add("hidden");
+                deletePopup.classList.add("hidden");
+                conductPopup.classList.add("hidden");
 
+                buttons.forEach(button => {
+                    button.id = "button";
+            });
+            }
+        });
 
+        // Добавление кликабельности элементам внутри popup
+        popup.querySelectorAll("li").forEach(item => {
+            item.addEventListener("click", () => {
+                const quizGuid = document.getElementById("button-active").dataset.guid;
 
+                if (item.id == "conduct") {
+                    conductPopup.classList.remove("hidden");
+                }
+                else if (item.id == "edit") {
+                    window.location.href = `/Quiz/Edit/${quizGuid}`;
+                }
+                else if (item.id == "details") {
+                    window.location.href = `/Quiz/Details/${quizGuid}`;
+                }
+                else if (item.id == "delete") {
+                    deletePopup.classList.remove("hidden");
+                }
+            });
+        });
 
+        deleteButton.addEventListener("click", (event) => { 
+            let guid = document.getElementById("button-active").dataset.guid;
+            fetch(`/Quiz/Delete/${guid}`, {
+                method: "POST"
+            });
+            deletePopup.classList.add("hidden");
+            window.location.reload()
+        });
+        closeDeleteButton.addEventListener("click", (event) => {
+            deletePopup.classList.add("hidden");
+        });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-@*
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                <a asp-controller="Quiz" asp-action="Edit" asp-route-id="@item.Guid">Edit</a> |
-                <a asp-controller="Quiz" asp-action="Details" asp-route-id="@item.Guid">Details</a> |
-                <a asp-controller="Quiz" asp-action="Delete" asp-route-id="@item.Guid">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
-*@
+        conductButton.addEventListener("click", (event) => {
+            const quizGuid = document.getElementById("button-active").dataset.guid;
+            const maxParticipators = maxParticipatorsInput.value;
+            fetch(`/Lobby/Create?quizGuid=${quizGuid}&maxParticipators=${maxParticipators}`, {
+                method: 'POST'
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        return response.text().then(text => {
+                            throw new Error(`Ошибка: ${text}`);
+                        });
+                    }
+                })
+                .then(data => {
+                    console.log("Лобби успешно создано: " + data);
+                    window.location.href = `/Lobby/Manage/${data.lobbyGuid}`;
+                })
+                .catch(error => {
+                    console.error("Ошибка при создании лобби:", error);
+                    alert("Не удалось создать лобби: " + error.message);
+                });
+        });
+    </script>
+</body>

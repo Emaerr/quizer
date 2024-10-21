@@ -60,6 +60,8 @@ namespace Quizer.Controllers
                 viewModels.Add(viewModel);
             }
 
+            ViewData["layout"] = "";
+
             return View(viewModels);
         }
 
@@ -232,8 +234,8 @@ namespace Quizer.Controllers
         /// </summary>
         /// <param name="guid">Quiz GUID</param>
         /// <returns>Redirects to Quiz/Index page</returns>
-        [HttpPost("Delete")]
-        public async Task<IActionResult> DeleteConfirm([FromForm] string guid)
+        [HttpPost("Delete/{guid:guid}")]
+        public async Task<IActionResult> DeleteConfirm(string guid)
         {
             var scope = _scopeFactory.CreateScope();
             var quizRepository = scope.ServiceProvider.GetService<IQuizDataRepository>();
