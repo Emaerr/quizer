@@ -111,7 +111,8 @@
 .button:hover{
     background-color:#f3e4f9;
 }
-.button:active{
+
+#button-active {
     box-shadow: inset 2px 2px 2px 2px rgba(0, 0, 0, 0.2);
 }
 
@@ -142,7 +143,7 @@
 }
 
 .popup {
-    position: absolute; /* Сменили на absolute для отображения рядом с курсором */
+    position: absolute;
     background-color: white;
     border: 2px solid #a42fc1;
     border-radius: 10px;

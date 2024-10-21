@@ -44,10 +44,32 @@
     
         buttons.forEach(button => {
             button.addEventListener('click', (event) => {
+                buttons.forEach(button => {
+                    button.id = ""
+                });
                 const { pageX: mouseX, pageY: mouseY } = event;
-                popup.style.top = `${mouseY+165}px`;
-                popup.style.left = `${mouseX+165}px`;
+                const offsetY = 75;
+                const offsetX = 165;
+                const popupHeight = popup.offsetHeight;
+                const bottomY = window.innerHeight + window.scrollY; // Adjust for scrollable pages
+                const popupPosX = button.getBoundingClientRect().right + offsetX;
+
+                let popupPosY = button.getBoundingClientRect().bottom + window.scrollY + offsetY;
+
+                // Check if the popup would go below the visible part of the window
+                if (popupPosY + popupHeight * 0.5 > bottomY) {
+                    // Show the popup above the button if it's too close to the bottom
+                    popupPosY = bottomY - (popupHeight * 0.5);
+                    // Ensure it doesn't go above the window
+                    if (popupPosY < window.scrollY) {
+                        popupPosY = window.scrollY; // Stick to the top if there's not enough space
+                    }
+                }
+            
+                popup.style.top = `${popupPosY}px`;
+                popup.style.left = `${popupPosX}px`;
                 popup.classList.remove('hidden');
+                button.id = "button-active"
             });
         });
     
@@ -55,6 +77,10 @@
         document.addEventListener('click', (event) => {
             if (!popup.contains(event.target) && !event.target.classList.contains('button')) {
                 popup.classList.add('hidden');
+
+                buttons.forEach(button => {
+                button.id = "button"
+            });
             }
         });
     
