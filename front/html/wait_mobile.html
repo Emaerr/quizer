@@ -8,34 +8,48 @@
   <link rel="stylesheet" href="../resource/css/mobile_main.css">
 </head>
 <body>
-  <div class="background">
-    <img src="../resource/src/back1.png" class="Ellipse1">
-    <img src="../resource/src/back2.png" class="Ellipse2">
-    <img src="../resource/src/back3.png" class="Ellipse3">
-    <header>
-    </header>
-    <div class="Ellipse">
+  <div class="container">
+    <!-- Purple top background with circles -->
+    <div class="header-background">
     </div>
-    <div class="name">
-      <p class="tname">
-        Квиз совсем скоро начнется!!!
-      </p>
+    
+    <!-- Main content area -->
+    <div class="main-content">
+      <div class="info-box">
+        <p>Квиз совсем скоро начнется!!!</p>
+      </div>
+
+      <p class="waiting-text">Пожалуйста, подождите</p>
+      
+      <!-- Countdown timer -->
+      <div class="countdown-timer">
+        <p id="countdown">10</p>
+      </div>
+      
+      <!-- Dot indicators -->
+      <div class="dot-indicator">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
     </div>
-    <div class="emoji">
-      <p class="waiting">Пожалуйста, подождите </p>
-        <div class="timer"> 
-          <p id="countdown">10</p> 
-            <script>
-            let time = 10; // Задаём начальное время
-            const timer = setInterval(() => {
-              document.getElementById('countdown').textContent = time <= 0 
-                ? clearInterval(timer) // Останавливаем таймер, поскольку время истекло
-                : time--; // С каждой секундой уменьшаем время
-            }, 1000); // Интервал делаем одной секунды
-            </script>
-        </div>
-        <img src="../resource/src/499.svg" class="timer_gif">
-    </div>
+
+    <script>
+      // Countdown Timer Script
+      let time = 10;
+      const countdownElement = document.getElementById('countdown');
+      const timer = setInterval(() => {
+        countdownElement.textContent = time <= 0 ? clearInterval(timer) : (time < 10 ? '0' + time : time);
+        time--;
+      }, 1000);
+    </script>
   </div>
 </body>
 </html>
