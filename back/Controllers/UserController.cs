@@ -29,7 +29,9 @@ namespace Quizer.Controllers
 		[HttpGet("Register")]
 		public IActionResult Register()
 		{
-			return View();
+            ViewData["layout"] = "";
+
+            return View();
 		}
 
 		[HttpPost("Register")]
@@ -74,6 +76,8 @@ namespace Quizer.Controllers
 			{
 				ReturnUrl = returnUrl,
 			};
+
+			ViewData["layout"] = "";
 
 			return View(userLogin);
 		}

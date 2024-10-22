@@ -3,51 +3,56 @@
 @{
     ViewData["Title"] = "Вход";
 }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz second</title>
+<link rel="stylesheet" href="/css/login.css">
 
-<h1>@ViewData["Title"]</h1>
+<div class="wrapper">
+    <div class="kube">
+        <form asp-action="Login" id="login_form">
+            <h1></h1>
+            <div class="text-input">
+                <p class="login">Логин</p>
+            </div>
+            <div class="text-input">
+                <p class="password">Пароль</p>
+            </div>
+            <div class="input-box">
+                <input asp-for="Input.Username" type="text" class="form-control" autocomplete="username" />
+            </div>
+            <div class="input-box">
+                <input asp-for="Input.Password" type="password" class="form-control" autocomplete="current-password" />
+            </div>
 
-<form asp-action="Login" id="login_form">
-    <div class="form-group">
-        <label asp-for="Input.Username" class="control-label"></label>
-        <input asp-for="Input.Username" class="form-control" autocomplete="username" aria-required="true" placeholder="Имя пользователя" />
-        <span asp-validation-for="Input.Username" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Input.Password" class="control-label"></label>
-        <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Пароль" />
-        <span asp-validation-for="Input.Password" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="Input.RememberMe" class="form-label">
-            <input class="form-check-input" asp-for="Input.RememberMe" />
-            @Html.DisplayNameFor(m => m.Input.RememberMe)
-        </label>
-    </div>
-    <div class="form-group">
-        <input type="submit" value="Save" class="btn btn-primary" />
-    </div>
-    <div>
-        <p>
-            <a id="forgot-password" asp-action="ForgotPassword">Забыли пароль?</a>
-        </p>
-        <p>
-            <a asp-action="Register">Зарегистрироваться, если аккаунта нет</a>
-        </p>
-    </div>
-</form>
+            <div class="remember-forgot">
+                <label class="remember-wrap">
+                    <input asp-for="Input.RememberMe" type="checkbox"> Запомнить меня
+                </label>
+                <a id="forgot-password" asp-action="ForgotPassword">Забыли пароль?</a>
+            </div>
 
-@if(Model.ErrorMessage != null)
-{
-    <div class="alert alert-danger alert-dismissible" role="alert">
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        @Model.ErrorMessage
-    </div>
-}
+            <button type="submit" class="btn">Поехали!</button>
 
+            <div class="register-link">
+                <p>Новенький? <a asp-action="Register">Регистрируйся!</a></p>
+            </div>
+        </form>
+        @if (Model.ErrorMessage != null)
+        {
+            <div class="alert alert-danger alert-dismissible" role="alert">
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                @Model.ErrorMessage
+            </div>
+        }
+    </div>
+</div>
 @{
 }
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
-
