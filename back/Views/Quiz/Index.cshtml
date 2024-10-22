@@ -137,9 +137,11 @@
             let guid = document.getElementById("button-active").dataset.guid;
             fetch(`/Quiz/Delete/${guid}`, {
                 method: "POST"
-            });
+            }).then((response => {
+                window.location.reload()
+            })
+            );
             deletePopup.classList.add("hidden");
-            window.location.reload()
         });
         closeDeleteButton.addEventListener("click", (event) => {
             deletePopup.classList.add("hidden");
