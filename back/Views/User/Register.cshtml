@@ -4,56 +4,66 @@
     ViewData["Title"] = "Регистрация";
 }
 
-<h1>@ViewData["Title"]</h1>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<title>Quiz Second</title>
+<link rel="stylesheet" href="/css/register.css">
 
-<form asp-action="Register" id="register_form">
-    <div class="form-floating mb-3">
-        <input asp-for="Username" class="form-control" autocomplete="username" aria-required="true" placeholder="Имя пользователя" />
-        <label asp-for="Username">Имя пользователя</label>
-        <span asp-validation-for="Username" class="text-danger"></span>
-    </div>
-    <div class="form-floating mb-3">
-        <input asp-for="Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Пароль" />
-        <label asp-for="Password">Пароль</label>
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-    <div class="form-floating mb-3">
-        <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Пароль" />
-        <label asp-for="ConfirmPassword">Подтвердите пароль</label>
-        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-    </div>
-    <div class="form-floating mb-3">
-        <input asp-for="ControlQuestion1" class="form-control" aria-required="true" placeholder="Контрольный вопрос 1" />
-        <label asp-for="ControlQuestion1">Контрольный вопрос 1</label>
-        <span asp-validation-for="ControlQuestion1" class="text-danger"></span>
-    </div>
-    <div class="form-floating mb-3">
-        <input asp-for="ControlQuestion2" class="form-control" aria-required="true" placeholder="Контрольный вопрос 1" />
-        <label asp-for="ControlQuestion1">Контрольный вопрос 1</label>
-        <span asp-validation-for="ControlQuestion1" class="text-danger"></span>
-    </div>
-    <div class="form-floating mb-3">
-        <input asp-for="ControlQuestion3" class="form-control" aria-required="true" placeholder="Контрольный вопрос 3" />
-        <label asp-for="ControlQuestion3">Контрольный вопрос 3</label>
-        <span asp-validation-for="ControlQuestion3" class="text-danger"></span>
-    </div>
-    <div class="form-floating mb-3">
-        <input asp-for="ControlAnswer1" class="form-control" aria-required="true" placeholder="Контрольный ответ 1" />
-        <label asp-for="ControlAnswer1">Контрольный ответ 1</label>
-        <span asp-validation-for="ControlAnswer1" class="text-danger"></span>
-    </div>
-    <div class="form-floating mb-3">
-        <input asp-for="ControlAnswer2" class="form-control" aria-required="true" placeholder="Контрольный ответ 2" />
-        <label asp-for="ControlAnswer2">Контрольный ответ 2</label>
-        <span asp-validation-for="ControlAnswer2" class="text-danger"></span>
-    </div>
-    <div class="form-floating mb-3">
-        <input asp-for="ControlAnswer3" class="form-control" aria-required="true" placeholder="Контрольный ответ 3" />
-        <label asp-for="ControlAnswer3">Контрольный ответ 3</label>
-        <span asp-validation-for="ControlAnswer3" class="text-danger"></span>
-    </div>
-    <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Зарегистрироваться</button>
-</form>
-
-@{
-}
+<div class="container">
+	<div class="form-container">
+		<h1>Добро пожаловать на Quiz Second!<br>Давай скорее начнём!</h1>
+        <form asp-action="Register" id="register_form">
+            <div class="form-floating mb-3">
+                <h2>Придумай логин (только буквы английского алфавита и цифры):</h2>
+                <input class="field" pattern="[A-Za-z0-9]+" asp-for="Username" class="form-control" autocomplete="username" aria-required="true" placeholder="Имя пользователя" />
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <h2>Придумай пароль:</h2>
+                <input class="field"  asp-for="Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Пароль" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <h2>Повтори пароль:</h2>
+                <input class="field" asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Пароль" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <h2>Введи контрольный вопрос 1:</h2>
+                <input class="field" asp-for="ControlQuestion1" class="form-control" aria-required="true" placeholder="Контрольный вопрос 1" />
+                <span asp-validation-for="ControlQuestion1" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <h2>Введи контрольный ответ 1:</h2>
+                <input class="field" asp-for="ControlAnswer1" class="form-control" aria-required="true" placeholder="Контрольный ответ 1" />
+                <span asp-validation-for="ControlAnswer1" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <h2>Введи контрольный вопрос 2:</h2>
+                <input class="field" asp-for="ControlQuestion2" class="form-control" aria-required="true" placeholder="Контрольный вопрос 1" />
+                <span asp-validation-for="ControlQuestion1" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <h2>Введи контрольный ответ 2:</h2>
+                <input class="field" asp-for="ControlAnswer2" class="form-control" aria-required="true" placeholder="Контрольный ответ 2" />
+                <span asp-validation-for="ControlAnswer2" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <h2>Введи контрольный вопрос 3:</h2>
+                <input class="field" asp-for="ControlQuestion3" class="form-control" aria-required="true" placeholder="Контрольный вопрос 3" />
+                <span asp-validation-for="ControlQuestion3" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <h2>Введи контрольный ответ 3:</h2>
+                <input class="field" asp-for="ControlAnswer3" class="form-control" aria-required="true" placeholder="Контрольный ответ 3" />
+                <span asp-validation-for="ControlAnswer3" class="text-danger"></span>
+            </div>
+            <div class="buttons">
+                <button type="submit">Поехали!</button>
+            </div>
+            <br><br><br>
+        </form>
+	</div>
+</div>
