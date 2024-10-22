@@ -59,11 +59,9 @@ namespace Quizer
             var superUser = new ApplicationUser
             {
                 UserName = _configuration["SuperUser:UserName"],
-                Email = _configuration["SuperUser:Email"],
             };
-            //Ensure you have these values in your appsettings.json file
-            string userPWD = _configuration["SuperUser:Password"];
-            var _user = await UserManager.FindByEmailAsync(_configuration["SuperUser:Email"]);
+
+            var _user = await UserManager.FindByNameAsync(_configuration["SuperUser:UserName"]);
 
             if (_user != null)
             {
