@@ -23,7 +23,7 @@ namespace Quizer.Controllers
                 return RedirectToAction("Index", "Quiz");
             }
 
-            return View();
+            return RedirectToAction("Login", "User"); ;
         }
 
         public IActionResult Privacy()
