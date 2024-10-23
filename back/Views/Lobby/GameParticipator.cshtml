@@ -1,37 +1,59 @@
 ﻿@model Quizer.Models.Quizzes.QuestionViewModel
+
 @{
     ViewData["Title"] = "Game";
+    int timeLimit = Int32.Parse(ViewData["timeLimit"].ToString()!) / 1000;
+    int currentQuestionPosition = Model.Position + 1;
 }
 
-<h4>GameParticipator</h4>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Для разных браузеров -->
+    <link rel="stylesheet" href="/css/normalize.css" />
+    <!-- <link rel="stylesheet" href="../resource/css/quiz_mobile.css"> -->
+    <link rel="stylesheet" href="/css/quiz_mobile.css" />
+</head>
+<body onload="loadQuestion()">
+    <div class="card">
+        <img src="/images/background_purple.svg" class="card-image" />
+        <div class="card-container">
+            <div class="card-question">
+                <h2 class="number">Вопрос @currentQuestionPosition/@ViewData["questionCount"]</h2>
+                <h3 class="question">
+                    @Model.Title
+                </h3>
+            </div>
+            <!-- /.card-question -->
+            <div class="card-timer">
+                <div class="timer">
+                    <div id="countdown">@timeLimit</div>
+                </div>
+            </div>
+            <!-- /.card-timer -->
+            <div class="card-options">
+                @for (int i = 0; i < 4 && i < Model.Answers.Count; i++)
+                {
+                    <button class="answer-button" data-answer="@Model.Answers[i].Guid">
+                        @Model.Answers[i].Title
+                    </button>
+                }
+            </div>
+            <!-- /.card-options -->
+        </div>
+        <!-- /.card-container -->
+    </div>
+    <!-- /.card -->
+    <input type="hidden" id="selectedAnswer" name="selectedAnswer" />
+</body>
 
-<!-- Отображение текста вопроса -->
-<div class="question-container">
-    <h2>@Model.Title</h2>
-</div>
-
-<!-- Счётчик времени -->
-<div id="timer">Оставшееся время: <span id="time-left">30</span> секунд</div>
-
-<!-- Отображение ответов в виде кнопок -->
-<div class="answers-container">
-    @for (int i = 0; i < 4 && i < Model.Answers.Count; i++)
-    {
-        <button class="answer-button" data-answer="@Model.Answers[i].Guid">
-            @Model.Answers[i].Title
-        </button>
-    }
-</div>
-
-<!-- Скрытое поле для отслеживания выбранного ответа -->
-<input type="hidden" id="selectedAnswer" name="selectedAnswer" />
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.18/signalr.min.js"></script>
 
 <script>
     // Таймер
     let timeLeft = @ViewData["timeLimit"] / 1000;
-    const timerElement = document.getElementById("time-left");
+    const timerElement = document.getElementById("countdown");
 
     const countdown = setInterval(() => {
         timeLeft--;
@@ -98,7 +120,6 @@
         })
             .then(response => {
                 if (response.ok) {
-                    alert("Answer registered successfully.")
                 } else if (response.status === 401) {
                     alert("Unauthorized: Please log in.");
                 } else if (response.status === 403) {
@@ -114,32 +135,3 @@
             });
     });
 </script>
-
-<style>
-    .question-container {
-        margin-bottom: 15px;
-    }
-
-    .answers-container {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        margin-bottom: 15px;
-    }
-
-    .answer-button {
-        padding: 10px;
-        font-size: 16px;
-    }
-
-        .answer-button.selected {
-            background-color: #007bff;
-            color: white;
-        }
-
-    #timer {
-        font-size: 18px;
-        font-weight: bold;
-        margin-bottom: 15px;
-    }
-</style>
