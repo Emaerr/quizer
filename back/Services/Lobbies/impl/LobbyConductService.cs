@@ -34,29 +34,24 @@ namespace Quizer.Services.Lobbies.impl
                 return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
             }
 
-            if (lobby.IsStarted)
+            if (lobby.Stage == LobbyStage.Results)
             {
-                if (lobby.Stage == LobbyStage.Results)
-                {
-                    return LobbyStatus.Result;
-                }
-                else if (lobby.Stage == LobbyStage.Question)
-                {
-                    return LobbyStatus.Question;
-                }
-                else if (lobby.Stage == LobbyStage.Answering)
-                {
-                    return LobbyStatus.Answering;
-                }
-                else if (lobby.Stage == LobbyStage.Break)
-                {
-                    return LobbyStatus.Break;
-                }
-                throw new Exception("Something is wrong with else if in LobbyConductService GetLobbyStatus");
-            } else
-            {
-                return LobbyStatus.Briefing;
+                return LobbyStatus.Result;
             }
+            else if (lobby.Stage == LobbyStage.Question)
+            {
+                return LobbyStatus.Question;
+            }
+            else if (lobby.Stage == LobbyStage.Answering)
+            {
+                return LobbyStatus.Answering;
+            }
+            else if (lobby.Stage == LobbyStage.Break)
+            {
+                return LobbyStatus.Break;
+            }
+
+            throw new Exception("Something is wrong with else if in LobbyConductService GetLobbyStatus");
         }
 
         public Result<Question> GetCurrentQuestion(string lobbyGuid)

@@ -114,6 +114,9 @@ namespace Quizer.Services.Lobbies.impl
                 return;
             }
 
+            IServiceScope scope = _scopeFactory.CreateScope();
+            ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
+
             if (lobby.IsBriefingTime())
             {
                 lobby.Stage = LobbyStage.Question;
@@ -142,6 +145,7 @@ namespace Quizer.Services.Lobbies.impl
                     if (lobby.CurrentQuestionPosition == (lobby.Quiz.Questions.Count - 1))
                     {
                         lobby.Stage = LobbyStage.Results;
+                        lobby.IsStarted = false;
                         if (onLobbyStageChange != null)
                         {
                             onLobbyStageChange(LobbyStatus.Result);

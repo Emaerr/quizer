@@ -59,7 +59,7 @@ namespace Quizer.Services.Quizzes
             {
                 AuthorId = authorId,
                 Name = "Unnamed",
-                TimeLimit = 15,
+                TimeLimit = 15000,
             };
             quizRepository.InsertQuiz(quiz);
             quizRepository.Save();

@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Quizer.Data;
 using Quizer.Models.Quizzes;
 using Quizer.Models.User;
+using Quizer.Services.Lobbies;
 using Quizer.Services.Quizzes;
 
 namespace Quizer.Controllers
@@ -238,7 +239,8 @@ namespace Quizer.Controllers
         public async Task<IActionResult> DeleteConfirm(string guid)
         {
             var scope = _scopeFactory.CreateScope();
-            var quizRepository = scope.ServiceProvider.GetService<IQuizDataRepository>();
+            var quizRepository = scope.ServiceProvider.GetRequiredService<IQuizDataRepository>();
+            var lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
             if (quizRepository == null)
             {
                 return StatusCode(500);
@@ -248,6 +250,13 @@ namespace Quizer.Controllers
             if (user == null)
             {
                 return Unauthorized();
+            }
+
+            var lobbies = lobbyRepository.GetLobbies();
+            var lobbiesWithQuiz = from lobby in lobbies where lobby.Quiz!.Guid == guid select lobby;
+            foreach (var lobby in lobbies)
+            {
+                lobbyRepository.DeleteLobby(lobby.Id);
             }
 
             quizRepository.DeleteUserQuiz(user.Id, guid);
