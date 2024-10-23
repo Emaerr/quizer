@@ -23,7 +23,6 @@ namespace Quizer.Services.Lobbies.impl
             _logger = logger;
         }
 
-
         public Result<LobbyStatus> GetLobbyStatus(string lobbyGuid)
         {
             IServiceScope scope = _scopeFactory.CreateScope();
@@ -121,6 +120,28 @@ namespace Quizer.Services.Lobbies.impl
 
             return Result.Ok(lobby.Quiz.Questions.Count);
 		}
+
+
+        public Result<int> GetTimeLimit(string lobbyGuid)
+        {
+            IServiceScope scope = _scopeFactory.CreateScope();
+            ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
+
+            Lobby? lobby = lobbyRepository.GetLobbyByGuid(lobbyGuid);
+            if (lobby == null)
+            {
+                return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
+            }
+
+            Quiz? quiz = lobby.Quiz;
+
+            if (quiz == null)
+            {
+                return Result.Fail(new QuizNotFoundError("Lobby doesn't have quiz."));
+            }
+
+            return Result.Ok(quiz.TimeLimit);
+        }
 
 
 		/// <summary>

@@ -253,13 +253,14 @@ namespace Quizer.Controllers
                 return new ForbidResult();
             }
 
+            Result<int> timeLimitResult = lobbyConductService.GetTimeLimit(lobbyGuid);
             Result<Question> result = lobbyConductService.GetCurrentQuestion(lobbyGuid);
 
-            if (result.HasError<LobbyNotFoundError>())
+            if (result.HasError<LobbyNotFoundError>() || timeLimitResult.HasError<LobbyNotFoundError>())
             {
                 return NotFound();
             }
-            if (result.HasError<QuizNotFoundError>())
+            if (result.HasError<QuizNotFoundError>() || timeLimitResult.HasError<QuizNotFoundError>())
             {
                 return NotFound();
             }
@@ -272,6 +273,10 @@ namespace Quizer.Controllers
             if (resultQuestionCount.IsSuccess)
             {
                 ViewData["questionCount"] = resultQuestionCount.Value;
+            }
+            if (timeLimitResult.IsSuccess)
+            {
+                ViewData["timeLimit"] = timeLimitResult.Value;
             }
 
             QuestionViewModel viewModel = GetQuestionViewModel(result.Value);
