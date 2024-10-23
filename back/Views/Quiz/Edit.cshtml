@@ -77,6 +77,15 @@
     @await Html.PartialAsync("_ValidationScriptsPartial")
 
     <script>
+        $(document).ready(function () {
+            var timeLimitField = $('#TimeLimit');
+            var originalValue = parseFloat(timeLimitField.val());
+
+            // Делим значение на 1000
+            timeLimitField.val(originalValue / 1000);
+        });
+
+
         let questionIndex = document.querySelectorAll("#questions-container > .question-block").length;  // Счётчик для отслеживания количества вопросов
 
         function addQuestion() {
@@ -227,12 +236,16 @@
             // Получаем данные квиза (название и ограничение по времени)
             var quizName = document.querySelector('input[name="name"]').value;
             var quizTimeLimit = document.querySelector('input[name="timeLimit"]').value;
+
+            // Преобразуем введённое значение timeLimit в 1000 раз больше
+            var scaledTimeLimit = quizTimeLimit * 1000;
+
             var quizGuid = '@Model.Guid';
 
-            // Отправляем данные квиза (название и лимит времени)
+            // Отправляем данные квиза (название и увеличенное ограничение по времени)
             var formData = new FormData(quizForm);
             formData.append('name', quizName);
-            formData.append('timeLimit', quizTimeLimit);
+            formData.set('timeLimit', scaledTimeLimit); // Устанавливаем увеличенное значение
 
             fetch(`/Quiz/Edit/${quizGuid}`, {
                 method: 'POST',
@@ -257,6 +270,7 @@
                     alert(error.message);
                 });
         }
+
 
 
         function removeQuestion(questionDiv) {
@@ -324,43 +338,7 @@
 
 
 
-        function submitQuiz() {
-            var quizForm = document.getElementById("quiz-form");
-
-            // Получаем данные квиза (название и ограничение по времени)
-            var quizName = document.querySelector('input[name="name"]').value;
-            var quizTimeLimit = document.querySelector('input[name="timeLimit"]').value;
-            var quizGuid = '@Model.Guid'; // Используем quizGuid из модели
-
-            // Отправляем данные квиза (название и лимит времени)
-            var formData = new FormData(quizForm);
-            formData.append('name', quizName);
-            formData.append('timeLimit', quizTimeLimit);
-
-            // Отправляем запрос для обновления данных квиза
-            fetch(`/Quiz/Edit/${quizGuid}`, {
-                method: 'POST',
-                headers: {
-                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value // Защита от CSRF
-                },
-                body: formData
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.text().then(text => {
-                            throw new Error(`Ошибка при сохранении данных квиза: ${text}`);
-                        });
-                    }
-                    console.log("Quiz data updated successfully!");
-
-                    // Теперь отправляем вопросы
-                    submitQuestions();  // Отправляем вопросы после успешного сохранения данных квиза
-                })
-                .catch(error => {
-                    console.error("Ошибка при сохранении квиза:", error);
-                    alert(error.message);
-                });
-        }
+        
 
         function submitQuestions() {
             var questionElements = document.querySelectorAll("#questions-container > .question-block");
