@@ -3,19 +3,98 @@
     ViewData["Title"] = "Join Lobby";
 }
 
-<h4>Join</h4>
 
-<form id="joinForm">
-    <label for="displayName">Display Name:</label>
-    <input type="text" id="displayName" name="displayName" required />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Write name</title>
+<!-- Для разных браузеров -->
+<link rel="stylesheet" href="/css/normalize.css" />
+<!-- <link rel="stylesheet" href="../resource/css/quiz_mobile.css"> -->
+<link rel="stylesheet" href="/css/join_mobile.css" />
 
-    <button type="button" id="confirmJoinButton">Confirm Join</button>
-</form>
+<div class="card">
+    <img src="../resource/image/background_purple.svg" class="card-image" />
+    <div src="" class="card-dummy"></div>
+    <div class="card-container">
+        <div class="card-choice">
+            <h3 class="offer">Введи имя и выбери смайлик</h3>
+        </div>
+        <!-- /.card-choice -->
+        <form action="#" class="search">
+            <input type="text" id="displayName" name="displayName" required class="search-input" />
+        </form>
+        @if(ViewData["error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible" role="alert">
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                @ViewData["error"]
+            </div>
+        }
+        <!-- /.search -->
+        <div class="card-emoji">
+            <button class="emoji-button" id="emoji-1">
+                <img class="emoji" src="/images/emojis/emoji-1.png" />
+            </button>
+            <button class="emoji-button" id="emoji-2">
+                <img class="emoji" src="/images/emojis/emoji-2.png" />
+            </button>
+            <button class="emoji-button" id="emoji-3">
+                <img class="emoji" src="/images/emojis/emoji-3.png" />
+            </button>
+            <button class="emoji-button" id="emoji-4">
+                <img class="emoji" src="/images/emojis/emoji-4.png" />
+            </button>
+            <button class="emoji-button" id="emoji-5">
+                <img class="emoji" src="/images/emojis/emoji-5.png" />
+            </button>
+            <button class="emoji-button" id="emoji-6">
+                <img class="emoji" src="/images/emojis/emoji-6.png" />
+            </button>
+            <button class="emoji-button" id="emoji-7">
+                <img class="emoji" src="/images/emojis/emoji-7.png" />
+            </button>
+            <button class="emoji-button" id="emoji-8">
+                <img class="emoji" src="/images/emojis/emoji-8.png" />
+            </button>
+            <button class="emoji-button" id="emoji-9">
+                <img class="emoji" src="/images/emojis/emoji-9.png" />
+            </button>
+            <button class="emoji-button" id="emoji-10">
+                <img class="emoji" src="/images/emojis/emoji-10.png" />
+            </button>
+            <button class="emoji-button" id="emoji-11">
+                <img class="emoji" src="/images/emojis/emoji-11.png" />
+            </button>
+            <button class="emoji-button" id="emoji-12">
+                <img class="emoji" src="/images/emojis/emoji-12.png" />
+            </button>
+            <button class="emoji-button" id="emoji-13">
+                <img class="emoji" src="/images/emojis/emoji-13.png" />
+            </button>
+            <button class="emoji-button" id="emoji-14">
+                <img class="emoji" src="/images/emojis/emoji-14.png" />
+            </button>
+            <button class="emoji-button" id="emoji-15">
+                <img class="emoji" src="/images/emojis/emoji-15.png" />
+            </button>
+            <button class="emoji-button" id="emoji-16">
+                <img class="emoji" src="/images/emojis/emoji-16.png" />
+            </button>
+        </div>
+        <!-- /.card-emoji -->
+        <button type="button" id="confirmJoinButton">Confirm Join</button>
+        <input type="hidden" id="emoji-input"/>
+    </div>
+    <!-- /.card-container -->
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.18/signalr.min.js"></script>
+
 <script>
     document.addEventListener("DOMContentLoaded", async function () {
         const lobbyGuid = "@ViewData["lobbyGuid"]";
+
+        const emojiInput = document.getElementById("emoji-input");
 
         // Создание подключения к хабу SignalR
         const connection = new signalR.HubConnectionBuilder()
@@ -29,13 +108,24 @@
             // Получение connectionId через вызов метода хаба
             const connectionId = await connection.invoke("GetConnectionId");
             console.log("Connection ID:", connectionId);
-
             document.getElementById("confirmJoinButton").addEventListener("click", function () {
+                if (emojiInput.value == null || emojiInput.value == "") {
+                    alert("Выбери смайлик");
+                    return;
+                }
+
                 const displayName = document.getElementById("displayName").value;
+
+                if (displayName == null || displayName == "") {
+                    alert("Напиши своё имя");
+                    return;
+                }
+
+                const emojiAndDisplayName = `[${emojiInput.value}]${displayName}`;
 
                 // Создание FormData для передачи данных как [FromForm]
                 const formData = new FormData();
-                formData.append("displayName", displayName);
+                formData.append("displayName", emojiAndDisplayName);
 
                 fetch(`/Lobby/JoinConfirm/${lobbyGuid}?connectionId=${connectionId}`, {
                     method: "POST",
@@ -60,5 +150,13 @@
         } catch (error) {
             console.error("Error connecting to SignalR hub:", error);
         }
-    });
+
+        const buttons = document.getElementsByClassName("emoji-button");
+            for (let i = 0; i < buttons.length; i++) {
+                const button = buttons[i];
+                button.addEventListener("click", (event) => {
+                    emojiInput.value = button.id;
+                })
+            }
+        });
 </script>

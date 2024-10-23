@@ -33,6 +33,7 @@
     <Folder Include="Data\Migrations\" />
     <Folder Include="Migrations\" />
     <Folder Include="Views\Index\" />
+    <Folder Include="wwwroot\images\emojis\" />
   </ItemGroup>
 
   <ItemGroup>

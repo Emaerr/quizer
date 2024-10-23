@@ -50,14 +50,17 @@ namespace Quizer.Controllers
             {
                 if (error == "NoFreeSlot")
                 {
-                    return View("NoFreeSlot");
+                    ViewData["error"] = "Нет свободных мест.";
+                    return View();
                 }
                 else if (error == "Unavailable")
                 {
-                    return View("Unavailable");
+                    ViewData["error"] = "Игра недоступна.";
+                    return View();
                 }
             }
 
+            ViewData["layout"] = "";
             ViewData["lobbyGuid"] = lobbyGuid;
 
             return View();
