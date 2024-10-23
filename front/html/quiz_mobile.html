@@ -1,27 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- <script src="../resource/js/quiz_mobile.js"></script> -->
     <script src="../resource/js/quiz_mobile.js"></script>
     <title>quiz</title>
-    <link rel="stylesheet" href="../resource/css/quiz_mobile.css">
-</head>
-<body onload="loadQuestion()">
-    <div class="bg-container">
-        <div class="container">
-            <h4 id="question"></h4>
-            <img id="question-image" src="" alt="" style="display: none; max-width: 75%; height: auto; margin-bottom: 20px;">
+    <!-- Для разных браузеров -->
+    <link rel="stylesheet" href="../resource/css/normalize.css" />
+    <!-- <link rel="stylesheet" href="../resource/css/quiz_mobile.css"> -->
+    <link rel="stylesheet" href="../resource/css/quiz_mobile.css" />
+  </head>
+  <body onload="loadQuestion()">
+    <div class="card">
+      <img src="../resource/image/background_purple.svg" class="card-image" />
+      <div class="card-container">
+        <div class="card-question">
+          <h2 class="number">Вопрос 1/20</h2>
+          <h3 class="question">
+            Какое животное можно увидеть на логотипе Porsche?
+          </h3>
         </div>
-        <div class="quiz-container">
-            <div id="question-container">
-                <h2 id="question"></h2>
-                <ul id="answers"></ul>
-                <p id="result"></p>
-                <p>Ваш счет: <span id="score">0</span></p>
-            </div>
+        <!-- /.card-question -->
+        <div class="card-timer">
+          <div class="timer">00:00:30</div>
         </div>
+        <!-- /.card-timer -->
+        <div class="card-options">
+          <button class="options-button">Чёрный конь</button>
+          <button class="options-button">Ослик</button>
+          <button class="options-button">Красный конь</button>
+          <button class="options-button">Не знаю</button>
+        </div>
+        <!-- /.card-options -->
+      </div>
+      <!-- /.card-container -->
     </div>
+    <!-- /.card -->
+    <!-- <script src="../resource/js/quiz_mobile.js"></script> -->
     <script src="../resource/js/quiz_mobile.js"></script>
-</body>
+  </body>
 </html>
