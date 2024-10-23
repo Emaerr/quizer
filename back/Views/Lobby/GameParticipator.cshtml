@@ -30,7 +30,7 @@
 
 <script>
     // Таймер
-    let timeLeft = 30;
+    let timeLeft = @ViewData["timeLimit"] / 1000;
     const timerElement = document.getElementById("time-left");
 
     const countdown = setInterval(() => {
