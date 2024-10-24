@@ -197,6 +197,7 @@ namespace Quizer.Controllers
             }
 
             ViewData["lobbyGuid"] = lobbyGuid;
+            ViewData["layout"] = "";
 
             return View();
         }

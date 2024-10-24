@@ -1,8 +1,33 @@
 ﻿@{
-    ViewData["Title"] = "Briefing";
+    ViewData["Title"] = $"Ожидание начала квиза";
 }
-<h1>СИДИ И СМОТРИ</h1>
-<label>и подожди чут-чут</label>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!-- Для разных браузеров -->
+<link rel="stylesheet" href="/css/normalize.css" />
+<!-- <link rel="stylesheet" href="../resource/css/quiz_mobile.css"> -->
+<link rel="stylesheet" href="/css/briefing_mobile.css" />
+<div class="card">
+    <img src="/images/background_purple.svg" class="card-image" />
+    <div class="card-container">
+        <div class="card-question">
+            <h3 class="question">
+                Квиз совсем скоро начнётся!!!
+            </h3>
+        </div>
+        <!-- /.card-question -->
+        <div class="card-timer">
+        </div>
+    <div class="card-options">
+
+    </div>
+        <!-- /.card-timer -->
+        <!-- /.card-options -->
+    </div>
+    <!-- /.card-container -->
+</div>
+<!-- /.card -->
 
 <!-- Добавляем ссылку на SignalR -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.18/signalr.min.js"></script>

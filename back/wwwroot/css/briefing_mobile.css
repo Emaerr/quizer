@@ -1,0 +1,116 @@
+﻿* {
+    box-sizing: border-box;
+}
+
+@font-face {
+    font-family: "Comic Neue";
+    src: url("../fonts/ComicNeue-Regular.woff2") format("woff2"), url("../fonts/ComicNeue-Regular.woff") format("woff");
+    font-weight: 700;
+}
+
+@media (max-width: 576px) {
+    body {
+        font-family: "Comic Neue", sans-serif;
+        background-color: #fbecff;
+        color: #a42fc1;
+        font-weight: 700;
+    }
+
+    .card {
+        position: relative;
+        min-width: 320px;
+        height: 100%;
+        background-color: #ffff;
+        padding-top: 229px;
+        padding-left: 35px;
+        padding-right: 35px;
+        padding-bottom: 40px;
+        z-index: 99;
+    }
+
+    .card-image {
+        position: absolute;
+        right: 0;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+        height: 37%;
+        border-radius: 0px 0px 50px 50px;
+        background: rgb(164, 47, 193);
+        z-index: -1;
+        object-fit: cover;
+    }
+
+    .card-container {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        text-align: center;
+    }
+
+    .card-question {
+        min-width: 250px;
+        min-height: 169px;
+        border-radius: 10px;
+        background-color: #fff;
+        box-shadow: 0px 1px 3px 0px rgba(221, 185, 223, 0.21), 0px 5px 5px 0px rgba(221, 185, 223, 0.18), 0px 11px 7px 0px rgba(221, 185, 223, 0.11), 0px 20px 8px 0px rgba(221, 185, 223, 0.03), 0px 32px 9px 0px rgba(221, 185, 223, 0);
+        padding: 31px 5px 0px 5px;
+        margin-bottom: 16px;
+    }
+
+    .number {
+        font-size: 15px;
+        font-weight: 700;
+        margin-top: 0px;
+        margin-bottom: 31px;
+    }
+
+    .question {
+        font-size: 20px;
+        font-weight: 700;
+        margin-top: 0px;
+        margin-bottom: 18px;
+    }
+
+    .timer {
+        line-height: 28px;
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .card-options {
+        min-width: 207px;
+        height: 52%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .answer-button {
+        min-width: 207px;
+        min-height: 44px;
+        box-sizing: border-box;
+        font-family: "Comic Neue", sans-serif;
+        font-size: 20px;
+        color: #a42fc1; /* Цвет текста */
+        border: 1px solid rgb(164, 47, 193);
+        border-radius: 10px;
+        box-shadow: 0px 0px 1px 0px rgba(189, 5, 240, 0.85), 0px 0px 1px 0px rgba(189, 5, 240, 0.5), 0px 0px 1px 0px rgba(189, 5, 240, 0.15), 0px 0px 1px 0px rgba(189, 5, 240, 0.02);
+        backdrop-filter: blur(4px);
+        background-color: #fff;
+        margin-bottom: 20px;
+        cursor: pointer;
+        text-align: center;
+        line-height: 44px;
+    }
+
+    .active {
+        box-shadow: inset 2px 2px 2px 2px rgba(0, 0, 0, 0.2);
+        border-radius: 15px;
+    }
+}

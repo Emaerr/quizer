@@ -20,7 +20,7 @@
   .card {
     position: relative;
     min-width: 320px;
-    height: 97vh;
+    height: 100%;
     background-color: #ffff;
     padding-top: 229px;
     padding-left: 35px;
