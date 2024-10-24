@@ -718,7 +718,7 @@ namespace Quizer.Controllers
             foreach (ApplicationUser lobbyUser in result.Value)
             {
                 var pointsResult = await lobbyStatsService.GetUserPoints(lobbyGuid, lobbyUser.Id);
-                statsViewModel.UserPoints.Add(lobbyUser.DisplayName != null ? lobbyUser.DisplayName : "null", pointsResult.Value);
+                statsViewModel.UserPoints.Add(lobbyUser.Id, new UserPointsData(lobbyUser.DisplayName != null ? lobbyUser.DisplayName : "null", pointsResult.Value));
             }
 
             return statsViewModel;
