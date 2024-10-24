@@ -50,14 +50,17 @@ namespace Quizer.Controllers
             {
                 if (error == "NoFreeSlot")
                 {
-                    return View("NoFreeSlot");
+                    ViewData["error"] = "Нет свободных мест.";
+                    return View();
                 }
                 else if (error == "Unavailable")
                 {
-                    return View("Unavailable");
+                    ViewData["error"] = "Игра недоступна.";
+                    return View();
                 }
             }
 
+            ViewData["layout"] = "";
             ViewData["lobbyGuid"] = lobbyGuid;
 
             return View();
@@ -194,6 +197,7 @@ namespace Quizer.Controllers
             }
 
             ViewData["lobbyGuid"] = lobbyGuid;
+            ViewData["layout"] = "";
 
             return View();
         }
@@ -258,14 +262,22 @@ namespace Quizer.Controllers
 
             if (result.HasError<LobbyNotFoundError>() || timeLimitResult.HasError<LobbyNotFoundError>())
             {
+                logger.LogWarning($"Lobby {lobbyGuid} not found");
                 return NotFound();
             }
             if (result.HasError<QuizNotFoundError>() || timeLimitResult.HasError<QuizNotFoundError>())
             {
+                logger.LogWarning($"Quiz not found in lobby {lobbyGuid}");
+                return NotFound();
+            }
+            if (result.HasError<QuestionNotFoundError>())
+            {
+                logger.LogWarning($"Current question not found in lobby {lobbyGuid}");
                 return NotFound();
             }
             if (result.HasError<LobbyUnavailableError>())
             {
+                logger.LogWarning($"Lobby {lobbyGuid} is unavailable: {result.Errors.First().Message}");
                 return Forbid();
             }
 
@@ -706,7 +718,7 @@ namespace Quizer.Controllers
             foreach (ApplicationUser lobbyUser in result.Value)
             {
                 var pointsResult = await lobbyStatsService.GetUserPoints(lobbyGuid, lobbyUser.Id);
-                statsViewModel.UserPoints.Add(lobbyUser.DisplayName != null ? lobbyUser.DisplayName : "null", pointsResult.Value);
+                statsViewModel.UserPoints.Add(lobbyUser.Id, new UserPointsData(lobbyUser.DisplayName != null ? lobbyUser.DisplayName : "null", pointsResult.Value));
             }
 
             return statsViewModel;

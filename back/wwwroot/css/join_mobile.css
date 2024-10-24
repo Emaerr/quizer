@@ -1,0 +1,162 @@
+﻿@font-face {
+    font-family: "Comic Neue";
+    src: url("../fonts/ComicNeue-Regular.woff2") format("woff2"), url("../fonts/ComicNeue-Regular.woff") format("woff");
+    font-weight: 700;
+}
+
+@media (max-width: 576px) {
+    body {
+        font-family: "Comic Neue", sans-serif;
+        background-color: #fbecff;
+        color: #a42fc1;
+        font-weight: 700;
+    }
+
+    .card {
+        position: relative;
+        min-width: 320px;
+        height: 97vh;
+        background-color: #ffff;
+        padding-top: 229px;
+        padding-left: 35px;
+        padding-right: 35px;
+        padding-bottom: 40px;
+        z-index: 99;
+    }
+
+    .card-image {
+        position: absolute;
+        right: 0;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+        height: 37%;
+        background: rgb(164, 47, 193);
+        z-index: -3;
+        object-fit: cover;
+    }
+
+    .card-dummy {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        height: 70%;
+        background-color: #fff;
+        z-index: -2;
+        background: rgb(255, 255, 255);
+        border-top-left-radius: 50px;
+        border-top-right-radius: 50px;
+        bottom: 0;
+    }
+
+    .card-container {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .card-choice {
+        display: flex;
+        min-width: 242px;
+        min-height: 144px;
+        border-radius: 10px;
+        background-color: #fff;
+        box-shadow: 0px 1px 3px 0px rgba(221, 185, 223, 0.21), 0px 5px 5px 0px rgba(221, 185, 223, 0.18), 0px 11px 7px 0px rgba(221, 185, 223, 0.11), 0px 20px 8px 0px rgba(221, 185, 223, 0.03), 0px 32px 9px 0px rgba(221, 185, 223, 0);
+        align-items: center;
+        text-align: center;
+        padding: 31px 10px 0px 10px;
+        margin-bottom: 29px;
+    }
+
+    .offer {
+        font-size: 24px;
+        font-weight: 700;
+        margin-top: 0px;
+        margin-bottom: 18px;
+    }
+
+    .search {
+        display: flex;
+        position: relative;
+        overflow: hidden;
+        border: none;
+        height: 40px;
+        overflow: visible;
+        margin-bottom: 29px;
+    }
+
+    .search-input {
+        border: 1px solid rgb(164, 47, 193);
+        border-radius: 10px;
+        box-shadow: 0px 0px 1px 0px rgba(189, 5, 240, 0.85), 0px 0px 1px 0px rgba(189, 5, 240, 0.5), 0px 0px 1px 0px rgba(189, 5, 240, 0.15), 0px 0px 1px 0px rgba(189, 5, 240, 0.02);
+        backdrop-filter: blur(4px);
+        background: rgb(255, 255, 255);
+    }
+
+    .card-emoji {
+        display: grid;
+        width: 100%;
+        grid-template-columns: repeat(4, 1fr);
+        grid-gap: 20px;
+        justify-content: space-around;
+        margin-bottom: 35px;
+    }
+
+    .emoji {
+        padding: 3px;
+        width: 40px;
+        height: 40px;
+    }
+
+    .start-button {
+        width: 118px;
+        height: 29px;
+        color: rgb(164, 47, 193);
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 23px;
+        letter-spacing: 0%;
+        text-align: center;
+        background: #fff;
+        box-sizing: border-box;
+        border: 1px solid rgb(164, 47, 193);
+        border-radius: 10px;
+        background: rgb(255, 255, 255);
+        padding: 2px;
+        margin-bottom: 45px;
+    }
+}
+
+.emoji-button {
+    background-color: #ffff;
+    border: hidden
+}
+
+    .emoji-button:hover {
+        box-shadow: inset 2px 2px 2px 2px rgba(0, 0, 0, 0.2);
+        border-radius: 15px;
+    }
+
+.start-button:hover {
+    box-shadow: inset 2px 2px 2px 2px rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+}
+
+.search-input:focus {
+    border: 3px solid #555;
+}
+
+.action-button {
+    background-color: white;
+    border: 2px solid #a42fc1;
+    border-radius: 10px;
+    color: #a42fc1;
+    padding: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 50%;
+}

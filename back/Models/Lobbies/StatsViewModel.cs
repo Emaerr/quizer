@@ -1,11 +1,13 @@
 ﻿namespace Quizer.Models.Lobbies
 {
+    public record UserPointsData(string displayName, int points);
+
     public class StatsViewModel
     {
         /// <summary>
-        /// string - user display name
+        /// string - user GUID
         /// int - points
         /// </summary>
-        public Dictionary<string, int> UserPoints { get; set; } = [];
+        public Dictionary<string, UserPointsData> UserPoints { get; set; } = [];
     }
 }

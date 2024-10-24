@@ -133,6 +133,9 @@ namespace Quizer.Controllers.Tests
                     new Question() { Guid = "0", Type = QuestionType.Test, Title = "test", Position = 0 }
                     )
                 );
+            mock.Setup(x => x.GetTimeLimit(It.IsAny<string>())).Returns(
+                    Result.Ok(15000)
+                );
             mock.Setup(x => x.RegisterTestAnswer(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(Result.Ok()));
             mock.Setup(x => x.RegisterTextAnswer(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(Result.Ok()));
             mock.Setup(x => x.RegisterNumericalAnswer(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<float>())).Returns(Task.FromResult(Result.Ok())); ;

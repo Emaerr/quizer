@@ -70,12 +70,15 @@ namespace Quizer.Services.Lobbies.impl
                     IServiceScope scope = _scopeFactory.CreateScope();
                     ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
 
-                    IEnumerable<Lobby> lobbies = lobbyRepository.GetLobbies();
+                    IEnumerable<Lobby> lobbies = await lobbyRepository.GetLobbiesAsync();
 
                     foreach (Lobby lobby in lobbies)
                     {
-                        UpdateLobby(lobby, timeSpan);
-                        lobbyRepository.UpdateLobby(lobby);
+                        if (lobby.IsStarted)
+                        {
+                            UpdateLobby(lobby, timeSpan);
+                            lobbyRepository.UpdateLobby(lobby);
+                        }
                     }
 
                     await lobbyRepository.SaveAsync();
@@ -89,11 +92,6 @@ namespace Quizer.Services.Lobbies.impl
 
         public void UpdateLobby(Lobby lobby, TimeSpan timeSpan)
         {
-            if (!lobby.IsStarted || lobby.IsResultTime())
-            {
-                return;
-            }
-
             checked
             {
                 try
@@ -122,6 +120,7 @@ namespace Quizer.Services.Lobbies.impl
                 lobby.Stage = LobbyStage.Question;
                 if (onLobbyStageChange != null)
                 {
+                    _logger.LogInformation($"Lobby {lobby.Guid} changed it's stage to Question");
                     onLobbyStageChange(LobbyStatus.Question);
                 }
             }
@@ -130,6 +129,7 @@ namespace Quizer.Services.Lobbies.impl
             {
                 if (lobbiesTimeElapsedSinceLastAction[lobby.Guid] > lobby.Quiz.TimeLimit)
                 {
+                    _logger.LogInformation($"Lobby {lobby.Guid} changed it's stage to Answering");
                     lobby.Stage = LobbyStage.Answering;
                     lobbiesTimeElapsedSinceLastAction[lobby.Guid] = lobbiesTimeElapsedSinceLastAction[lobby.Guid] - lobby.Quiz.TimeLimit;
                     if (onLobbyStageChange != null)
@@ -144,6 +144,7 @@ namespace Quizer.Services.Lobbies.impl
                 {
                     if (lobby.CurrentQuestionPosition == (lobby.Quiz.Questions.Count - 1))
                     {
+                        _logger.LogInformation($"Lobby {lobby.Guid} changed it's stage to Results");
                         lobby.Stage = LobbyStage.Results;
                         lobby.IsStarted = false;
                         if (onLobbyStageChange != null)
@@ -152,6 +153,7 @@ namespace Quizer.Services.Lobbies.impl
                         }
                     } else
                     {
+                        _logger.LogInformation($"Lobby {lobby.Guid} changed it's stage to Break");
                         lobby.Stage = LobbyStage.Break;
                         lobbiesTimeElapsedSinceLastAction[lobby.Guid] = lobbiesTimeElapsedSinceLastAction[lobby.Guid] - 1000;
                         if (onLobbyStageChange != null)
