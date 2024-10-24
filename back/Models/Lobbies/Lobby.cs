@@ -55,6 +55,10 @@ namespace Quizer.Models.Lobbies
         public virtual List<Participator> Participators { get; set; }
         public virtual Quiz? Quiz {  get; set; }
 
+        [Timestamp]
+        public byte[] Version { get; set; }
+
+
         public Question? GetCurrentQuestion()
         {
             if (Quiz != null) {

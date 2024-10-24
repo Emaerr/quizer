@@ -41,17 +41,100 @@ namespace Quizer.Services.Lobbies.impl
 
         public void UpdateLobby(Lobby lobby)
         {
-            _context.Entry(lobby).State = EntityState.Modified;
+            _context.Attach(lobby);
+            _context.Update(lobby);
         }
 
         public void Save()
         {
-            _context.SaveChanges();
+            var saved = false;
+            while (!saved)
+            {
+                try
+                {
+                    // Attempt to save changes to the database
+                    _context.SaveChanges();
+                    saved = true;
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    foreach (var entry in ex.Entries)
+                    {
+                        if (entry.Entity is Lobby)
+                        {
+                            var proposedValues = entry.CurrentValues;
+                            var databaseValues = entry.GetDatabaseValues();
+
+                            foreach (var property in proposedValues.Properties)
+                            {
+                                var proposedValue = proposedValues[property];
+                                var databaseValue = databaseValues[property];
+                                
+                                // Access Denied Lobby start bug case
+                                if (property.Name == "IsStarted" && proposedValue != databaseValue)
+                                {
+                                    proposedValues[property] = databaseValue;
+                                }
+                            }
+
+                            // Refresh original values to bypass next concurrency check
+                            entry.OriginalValues.SetValues(databaseValues);
+                        }
+                        else
+                        {
+                            throw new NotSupportedException(
+                                "Don't know how to handle concurrency conflicts for "
+                                + entry.Metadata.Name);
+                        }
+                    }
+                }
+            }
         }
 
         public async Task SaveAsync()
         {
-            await _context.SaveChangesAsync();
+            var saved = false;
+            while (!saved)
+            {
+                try
+                {
+                    // Attempt to save changes to the database
+                    await _context.SaveChangesAsync();
+                    saved = true;
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    foreach (var entry in ex.Entries)
+                    {
+                        if (entry.Entity is Lobby)
+                        {
+                            var proposedValues = entry.CurrentValues;
+                            var databaseValues = entry.GetDatabaseValues();
+
+                            foreach (var property in proposedValues.Properties)
+                            {
+                                var proposedValue = proposedValues[property];
+                                var databaseValue = databaseValues[property];
+
+                                // Access Denied Lobby start bug case
+                                if (property.Name == "IsStarted" && proposedValue != databaseValue)
+                                { 
+                                    proposedValues[property] = databaseValue;
+                                }
+                            }
+
+                            // Refresh original values to bypass next concurrency check
+                            entry.OriginalValues.SetValues(databaseValues);
+                        }
+                        else
+                        {
+                            throw new NotSupportedException(
+                                "Don't know how to handle concurrency conflicts for "
+                                + entry.Metadata.Name);
+                        }
+                    }
+                }
+            }
         }
 
         public Lobby? GetLobbyByGuid(string guid)
