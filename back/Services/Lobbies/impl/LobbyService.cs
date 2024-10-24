@@ -70,11 +70,11 @@ namespace Quizer.Services.Lobbies.impl
                     IServiceScope scope = _scopeFactory.CreateScope();
                     ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
 
-                    IEnumerable<Lobby> lobbies = lobbyRepository.GetLobbies();
+                    IEnumerable<Lobby> lobbies = await lobbyRepository.GetLobbiesAsync();
 
                     foreach (Lobby lobby in lobbies)
                     {
-                        if (!lobby.IsStarted || lobby.IsResultTime())
+                        if (lobby.IsStarted)
                         {
                             UpdateLobby(lobby, timeSpan);
                             lobbyRepository.UpdateLobby(lobby);

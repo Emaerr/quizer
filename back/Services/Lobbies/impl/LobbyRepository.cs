@@ -17,7 +17,14 @@ namespace Quizer.Services.Lobbies.impl
 
         public IEnumerable<Lobby> GetLobbies()
         {
-            return _context.Lobbies.ToList();
+            var lobbies = _context.Lobbies;
+            return lobbies;
+        }
+
+        public async Task<IEnumerable<Lobby>> GetLobbiesAsync()
+        {
+            var lobbies = await _context.Lobbies.ToListAsync();
+            return lobbies;
         }
 
         public Lobby? GetLobbyById(int id)
