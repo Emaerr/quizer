@@ -4,6 +4,7 @@ using Quizer.Exceptions.Models;
 using Quizer.Models.Quizzes;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Drawing.Printing;
 using System.Xml.Xsl;
 
 namespace Quizer.Models.Lobbies
@@ -23,6 +24,7 @@ namespace Quizer.Models.Lobbies
     {
         private int _currentQuestion;
         private int _timeElapsedSinceLastAction; // here action is question finish and break finish
+        private bool _isStarted;
 
         public delegate void LobbyStageChange(LobbyStage stage);
         public event LobbyStageChange OnLobbyStageChange;
@@ -46,7 +48,7 @@ namespace Quizer.Models.Lobbies
         public string MasterId { get; set; }
         [Range(4, 1000)]
         public int MaxParticipators { get; set; }
-        public bool IsStarted { get; set; } = false;
+        public bool IsStarted { get => _isStarted; set { _isStarted = value; } }
         public LobbyStage Stage { get; set; } = LobbyStage.Question; // probably onLobbyStageChange should be here in the setter
         public int CurrentQuestionPosition { get; set; }
         public int Pin { get; set; }

@@ -277,6 +277,7 @@ namespace Quizer.Controllers
             }
             if (result.HasError<LobbyUnavailableError>())
             {
+                logger.LogWarning($"Lobby {lobbyGuid} is unavailable: {result.Errors.First().Message}");
                 return Forbid();
             }
 

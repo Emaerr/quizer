@@ -67,7 +67,7 @@ namespace Quizer.Services.Lobbies.impl
 
             if (!lobby.IsStarted)
             {
-                return Result.Fail(new LobbyUnavailableError("Lobby has't started yet."));
+                return Result.Fail(new LobbyUnavailableError("Lobby isn't started."));
             }
             if (lobby.Stage == LobbyStage.Results)
             {
