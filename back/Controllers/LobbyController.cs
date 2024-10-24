@@ -261,10 +261,17 @@ namespace Quizer.Controllers
 
             if (result.HasError<LobbyNotFoundError>() || timeLimitResult.HasError<LobbyNotFoundError>())
             {
+                logger.LogWarning($"Lobby {lobbyGuid} not found");
                 return NotFound();
             }
             if (result.HasError<QuizNotFoundError>() || timeLimitResult.HasError<QuizNotFoundError>())
             {
+                logger.LogWarning($"Quiz not found in lobby {lobbyGuid}");
+                return NotFound();
+            }
+            if (result.HasError<QuestionNotFoundError>())
+            {
+                logger.LogWarning($"Current question not found in lobby {lobbyGuid}");
                 return NotFound();
             }
             if (result.HasError<LobbyUnavailableError>())
