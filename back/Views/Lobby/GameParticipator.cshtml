@@ -69,9 +69,9 @@
     answerButtons.forEach(button => {
         button.addEventListener("click", (e) => {
             // Снятие выделения со всех кнопок
-            answerButtons.forEach(btn => btn.classList.remove("selected"));
+            answerButtons.forEach(btn => btn.classList.remove("active"));
             // Выделение нажатой кнопки
-            e.currentTarget.classList.add("selected");
+            e.currentTarget.classList.add("active");
             // Запись выбранного ответа
             document.getElementById("selectedAnswer").value = e.currentTarget.getAttribute("data-answer");
         });

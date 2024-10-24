@@ -96,7 +96,7 @@
     justify-content: space-between;
   }
 
-    .answer-button {
+  .answer-button {
         min-width: 207px;
         min-height: 44px;
         box-sizing: border-box;
@@ -112,5 +112,10 @@
         cursor: pointer;
         text-align: center;
         line-height: 44px;
+    }
+
+    .active {
+        box-shadow: inset 2px 2px 2px 2px rgba(0, 0, 0, 0.2);
+        border-radius: 15px;
     }
 }
