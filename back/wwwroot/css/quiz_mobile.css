@@ -96,24 +96,26 @@
     justify-content: space-between;
   }
 
-  .options-button {
-    min-width: 207px;
-    min-height: 44px;
-    box-sizing: border-box;
-    font-family: "Comic Neue", sans-serif;
-    font-size: 20px;
-    color: #a42fc1; /* Цвет текста */
-    border: 1px solid rgb(164, 47, 193);
-    border-radius: 10px;
-    box-shadow: 0px 0px 1px 0px rgba(189, 5, 240, 0.85),
-      0px 0px 1px 0px rgba(189, 5, 240, 0.5),
-      0px 0px 1px 0px rgba(189, 5, 240, 0.15),
-      0px 0px 1px 0px rgba(189, 5, 240, 0.02);
-    backdrop-filter: blur(4px);
-    background-color: #fff;
-    margin-bottom: 20px;
-    cursor: pointer;
-    text-align: center;
-    line-height: 44px;
-  }
+  .answer-button {
+        min-width: 207px;
+        min-height: 44px;
+        box-sizing: border-box;
+        font-family: "Comic Neue", sans-serif;
+        font-size: 20px;
+        color: #a42fc1; /* Цвет текста */
+        border: 1px solid rgb(164, 47, 193);
+        border-radius: 10px;
+        box-shadow: 0px 0px 1px 0px rgba(189, 5, 240, 0.85), 0px 0px 1px 0px rgba(189, 5, 240, 0.5), 0px 0px 1px 0px rgba(189, 5, 240, 0.15), 0px 0px 1px 0px rgba(189, 5, 240, 0.02);
+        backdrop-filter: blur(4px);
+        background-color: #fff;
+        margin-bottom: 20px;
+        cursor: pointer;
+        text-align: center;
+        line-height: 44px;
+    }
+
+    .active {
+        box-shadow: inset 2px 2px 2px 2px rgba(0, 0, 0, 0.2);
+        border-radius: 15px;
+    }
 }
