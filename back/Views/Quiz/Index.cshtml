@@ -43,14 +43,15 @@
     <div id="delete-popup" class="delete-popup hidden">
         <p>Вы точно хотите удалить (форэва!) ваш невъебенно ценный квиз?</p>
         <div class="delete-container">
-            <button id="delete-button">ЕбашЪ!</button>
-            <button id="close-delete-button">Не надо дядя</button>
+            <button class="action-button" id="delete-button">ЕбашЪ!</button>
+            <button class="action-button" id="close-delete-button">Не надо дядя</button>
         </div>
     </div>
 
     <div id="conduct-popup" class="conduct-popup hidden">
-        <input type="number" id="max-participators-input" name="max-participators" min="1"/>
-        <button id="conduct-button">Провести квиз</button>
+        <p>Сколько человек могут участвовать?</p>
+        <input type="number" id="max-participators-input" name="max-participators" value="5" min="1"/>
+        <button class="action-button" id="conduct-button">Провести квиз</button>
     </div>
 
     <script>
@@ -120,6 +121,7 @@
 
                 if (item.id == "conduct") {
                     conductPopup.classList.remove("hidden");
+                    deletePopup.classList.add("hidden");
                 }
                 else if (item.id == "edit") {
                     window.location.href = `/Quiz/Edit/${quizGuid}`;
@@ -129,6 +131,7 @@
                 }
                 else if (item.id == "delete") {
                     deletePopup.classList.remove("hidden");
+                    conductPopup.classList.add("hidden");
                 }
             });
         });

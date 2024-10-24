@@ -4,18 +4,18 @@ namespace Quizer.Services.Lobbies
 {
     public interface ILobbyRepository
     {
-        public IEnumerable<Lobby> GetLobbies();
+        IEnumerable<Lobby> GetLobbies();
+        Task<IEnumerable<Lobby>> GetLobbiesAsync();
+        Lobby? GetLobbyById(int id);
 
-        public Lobby? GetLobbyById(int id);
+        Lobby? GetLobbyByGuid(string guid);
 
-        public Lobby? GetLobbyByGuid(string guid);
+        void InsertLobby(Lobby lobby);
 
-        public void InsertLobby(Lobby lobby);
+        void DeleteLobby(int id);
 
-        public void DeleteLobby(int id);
-
-        public void UpdateLobby(Lobby lobby);
-        public void Save();
-        public Task SaveAsync();
+        void UpdateLobby(Lobby lobby);
+        void Save();
+        Task SaveAsync();
     }
 }

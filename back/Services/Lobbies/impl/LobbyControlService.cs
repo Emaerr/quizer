@@ -30,11 +30,11 @@ namespace Quizer.Services.Lobbies.impl
             ILobbyRepository lobbyRepository = scope.ServiceProvider.GetRequiredService<ILobbyRepository>();
             IQuizRepository quizRepository = scope.ServiceProvider.GetRequiredService<IQuizRepository>();
 
-            int pin = GenerateRandomPin(5);
-            while (!CheckIfPinIsUnique(pin))
-            {
-                pin = GenerateRandomPin(5);
-            }
+            int pin = 55555; //GenerateRandomPin(5);
+            //while (!CheckIfPinIsUnique(pin))
+            //{
+            //    pin = GenerateRandomPin(5);
+            //}
 
             Quiz? quiz = quizRepository.GetQuizByGuid(quizGuid);
 
@@ -188,7 +188,7 @@ namespace Quizer.Services.Lobbies.impl
                 return Result.Fail(new LobbyNotFoundError("Invalid lobby GUID."));
             }
 
-            lobby.Start();
+            lobby.IsStarted = true;
 
             lobbyRepository.UpdateLobby(lobby);
             await lobbyRepository.SaveAsync();

@@ -67,17 +67,22 @@ namespace Quizer.Services.Lobbies.impl
 
             if (!lobby.IsStarted)
             {
-                return Result.Fail(new LobbyUnavailableError("Lobby has't started yet."));
+                return Result.Fail(new LobbyUnavailableError("Lobby isn't started."));
             }
             if (lobby.Stage == LobbyStage.Results)
             {
                 return Result.Fail(new LobbyUnavailableError("Game has already finished."));
             }
 
+            if (lobby.Quiz == null)
+            {
+                return Result.Fail(new QuizNotFoundError("Lobby doesn't have quiz."));
+            }
+
             Question? question = lobby.GetCurrentQuestion();
             if (question == null)
             {
-                return Result.Fail(new QuizNotFoundError("The question is null. Possible reasion is that quiz in lobby is null."));
+                return Result.Fail(new QuestionNotFoundError("The question is null."));
             }
 
             return Result.Ok(question);
