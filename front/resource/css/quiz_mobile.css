@@ -11,7 +11,9 @@
 
 @media (max-width: 576px) {
   body {
-    font-family: "Comic Neue", sans-serif;
+    font-family: "Comic Neue", cursive;
+    font-weight: 700;
+    font-style: normal;
     background-color: #fbecff;
     color: #a42fc1;
     font-weight: 700;
@@ -100,7 +102,9 @@
     min-width: 207px;
     min-height: 44px;
     box-sizing: border-box;
-    font-family: "Comic Neue", sans-serif;
+    font-family: "Comic Neue", cursive;
+    font-weight: 700;
+    font-style: normal;
     font-size: 20px;
     color: #a42fc1; /* Цвет текста */
     border: 1px solid rgb(164, 47, 193);
