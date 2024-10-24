@@ -121,6 +121,7 @@
 
                 if (item.id == "conduct") {
                     conductPopup.classList.remove("hidden");
+                    deletePopup.classList.add("hidden");
                 }
                 else if (item.id == "edit") {
                     window.location.href = `/Quiz/Edit/${quizGuid}`;
@@ -130,6 +131,7 @@
                 }
                 else if (item.id == "delete") {
                     deletePopup.classList.remove("hidden");
+                    conductPopup.classList.add("hidden");
                 }
             });
         });
