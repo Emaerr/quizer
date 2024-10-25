@@ -733,8 +733,8 @@ namespace Quizer.Controllers
             }
             IEnumerable<ParticipatorAnswer> participatorAnswers = participatorAnswersResult.Value;
 
-            ParticipatorAnswer participatorAnswer = (
-                from pA in participatorAnswers where pA.Question.Guid == question.Guid select pA).First();
+            ParticipatorAnswer? participatorAnswer = (
+                from pA in participatorAnswers where pA.Question.Guid == question.Guid select pA).FirstOrDefault();
 
             QuestionViewModel viewModel = GetQuestionViewModel(question);
 
