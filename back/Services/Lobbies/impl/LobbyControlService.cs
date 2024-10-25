@@ -118,6 +118,15 @@ namespace Quizer.Services.Lobbies.impl
                 return Result.Fail(new UserAlreadyInLobbyError("User has already joined the lobby."));
             }
 
+            foreach (var p in lobby.Participators)
+            {
+                if (p.UserId == joiningUserId)
+                {
+                    _logger.LogInformation("User {userId} can't join lobby {lobbyGuid} because they are already in the lobby", joiningUserId, lobbyGuid);
+                    return Result.Ok();
+                }
+            }
+
             Participator participator = new Participator(joiningUserId);
             participatorRepository.InsertParticipator(participator);
             participatorRepository.Save();
