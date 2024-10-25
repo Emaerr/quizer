@@ -2,24 +2,25 @@ body {
     font-family: "Comic Neue", cursive;
     font-weight: 700;
     font-style: normal;
-    background-color: #f7e9ff;
+    background-image: url(../resource/css/bg/bg1.svg);
     color: #A42FC1;
     margin: 0;
     padding: 0;
     display: flex;
     justify-content: center;
-    align-items: center;
-    height: 100vh;
+    align-items: flex-end;
   }
 
   .quiz-container {
     width: 1374px;
     background-color: #ffffff;
-    border-radius: 10px;
     box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    height: 100vh;
+    overflow-y: auto;
+    scrollbar-width: none;
   }
 
   .header {
@@ -93,8 +94,8 @@ body {
     text-align: center;
   }
 
-  .quiz-main textarea {
-    font-size: 30px;
+  .input-question {
+    font-size: 50px;
     color: #a42fc1;
     font-family: "Comic Neue", cursive;
     font-weight: 700;
@@ -115,7 +116,7 @@ body {
     border-color: #A42FC1;
   }
 
-  .quiz-main textarea::placeholder{
+  .input-question::placeholder{
     color: #A42FC180;
     line-height: 46px;
     font-size: 40px;
@@ -236,7 +237,6 @@ body {
     padding: 15px;
     border: 1px solid #A42FC1;
     border-radius: 5px;
-    font-size: 16px;
     box-sizing: border-box;
   }
 
@@ -266,7 +266,6 @@ body {
   }
 
   .answer-type h1 {
-    border: 1px solid #A42FC1;
     color: #A42FC1;
     font-weight: 700;
     width: 290px;
@@ -284,12 +283,13 @@ body {
   .upload-info {
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: center;
+    margin-bottom: 30px;
   }
 
   .upload-info input {
-  width: 95px!important;
-  height: 35px;
+    width: 150px !important;
+    height: 50px;
   }
 
   .time-to-questin {
@@ -297,7 +297,6 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-right: 30px;
   }
 
   .time-to-questin p {
@@ -329,7 +328,6 @@ body {
     height: 75px;
     border: 1px solid #A42FC1;
     border-radius: 10px;
-    font-size: 16px;
   }
 
   .quiz-main .actions {
@@ -342,7 +340,6 @@ body {
     font-family: "Comic Neue", cursive;
     font-style: normal;
     height: 52px;
-    width: 175px;
     background-color: transparent;
     border: 1px solid #A42FC1;
     color: #A42FC1;
@@ -361,4 +358,20 @@ body {
   border-radius: 100%;
   vertical-align: text-bottom;
   position: relative;
+}
+
+#time-input{
+  font-size: 25px;
+}
+
+.answer-input{
+  font-size: 25px;
+}
+
+.button-delete{
+  padding-bottom: 3%;
+}
+
+.button-add{
+  padding-bottom: 3%;
 }

@@ -11,48 +11,69 @@
   </head>
   <body>
     <div class="quiz-container">
-      <div class="header">
-        <div class="circle left-circle"></div>
-        <div class="circle right-circle"></div>
-      </div>
       <div class="content">
         <div class="quiz-main">
           <h2>Вопрос 1</h2>
-          <textarea type="text" placeholder="Нажми, чтобы ввести вопрос"></textarea>
+          <input class="input-question" type="text" placeholder="Нажми, чтобы ввести вопрос"></input>
           <div class="upload-info">
             <div class="time-to-questin">
-              <p>Время на ответ</p>
-              <input type="text"/>
+              <p style="font-size: 30px;">Время на ответ в секундах</p>
+              <input id="time-input" type="text"/>
             </div>
-            <div class="image-upload">
-              <p>Может картинку? :)</p>
-              <div class="btn-upload">
-                <button>Из галереи</button>
-                <button>Загрузить</button>
-              </div>
-            </div>
-            <div class="close-button"><img src="../src/close.png" width="30px" height="30px" /></div>
           </div>
           <div class="answer-type">
-            <h1>Тип ответа</h1>
+            <h1>Варианты ответов</h1>
           </div>
           <div class="answers">
             <div class="answer">
               <input type="radio" name="answer" />
-              <input type="text" />
-              <input type="text" />
+              <input class="answer-input" type="text" />
+              <input class="answer-input" type="text" />
               <input type="radio" name="answer" />
             </div>
             <div class="answer">
               <input type="radio" name="answer" />
-              <input type="text" />
-              <input type="text" />
+              <input class="answer-input" type="text" />
+              <input class="answer-input" type="text" />
               <input type="radio" name="answer" />
             </div>
           </div>
           <div class="actions">
-            <button>Назад</button>
-            <button>Подтвердить</button>
+            <button class="button-add">Добавить вопрос</button>
+            <button class="button-delete">Удалить вопрос</button>
+          </div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="quiz-main">
+          <h2>Вопрос 1</h2>
+          <input class="input-question" type="text" placeholder="Нажми, чтобы ввести вопрос"></input>
+          <div class="upload-info">
+            <div class="time-to-questin">
+              <p style="font-size: 30px;">Время на ответ в секундах</p>
+              <input id="time-input" type="text"/>
+            </div>
+          </div>
+          <div class="answer-type">
+            <h1>Варианты ответов</h1>
+          </div>
+          <div class="answers">
+            <div class="answer">
+              <input type="radio" name="answer" />
+              <input class="answer-input" type="text" />
+              <input class="answer-input" type="text" />
+              <input type="radio" name="answer" />
+            </div>
+            <div class="answer">
+              <input type="radio" name="answer" />
+              <input class="answer-input" type="text" />
+              <input class="answer-input" type="text" />
+              <input type="radio" name="answer" />
+            </div>
+          </div>
+          <div class="actions">
+            <button class="button-add">Добавить вопрос</button>
+            <button class="button-delete">Удалить вопрос</button>
           </div>
         </div>
       </div>
