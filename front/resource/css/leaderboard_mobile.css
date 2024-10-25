@@ -84,6 +84,18 @@ p, h1, h2, h3, h4, h5, h6 {
     height: 32px;
 }
 
+.player-number{
+    font-size: 20px;
+}
+
+.player-name{
+    font-size: 20px;
+}
+
+.player-score{
+    font-size: 20px;
+}
+
 /* Адаптация для экранов компьютера */
 @media (min-width: 768px) {
     body {
@@ -117,5 +129,17 @@ p, h1, h2, h3, h4, h5, h6 {
 
     .results-table th, .results-table td {
         padding: 15px;
+    }
+
+    .player-number{
+        font-size: 35px;
+    }
+    
+    .player-name{
+        font-size: 35px;
+    }
+    
+    .player-score{
+        font-size: 35px;
     }
 }
