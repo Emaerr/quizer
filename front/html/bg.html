@@ -1,0 +1,86 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+<meta charset="UTF-8"> 
+<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+<title>Rising Balls Animation</title> 
+<style> 
+    body { 
+        overflow: hidden; 
+        margin: 0; 
+        padding: 0; 
+        background-color: #bf2bc6; /* Бледно-розовый фон */ 
+    } 
+ 
+    .container { 
+        position: relative; 
+        height: 100vh; 
+    } 
+ 
+    .ball { 
+        position: absolute; 
+        bottom: -10%; 
+        transform: translate(-50%, 0); 
+        border-radius: 50%; 
+        background-color: #c93ece; /* Пурпурный цвет шариков */ 
+        animation: riseAndEnlarge 20s linear forwards; 
+    } 
+ 
+    .ball_shadow { 
+        position: absolute; 
+        bottom: -10.5%; 
+        transform: translate(-50%, 0); 
+        border-radius: 50%; 
+        background-color: #681D7B; /* тёмно-Пурпурный цвет шариков */ 
+        animation: riseAndEnlarge 20s linear forwards; 
+    } 
+ 
+    @keyframes riseAndEnlarge { 
+        0% { 
+            transform: translate(-50%, 0) scale(1); 
+        } 
+        100% { 
+            transform: translate(-50%, -200vh) scale(1.5); 
+        } 
+    } 
+</style> 
+</head> 
+<body> 
+ 
+<div class="container"> 
+    <script> 
+        function createBall(className, random, shadow) { 
+            const ball = document.createElement('div'); 
+            ball.classList.add(className); 
+            let randomSize = Math.floor(random * 40) + 60; 
+            ball.style.height = randomSize + 'px'; // Добавляем единицы измерения 
+            ball.style.width = randomSize + 'px'; // Добавляем единицы измерения 
+ 
+            // Генерируем случайное смещение для ball 
+            let randomOffset = Math.random()*10-10; // От -10 до 10 пикселей 
+			if (shadow == 1){
+				ball.style.left = `${random * (window.innerWidth - 145) + 73 + randomOffset}px`; // Случайное положение по горизонтали с учётом смещения 
+				document.body.appendChild(ball); 
+			} else{
+				ball.style.left = `${random * (window.innerWidth - 145) + 73 + randomOffset - 20}px`;
+				document.body.appendChild(ball);
+			}
+			
+			// Удалить элемент после завершения анимации 
+				ball.addEventListener('animationend', () => { 
+					ball.remove(); 
+				}); 
+        } 
+ 
+        function interval() { 
+            let random = Math.random(); 
+            createBall('ball_shadow', random, 1); 
+            createBall('ball', random, 0); 
+        } 
+ 
+        setInterval(interval, 4000); 
+    </script> 
+</div> 
+ 
+</body> 
+</html>

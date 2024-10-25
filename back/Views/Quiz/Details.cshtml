@@ -1,0 +1,118 @@
+﻿@model Quizer.Models.Quizzes.QuizViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Quiz</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.TimeLimit)
+        </dt>
+        <dd class="col-sm-10">
+            @(Model.TimeLimit / 1000)
+        </dd>
+    </dl>
+
+    <h4>Questions</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Question</th>
+                <th>Answers</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var question in Model.Questions)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => question.Title)
+                    </td>
+                    <td>
+                        <ul>
+                            @foreach (var answer in question.Answers)
+                            {
+                                <li class="@(answer.IsCorrect ? "text-success" : "text-danger")">
+                                    @Html.DisplayFor(modelItem => answer.Title)
+                                    @if (answer.IsCorrect)
+                                    {
+                                        <span class="badge badge-success">Correct</span>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Поле ввода для максимального количества участников с уменьшенной шириной -->
+<div class="form-group">
+    <label for="maxParticipators">Максимальное количество участников</label>
+    <input type="number" id="maxParticipators" class="form-control w-25" value="10" min="1" />
+</div>
+
+<!-- Кнопка для начала квиза -->
+<div class="form-group">
+    <button type="button" class="btn btn-primary" onclick="startQuiz()">Начать квиз</button>
+</div>
+
+<div>
+    <a asp-controller="Quiz" asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    <script>
+        function startQuiz() {
+            // Получаем quizGuid и максимальное количество участников из поля ввода
+            const quizGuid = '@Model.Guid';
+            const maxParticipators = document.getElementById('maxParticipators').value;
+
+            if (!quizGuid) {
+                alert("Quiz GUID не найден!");
+                return;
+            }
+
+            if (!maxParticipators || maxParticipators <= 0) {
+                alert("Введите корректное количество участников!");
+                return;
+            }
+
+            // Отправляем запрос на сервер для создания лобби с использованием новых параметров
+            fetch(`/Lobby/Create?quizGuid=${quizGuid}&maxParticipators=${maxParticipators}`, {
+                method: 'POST'
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        return response.text().then(text => {
+                            throw new Error(`Ошибка: ${text}`);
+                        });
+                    }
+                })
+                .then(data => {
+                    console.log("Лобби успешно создано: " + data);
+                    // Перенаправление пользователя на управление лобби
+                    window.location.href = `/Lobby/Manage/${data.lobbyGuid}`;
+                })
+                .catch(error => {
+                    console.error("Ошибка при создании лобби:", error);
+                    alert("Не удалось создать лобби: " + error.message);
+                });
+        }
+    </script>
+}

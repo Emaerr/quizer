@@ -1,0 +1,58 @@
+﻿@model Quizer.Models.User.UserLogin
+
+@{
+    ViewData["Title"] = "Вход";
+}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz second</title>
+<link rel="stylesheet" href="/css/login.css">
+
+<div class="wrapper">
+    <div class="kube">
+        <form asp-action="Login" id="login_form">
+            <h1></h1>
+            <div class="text-input">
+                <p class="login">Логин</p>
+            </div>
+            <div class="text-input">
+                <p class="password">Пароль</p>
+            </div>
+            <div class="input-box">
+                <input asp-for="Input.Username" type="text" class="form-control" autocomplete="username" />
+            </div>
+            <div class="input-box">
+                <input asp-for="Input.Password" type="password" class="form-control" autocomplete="current-password" />
+            </div>
+
+            <div class="remember-forgot">
+                <label class="remember-wrap">
+                    <input asp-for="Input.RememberMe" type="checkbox"> Запомнить меня
+                </label>
+                <a id="forgot-password" asp-action="ForgotPassword">Забыли пароль?</a>
+            </div>
+
+            <button type="submit" class="btn">Поехали!</button>
+
+            <div class="register-link">
+                <p>Новенький? <a asp-action="Register">Регистрируйся!</a></p>
+            </div>
+        </form>
+        @if (Model.ErrorMessage != null)
+        {
+            <div class="alert alert-danger alert-dismissible" role="alert">
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                @Model.ErrorMessage
+            </div>
+        }
+    </div>
+</div>
+@{
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

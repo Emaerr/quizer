@@ -1,0 +1,141 @@
+﻿@model Quizer.Models.Quizzes.QuestionViewModel
+
+@{
+    ViewData["Title"] = "Game";
+    int timeLimit = Int32.Parse(ViewData["timeLimit"].ToString()!) / 1000;
+    int currentQuestionPosition = Model.Position + 1;
+}
+
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Для разных браузеров -->
+    <link rel="stylesheet" href="/css/normalize.css" />
+    <!-- <link rel="stylesheet" href="../resource/css/quiz_mobile.css"> -->
+    <link rel="stylesheet" href="/css/quiz_mobile.css" />
+</head>
+<body onload="loadQuestion()">
+    <div class="card">
+        <img src="/images/background_purple.svg" class="card-image" />
+        <div class="card-container">
+            <div class="card-question">
+                <h2 class="number">Вопрос @currentQuestionPosition/@ViewData["questionCount"]</h2>
+                <h3 class="question">
+                    @Model.Title
+                </h3>
+            </div>
+            <!-- /.card-question -->
+            <div class="card-timer">
+                <div class="timer">
+                    <div id="countdown">@timeLimit</div>
+                </div>
+            </div>
+            <!-- /.card-timer -->
+            <div class="card-options">
+                @for (int i = 0; i < 4 && i < Model.Answers.Count; i++)
+                {
+                    <button class="answer-button" data-answer="@Model.Answers[i].Guid">
+                        @Model.Answers[i].Title
+                    </button>
+                }
+            </div>
+            <!-- /.card-options -->
+        </div>
+        <!-- /.card-container -->
+    </div>
+    <!-- /.card -->
+    <input type="hidden" id="selectedAnswer" name="selectedAnswer" />
+</body>
+
+<script src="/_framework/aspnetcore-browser-refresh.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.18/signalr.min.js"></script>
+
+<script>
+    // Таймер
+    let timeLeft = @ViewData["timeLimit"] / 1000;
+    const timerElement = document.getElementById("countdown");
+
+    const countdown = setInterval(() => {
+        timeLeft--;
+        timerElement.innerText = timeLeft;
+
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+        }
+    }, 1000);
+
+    // Обработчик выбора ответа
+    const answerButtons = document.querySelectorAll(".answer-button");
+    answerButtons.forEach(button => {
+        button.addEventListener("click", (e) => {
+            // Снятие выделения со всех кнопок
+            answerButtons.forEach(btn => btn.classList.remove("active"));
+            // Выделение нажатой кнопки
+            e.currentTarget.classList.add("active");
+            // Запись выбранного ответа
+            document.getElementById("selectedAnswer").value = e.currentTarget.getAttribute("data-answer");
+        });
+    });
+
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/LobbyHub")
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
+    async function start() {
+        try {
+            await connection.start();
+            console.log("SignalR Connected.");
+        } catch (err) {
+            console.log(err);
+            setTimeout(start, 5000);
+        }
+    };
+
+    connection.onclose(async () => {
+        await start();
+    });
+
+    // Start the connection.
+    start();
+
+    connection.on("RedirectToQuestion", (user, message) => {
+        console.log("RedirectToQuestion");
+        window.location.href = '/Lobby/Game/@ViewData["lobbyGuid"]';
+        window.location.reload();
+    });
+
+    // connection.on("RedirectToBreak", (user, message) => {
+    //     window.location.href = '/Lobby/Result/@ViewData["lobbyGuid"]';
+    // });
+
+    connection.on("RedirectToResult", (user, message) => {
+       window.location.href = '/Lobby/Result/@ViewData["lobbyGuid"]';
+    });
+    connection.on("SendAnswer", (user, message) => {
+        console.log("SendAnswer")
+        let selectedAnswerGuid = document.getElementById("selectedAnswer").value
+        fetch(`/Lobby/RegisterAnswer/@ViewData["lobbyGuid"]?answerGuid=${selectedAnswerGuid}`, {
+            method: "POST"
+        })
+            .then(response => {
+                if (response.ok) {
+                } else if (response.status === 401) {
+                    alert("Unauthorized: Please log in.");
+                } else if (response.status === 403) {
+                    alert("Forbidden: Only the lobby master can start the quiz.");
+                } else if (response.status === 404) {
+                    alert("Lobby not found.");
+                } else {
+                    alert("An error occurred while sending the answer.");
+                }
+            })
+            .catch(error => {
+                console.error("Error starting quiz:", error);
+            });
+    });
+</script>

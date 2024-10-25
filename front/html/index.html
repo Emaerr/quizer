@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index</title>
+    <link rel="stylesheet" href="../resource/css/index_2.css">
+</head>
+<body>
+    <div class="top-container">
+        <div class="top-container-title">
+            <p id="title-text">Мои квизы</p>
+        </div>
+    </div>
+    <div class="container">
+        <div class="button-wrap">
+            <button class="button">Тестовая Кнопка</button>
+            <button class="button">Тестовая Кнопка</button>
+            <button class="button">Тестовая Кнопка</button>
+            <button class="button">Тестовая Кнопка</button>
+            <button class="button">Тестовая Кнопка</button>
+            <button class="button">Тестовая Кнопка</button>
+            <button class="button">Тестовая Кнопка</button>
+            <button class="button">Тестовая Кнопка</button>
+        </div>
+        <div class="button-create-wrap">
+            <button class="button-create-button">Создать новый квиз</button>
+        </div>
+    </div>
+    <div id="popup" class="popup hidden">
+        <ul>
+            <li>Проведение квиза</li>
+            <li>Редактирование квиза</li>
+            <li>Обзор квиза</li>
+            <li>Удалить квиз</li>
+        </ul>
+    </div>
+    <script>
+        const buttons = document.querySelectorAll('.button');
+        const popup = document.getElementById('popup');
+    
+        buttons.forEach(button => {
+            button.addEventListener('click', (event) => {
+                buttons.forEach(button => {
+                    button.id = ""
+                });
+                const { pageX: mouseX, pageY: mouseY } = event;
+                const offsetY = 75;
+                const offsetX = 165;
+                const popupHeight = popup.offsetHeight;
+                const bottomY = window.innerHeight + window.scrollY; // Adjust for scrollable pages
+                const popupPosX = button.getBoundingClientRect().right + offsetX;
+
+                let popupPosY = button.getBoundingClientRect().bottom + window.scrollY + offsetY;
+
+                // Check if the popup would go below the visible part of the window
+                if (popupPosY + popupHeight * 0.5 > bottomY) {
+                    // Show the popup above the button if it's too close to the bottom
+                    popupPosY = bottomY - (popupHeight * 0.5);
+                    // Ensure it doesn't go above the window
+                    if (popupPosY < window.scrollY) {
+                        popupPosY = window.scrollY; // Stick to the top if there's not enough space
+                    }
+                }
+            
+                popup.style.top = `${popupPosY}px`;
+                popup.style.left = `${popupPosX}px`;
+                popup.classList.remove('hidden');
+                button.id = "button-active"
+            });
+        });
+    
+        // Закрытие окна при клике за его пределами
+        document.addEventListener('click', (event) => {
+            if (!popup.contains(event.target) && !event.target.classList.contains('button')) {
+                popup.classList.add('hidden');
+
+                buttons.forEach(button => {
+                button.id = "button"
+            });
+            }
+        });
+    
+        // Добавление кликабельности элементам внутри popup
+        popup.querySelectorAll('li').forEach(item => {
+            item.addEventListener('click', () => {
+                alert(`Вы нажали: ${item.textContent}`);
+            });
+        });
+    </script>
+</body>

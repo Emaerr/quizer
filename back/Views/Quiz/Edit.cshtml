@@ -1,0 +1,485 @@
+﻿@model Quizer.Models.Quizzes.QuizViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Quiz</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="edit" id="quiz-form" onsubmit="event.preventDefault(); submitQuiz();">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Guid" />
+
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" name="name" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TimeLimit" class="control-label"></label>
+                <input asp-for="TimeLimit" class="form-control" name="timeLimit"/>
+                <span asp-validation-for="TimeLimit" class="text-danger"></span>
+            </div>
+
+            <!-- Кнопка добавления вопроса -->
+            <div class="form-group">
+                <button type="button" class="btn btn-success" onclick="addQuestion()">Добавить вопрос</button>
+            </div>
+
+            <div id="questions-container">
+                @if (Model.Questions != null)
+                {
+                    for (int i = 0; i < Model.Questions.Count; i++)
+                    {
+                        var question = Model.Questions[i];
+                        <div class="form-group question-block" id="question-@i" data-question-guid="@question.Guid">
+                            <label class="question-label">Вопрос @(@i + 1)</label>
+                            <input type="text" class="form-control question-title" name="Questions[@i].Title" value="@question.Title" />
+
+                            <div class="answers-container">
+                                @for (int j = 0; j < question.Answers.Count; j++)
+                                {
+                                    var answer = question.Answers[j];
+                                    <div class="form-group answer-block">
+                                        <label>Ответ @(@j + 1)</label>
+                                        <input type="text" class="form-control answer-title" name="Questions[@i].Answers[@j].Title" value="@answer.Title" />
+
+                                        <input type="radio" name="Questions[@i].CorrectAnswer" value="@j" @(answer.IsCorrect ? "checked" : "") class="ml-2 correct-answer-radio" />
+                                        <span>Правильный</span>
+                                    </div>
+                                }
+                            </div>
+
+                            <button type="button" class="btn btn-danger mt-2" onclick="removeQuestion(this.parentElement);">Удалить вопрос</button>
+                        </div>
+                    }
+                }
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Сохранить" class="btn btn-primary" id="save-btn" disabled />
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-controller="Quiz" asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script>
+        $(document).ready(function () {
+            var timeLimitField = $('#TimeLimit');
+            var originalValue = parseFloat(timeLimitField.val());
+
+            // Делим значение на 1000
+            timeLimitField.val(originalValue / 1000);
+        });
+
+
+        let questionIndex = document.querySelectorAll("#questions-container > .question-block").length;  // Счётчик для отслеживания количества вопросов
+
+        function addQuestion() {
+            const quizGuid = '@Model.Guid';
+            const questionType = "Test";
+
+            fetch(`/Question/Create/${quizGuid}?questionTypeStr=${questionType}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`Ошибка при добавлении вопроса: ${text}`);
+                        });
+                    }
+                    return response.json();  // Здесь мы обрабатываем JSON-ответ
+                })
+                .then(data => {
+                    renderQuestion(data.guid);  // Теперь используем полученный GUID
+                })
+                .catch(error => {
+                    console.error("Ошибка:", error);
+                    alert(error.message);
+                });
+        }
+
+
+        function renderQuestion(newQuestionGuid) {
+            var questionsContainer = document.getElementById("questions-container");
+            var questionDiv = document.createElement("div");
+            questionDiv.className = "form-group question-block";
+            questionDiv.id = "question-" + questionIndex;
+            questionDiv.setAttribute("data-question-guid", newQuestionGuid); // Устанавливаем data-question-guid
+
+            // Поле для ввода текста вопроса
+            var questionLabel = document.createElement("label");
+            questionLabel.className = "question-label";
+            questionLabel.textContent = "Вопрос " + (questionIndex + 1);
+
+            var questionInput = document.createElement("input");
+            questionInput.type = "text";
+            questionInput.name = "Questions[" + questionIndex + "].Title";
+            questionInput.className = "form-control question-title";
+
+            questionDiv.appendChild(questionLabel);
+            questionDiv.appendChild(questionInput);
+
+            // Контейнер для ответов
+            var answersContainer = document.createElement("div");
+            answersContainer.className = "answers-container";
+
+            // Добавляем 4 ответа
+            for (var j = 0; j < 4; j++) {
+                var answerDiv = document.createElement("div");
+                answerDiv.className = "form-group answer-block";
+
+                var answerLabel = document.createElement("label");
+                answerLabel.textContent = "Ответ " + (j + 1);
+
+                var answerInput = document.createElement("input");
+                answerInput.type = "text";
+                answerInput.name = "Questions[" + questionIndex + "].Answers[" + j + "].Title";
+                answerInput.className = "form-control answer-title";
+                answerInput.required = true; // Добавляем атрибут required
+
+                var correctAnswerRadio = document.createElement("input");
+                correctAnswerRadio.type = "radio";
+                correctAnswerRadio.name = "Questions[" + questionIndex + "].CorrectAnswer";
+                correctAnswerRadio.value = j;
+                correctAnswerRadio.className = "ml-2 correct-answer-radio";
+
+                answerDiv.appendChild(answerLabel);
+                answerDiv.appendChild(answerInput);
+                answerDiv.appendChild(correctAnswerRadio);
+                answerDiv.appendChild(document.createTextNode(" Правильный"));
+
+                answersContainer.appendChild(answerDiv);
+            }
+
+            questionDiv.appendChild(answersContainer);
+
+            // Кнопка для удаления вопроса
+            var removeButton = document.createElement("button");
+            removeButton.type = "button";
+            removeButton.className = "btn btn-danger mt-2";
+            removeButton.textContent = "Удалить вопрос";
+            removeButton.onclick = function () {
+                removeQuestion(questionDiv);
+            };
+
+            questionDiv.appendChild(removeButton);
+            questionsContainer.appendChild(questionDiv);
+
+            questionIndex++; // Увеличиваем индекс для следующего вопроса
+        }
+
+
+        function validateQuiz() {
+            let isValid = true;
+            const questions = document.querySelectorAll("#questions-container .question-block");
+
+            questions.forEach(questionDiv => {
+                const questionInput = questionDiv.querySelector("input.question-title");
+                const answerInputs = questionDiv.querySelectorAll("input.answer-title");
+                const correctAnswerRadio = questionDiv.querySelectorAll("input.correct-answer-radio:checked");
+
+                // Проверяем, заполнено ли поле для вопроса
+                if (!questionInput.value.trim()) {
+                    isValid = false;
+                    questionInput.classList.add("is-invalid");
+                } else {
+                    questionInput.classList.remove("is-invalid");
+                }
+
+                // Проверяем, заполнены ли все поля для ответов
+                answerInputs.forEach(answerInput => {
+                    if (!answerInput.value.trim()) {
+                        isValid = false;
+                        answerInput.classList.add("is-invalid");
+                    } else {
+                        answerInput.classList.remove("is-invalid");
+                    }
+                });
+
+                // Проверяем, выбран ли правильный ответ
+                if (correctAnswerRadio.length === 0) {
+                    isValid = false;
+                    questionDiv.querySelector(".correct-answer-radio").classList.add("is-invalid");
+                } else {
+                    questionDiv.querySelector(".correct-answer-radio").classList.remove("is-invalid");
+                }
+            });
+
+            return isValid;
+        }
+
+        function submitQuiz() {
+            if (!validateQuiz()) {
+                alert("Заполните все поля вопросов и выберите правильные ответы.");
+                return;
+            }
+
+            var quizForm = document.getElementById("quiz-form");
+
+            // Получаем данные квиза (название и ограничение по времени)
+            var quizName = document.querySelector('input[name="name"]').value;
+            var quizTimeLimit = document.querySelector('input[name="timeLimit"]').value;
+
+            // Преобразуем введённое значение timeLimit в 1000 раз больше
+            var scaledTimeLimit = quizTimeLimit * 1000;
+
+            var quizGuid = '@Model.Guid';
+
+            // Отправляем данные квиза (название и увеличенное ограничение по времени)
+            var formData = new FormData(quizForm);
+            formData.append('name', quizName);
+            formData.set('timeLimit', scaledTimeLimit); // Устанавливаем увеличенное значение
+
+            fetch(`/Quiz/Edit/${quizGuid}`, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: formData
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`Ошибка при сохранении данных квиза: ${text}`);
+                        });
+                    }
+                    console.log("Quiz data updated successfully!");
+
+                    // Теперь отправляем вопросы
+                    submitQuestions();
+                })
+                .catch(error => {
+                    console.error("Ошибка при сохранении квиза:", error);
+                    alert(error.message);
+                });
+        }
+
+
+
+        function removeQuestion(questionDiv) {
+            const questionGuid = questionDiv.getAttribute("data-question-guid");
+            const quizGuid = '@Model.Guid'; // Используем quizGuid из модели
+
+            // Удаляем вопрос на клиенте
+            questionDiv.remove();
+
+            // Удаляем вопрос на сервере
+            if (questionGuid && quizGuid) {
+                const formData = new FormData();
+                formData.append("questionGuid", questionGuid);
+                formData.append("quizGuid", quizGuid);
+
+                fetch(`/Question/Delete`, {
+                    method: 'POST', // Используем POST, как указано в контроллере
+                    headers: {
+                    },
+                    body: formData // Передаем параметры в виде формы
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(text => {
+                                throw new Error(`Ошибка при удалении вопроса: ${text}`);
+                            });
+                        }
+                        console.log(`Вопрос с GUID: ${questionGuid} успешно удалён.`);
+                    })
+                    .catch(error => {
+                        console.error("Ошибка при удалении вопроса:", error);
+                        alert(error.message);
+                    });
+            }
+
+            updateQuestionIndices();
+        }
+
+
+        function updateQuestionIndices() {
+            var questions = document.querySelectorAll("#questions-container > .question-block");
+            questions.forEach(function (questionDiv, index) {
+                // Обновляем текст метки вопроса
+                questionDiv.querySelector(".question-label").textContent = "Вопрос " + (index + 1);
+
+                // Обновляем имя поля заголовка вопроса
+                var questionInput = questionDiv.querySelector("input.question-title");
+                questionInput.name = "Questions[" + index + "].Title";
+
+                // Обновляем имена ответов
+                var answerElements = questionDiv.querySelectorAll(".answer-block");
+                answerElements.forEach(function (answerDiv, answerIndex) {
+                    var answerInput = answerDiv.querySelector("input.answer-title");
+                    answerInput.name = "Questions[" + index + "].Answers[" + answerIndex + "].Title";
+
+                    var correctAnswerRadio = answerDiv.querySelector("input.correct-answer-radio");
+                    correctAnswerRadio.name = "Questions[" + index + "].CorrectAnswer";
+                    correctAnswerRadio.value = answerIndex;
+                });
+            });
+
+            // Обновляем счетчик вопросов
+            questionIndex = questions.length;
+        }
+
+
+
+        
+
+        function submitQuestions() {
+            var questionElements = document.querySelectorAll("#questions-container > .question-block");
+
+            questionElements.forEach(function (questionDiv, index) {
+                var questionInput = questionDiv.querySelector("input.question-title"); // Получаем текст вопроса
+                var questionGuid = questionDiv.getAttribute("data-question-guid"); // GUID вопроса
+                var quizGuid = '@Model.Guid'; // Используем quizGuid из модели
+
+                console.log(`Submitting question ${index + 1} with GUID: ${questionGuid}`);
+
+                // Проверяем, есть ли поле для ввода текста вопроса
+                if (!questionInput) {
+                    console.error("Не найдено поле ввода заголовка для вопроса " + index);
+                    return;
+                }
+
+                var title = questionInput.value; // Текст вопроса
+
+                var answers = [];
+                var correctAnswerIndex = null;
+
+                // Ищем выбранный правильный ответ (radio button)
+                var correctAnswerRadio = questionDiv.querySelector("input.correct-answer-radio:checked");
+                if (correctAnswerRadio) {
+                    correctAnswerIndex = parseInt(correctAnswerRadio.value, 10);
+                }
+
+                // Получаем блоки ответов и обрабатываем каждый ответ
+                var answerElements = questionDiv.querySelectorAll(".answer-block");
+                answerElements.forEach(function (answerDiv, answerIndex) {
+                    var answerInput = answerDiv.querySelector("input.answer-title"); // Текст ответа
+                    if (!answerInput) {
+                        console.error("Не найдено поле ввода ответа " + answerIndex + " для вопроса " + index);
+                        return;
+                    }
+
+                    var isCorrect = (correctAnswerIndex !== null && correctAnswerIndex === answerIndex); // Проверка правильного ответа
+                    answers.push({
+                        Title: answerInput.value, // Текст ответа
+                        IsCorrect: isCorrect // Правильный или нет
+                    });
+                });
+
+                // Формируем JSON-объект для вопроса
+                var questionData = {
+                    Position: index, // Позиция вопроса
+                    Title: title, // Текст вопроса
+                    Answers: answers // Массив ответов
+                };
+
+                // Отправляем запрос на сервер для каждого вопроса
+                fetch(`/Question/Edit/${questionGuid}?quizGuid=${quizGuid}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify(questionData)  // Отправляем объект в формате JSON
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            console.log(`Question ${index + 1} updated successfully!`);
+                        } else {
+                            console.error(`Error updating question ${index + 1}:`, response.statusText);
+                        }
+                    })
+                    .catch(error => {
+                        console.error(`Fetch error for question ${index + 1}:`, error);
+                    });
+            });
+        }
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+            // Отключаем кнопку Save по умолчанию
+            const saveButton = document.getElementById("save-btn");
+            saveButton.disabled = true;
+
+            // Добавляем обработчики ввода для полей вопроса и ответа
+            document.getElementById("questions-container").addEventListener("input", checkFormValidity);
+            document.getElementById("questions-container").addEventListener("change", checkFormValidity);
+
+            // Проверяем валидность формы и активируем/деактивируем кнопку Save
+            function checkFormValidity() {
+                if (validateQuiz()) {
+                    saveButton.disabled = false; // Если все поля заполнены, активируем кнопку
+                } else {
+                    saveButton.disabled = true;  // Иначе блокируем кнопку
+                }
+            }
+
+            function validateQuiz() {
+                let isValid = true;
+                const questions = document.querySelectorAll("#questions-container .question-block");
+
+                questions.forEach(questionDiv => {
+                    const questionInput = questionDiv.querySelector("input.question-title");
+                    const answerInputs = questionDiv.querySelectorAll("input.answer-title");
+                    const correctAnswerRadio = questionDiv.querySelectorAll("input.correct-answer-radio:checked");
+
+                    // Проверяем, заполнено ли поле для вопроса
+                    if (!questionInput.value.trim()) {
+                        isValid = false;
+                        questionInput.classList.add("is-invalid");
+                    } else {
+                        questionInput.classList.remove("is-invalid");
+                    }
+
+                    // Проверяем, заполнены ли все поля для ответов
+                    answerInputs.forEach(answerInput => {
+                        if (!answerInput.value.trim()) {
+                            isValid = false;
+                            answerInput.classList.add("is-invalid");
+                        } else {
+                            answerInput.classList.remove("is-invalid");
+                        }
+                    });
+
+                    // Проверяем, выбран ли правильный ответ
+                    if (correctAnswerRadio.length === 0) {
+                        isValid = false;
+                        questionDiv.querySelector(".correct-answer-radio").classList.add("is-invalid");
+                    } else {
+                        questionDiv.querySelector(".correct-answer-radio").classList.remove("is-invalid");
+                    }
+                });
+
+                return isValid;
+            }
+
+            // Инициализируем проверку при загрузке страницы
+            checkFormValidity();
+        });
+
+
+
+
+        // Добавление первого вопроса по умолчанию
+        //window.onload = function () {
+            //addQuestion();  // Начнем с одного вопроса по умолчанию
+        //}
+    </script>
+}

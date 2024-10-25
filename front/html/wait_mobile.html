@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Second</title>
+  <link rel="stylesheet" href="../resource/css/mobile_main.css">
+</head>
+<body>
+  <div class="background">
+    <img src="../resource/src/back1.png" class="Ellipse1">
+    <img src="../resource/src/back2.png" class="Ellipse2">
+    <img src="../resource/src/back3.png" class="Ellipse3">
+    <header>
+    </header>
+    <div class="Ellipse">
+    </div>
+    <div class="name">
+      <p class="tname">
+        Квиз совсем скоро начнется!!!
+      </p>
+    </div>
+    <div class="emoji">
+      <p class="waiting">Пожалуйста, подождите </p>
+        <div class="timer"> 
+          <p id="countdown">10</p> 
+            <script>
+            let time = 10; // Задаём начальное время
+            const timer = setInterval(() => {
+              document.getElementById('countdown').textContent = time <= 0 
+                ? clearInterval(timer) // Останавливаем таймер, поскольку время истекло
+                : time--; // С каждой секундой уменьшаем время
+            }, 1000); // Интервал делаем одной секунды
+            </script>
+        </div>
+        <img src="../resource/src/499.svg" class="timer_gif">
+    </div>
+  </div>
+</body>
+</html>

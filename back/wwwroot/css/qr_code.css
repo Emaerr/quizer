@@ -1,0 +1,55 @@
+﻿body {
+    background-image: url("bg/bg1.svg");
+    font-family: "Comic Neue", cursive;
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.white-box {
+    background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px;
+    border-radius: 15px;
+}
+
+.qr-code {
+    width: 500px;
+    height: 500px;
+}
+
+.button-container {
+    margin-top: 100px;
+    display: flex;
+    justify-content: center;
+}
+
+.button {
+    background-color: white;
+    border: 2px solid #a42fc1;
+    border-radius: 10px;
+    color: #a42fc1;
+    padding: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 200px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.button:hover {
+    background-color: #f3e4f9;
+}
+

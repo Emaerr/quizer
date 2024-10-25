@@ -18,18 +18,16 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: url(../src/fon.png) no-repeat;
-    background-size: cover;
-    background-position: center;
+    background: url(../src/bg1.png);
 }
 
 .kube {
-    width: 420px;
+    width: 560px;
     background: #fff;
     border: 2px solid #A42FC1;
     color: #A42FC1;
     border-radius: 10px;
-    padding: 30px 40px;
+    padding: 45px;
     
 }
 
@@ -244,8 +242,7 @@ label span {
     font-size: 40px;
     font-weight: 100;
     position: relative;
-    color: #fff;
-    
+    color: #691C7C;
     
 }
 

@@ -1,0 +1,64 @@
+﻿@using Microsoft.AspNetCore.SignalR
+@{
+    ViewData["Title"] = "Join Lobby";
+}
+
+<h4>Join</h4>
+
+<form id="joinForm">
+    <label for="displayName">Display Name:</label>
+    <input type="text" id="displayName" name="displayName" required />
+
+    <button type="button" id="confirmJoinButton">Confirm Join</button>
+</form>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.18/signalr.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", async function () {
+        const lobbyGuid = "@ViewData["lobbyGuid"]";
+
+        // Создание подключения к хабу SignalR
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/LobbyHub") // Замените на путь вашего хаба
+            .build();
+
+        try {
+            await connection.start();
+            console.log("Connected to SignalR hub");
+
+            // Получение connectionId через вызов метода хаба
+            const connectionId = await connection.invoke("GetConnectionId");
+            console.log("Connection ID:", connectionId);
+
+            document.getElementById("confirmJoinButton").addEventListener("click", function () {
+                const displayName = document.getElementById("displayName").value;
+
+                // Создание FormData для передачи данных как [FromForm]
+                const formData = new FormData();
+                formData.append("displayName", displayName);
+
+                fetch(`/Lobby/JoinConfirm/${lobbyGuid}?connectionId=${connectionId}`, {
+                    method: "POST",
+                    body: formData
+                })
+                    .then(response => {
+                        if (response.redirected) {
+                            // Перенаправление в случае успешного завершения
+                            window.location.href = response.url;
+                        } else if (response.status === 404) {
+                            alert("Lobby not found.");
+                        } else if (response.status === 409) {
+                            alert("You are already in this lobby.");
+                        } else if (response.status === 500) {
+                            alert("An error occurred. Please try again.");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error joining lobby:", error);
+                    });
+            });
+        } catch (error) {
+            console.error("Error connecting to SignalR hub:", error);
+        }
+    });
+</script>

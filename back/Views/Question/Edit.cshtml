@@ -1,0 +1,47 @@
+﻿@model Quizer.Models.Quizzes.FileQuestionViewModel
+
+@{
+    ViewData["Title"] = "View";
+}
+
+<h1>View</h1>
+
+<h4>QuestionViewModel</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit" asp-route-quizGuid="@ViewData["quizGuid"]" asp-route-questionGuid="@Model?.Question.Guid">
+            >
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Question.Guid" class="control-label"></label>
+                <input asp-for="Question.Guid" class="form-control" />
+                <span asp-validation-for="Question.Guid" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Question.Position" class="control-label"></label>
+                <input asp-for="Question.Position" class="form-control" />
+                <span asp-validation-for="Question.Position" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Question.Title" class="control-label"></label>
+                <input asp-for="Question.Title" class="form-control" />
+                <span asp-validation-for="Question.Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="file" asp-for="FileUpload.Upload" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,180 @@
+﻿@model IEnumerable<Quizer.Models.Quizzes.QuizViewModel>
+
+@{
+    ViewData["Title"] = "Ваши квизы";
+}
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Index</title>
+<link rel="stylesheet" href="/css/quiz_index.css"/>
+
+<body>
+    <div class="top-container">
+        <div class="top-container-title">
+            <p id="title-text">Мои квизы</p>
+        </div>
+    </div>
+    <div class="container">
+        <div class="button-wrap">
+            @foreach (var item in Model)
+            {
+                <button class="button" data-guid=@item.Guid>@item.Name</button>
+            }
+        </div>
+        <div class="button-create-wrap">
+            <a asp-action="Create" class="button-create-button">Создать новый квиз</a>
+        </div>
+    </div>
+
+    <div id="popup" class="popup hidden">
+        <ul>
+            <li id="conduct">Проведение квиза</li>
+            <li id="edit">Редактирование квиза</li>
+            <li id="details">Обзор квиза</li>
+            <li id="delete">Удалить квиз</li>
+        </ul>
+    </div>
+
+    <div id="delete-popup" class="delete-popup hidden">
+        <p>Вы точно хотите удалить ваш квиз?</p>
+        <div class="delete-container">
+            <button class="action-button" id="delete-button">Да</button>
+            <button class="action-button" id="close-delete-button">Нет</button>
+        </div>
+    </div>
+
+    <div id="conduct-popup" class="conduct-popup hidden">
+        <p>Сколько человек могут участвовать?</p>
+        <div class="input-box">
+            <input class="form-control" type="number" id="max-participators-input" name="max-participators" value="5" min="1" />
+        </div>
+        <button class="action-button" id="conduct-button">Провести квиз</button>
+    </div>
+
+    <script>
+        const buttons = document.querySelectorAll(".button");
+        const popup = document.getElementById("popup");
+        const deletePopup = document.getElementById("delete-popup");
+        const deleteButton = document.getElementById("delete-button");
+        const closeDeleteButton = document.getElementById("close-delete-button");
+        const conductPopup = document.getElementById("conduct-popup");
+        const conductButton = document.getElementById("conduct-button");
+        const maxParticipatorsInput = document.getElementById("max-participators-input");
+
+        buttons.forEach(button => {
+            button.addEventListener("click", (event) => {
+                buttons.forEach(button => {
+                    button.id = ""
+                });
+                const { pageX: mouseX, pageY: mouseY } = event;
+                const offsetY = 75;
+                const offsetX = 165;
+                const popupHeight = popup.offsetHeight;
+                const bottomY = window.innerHeight + window.scrollY; // Adjust for scrollable pages
+                const popupPosX = button.getBoundingClientRect().right + offsetX;
+
+                let popupPosY = button.getBoundingClientRect().bottom + window.scrollY + offsetY;
+
+                // Check if the popup would go below the visible part of the window
+                if (popupPosY + popupHeight * 0.5 > bottomY) {
+                    // Show the popup above the button if it"s too close to the bottom
+                    popupPosY = bottomY - (popupHeight * 0.5);
+                    // Ensure it doesn"t go above the window
+                    if (popupPosY < window.scrollY) {
+                        popupPosY = window.scrollY; // Stick to the top if there"s not enough space
+                    }
+                }
+
+                popup.style.top = `${popupPosY}px`;
+                popup.style.left = `${popupPosX}px`;
+                popup.classList.remove("hidden");
+                button.id = "button-active";
+                deletePopup.classList.add("hidden");
+                conductPopup.classList.add("hidden");
+            });
+        });
+
+        // Закрытие окна при клике за его пределами
+        document.addEventListener("click", (event) => {
+            if (!popup.contains(event.target) 
+            && !event.target.classList.contains("button") 
+            && event.target.id != "max-participators-input" 
+            && event.target.id != "conduct-button")
+            {
+                popup.classList.add("hidden");
+                deletePopup.classList.add("hidden");
+                conductPopup.classList.add("hidden");
+
+                buttons.forEach(button => {
+                    button.id = "button";
+            });
+            }
+        });
+
+        // Добавление кликабельности элементам внутри popup
+        popup.querySelectorAll("li").forEach(item => {
+            item.addEventListener("click", () => {
+                const quizGuid = document.getElementById("button-active").dataset.guid;
+
+                if (item.id == "conduct") {
+                    conductPopup.classList.remove("hidden");
+                    deletePopup.classList.add("hidden");
+                }
+                else if (item.id == "edit") {
+                    window.location.href = `/Quiz/Edit/${quizGuid}`;
+                }
+                else if (item.id == "details") {
+                    window.location.href = `/Quiz/Details/${quizGuid}`;
+                }
+                else if (item.id == "delete") {
+                    deletePopup.classList.remove("hidden");
+                    conductPopup.classList.add("hidden");
+                }
+            });
+        });
+
+        deleteButton.addEventListener("click", (event) => { 
+            let guid = document.getElementById("button-active").dataset.guid;
+            fetch(`/Quiz/Delete/${guid}`, {
+                method: "POST"
+            }).then((response => {
+                window.location.reload()
+            })
+            );
+            deletePopup.classList.add("hidden");
+        });
+        closeDeleteButton.addEventListener("click", (event) => {
+            deletePopup.classList.add("hidden");
+        });
+
+        conductButton.addEventListener("click", (event) => {
+            const quizGuid = document.getElementById("button-active").dataset.guid;
+            const maxParticipators = maxParticipatorsInput.value;
+            fetch(`/Lobby/Create?quizGuid=${quizGuid}&maxParticipators=${maxParticipators}`, {
+                method: 'POST'
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        return response.text().then(text => {
+                            throw new Error(`Ошибка: ${text}`);
+                        });
+                    }
+                })
+                .then(data => {
+                    console.log("Лобби успешно создано: " + data);
+                    window.location.href = `/Lobby/Manage/${data.lobbyGuid}`;
+                })
+                .catch(error => {
+                    console.error("Ошибка при создании лобби:", error);
+                    alert("Не удалось создать лобби: " + error.message);
+                });
+        });
+    </script>
+</body>

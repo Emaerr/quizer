@@ -1,0 +1,59 @@
+﻿@model Quizer.Models.Lobbies.StatsViewModel
+@{
+    ViewData["Title"] = "Результаты викторины";
+    int userIndex = 1; // Инициализируем счётчик для номера пользователя
+}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Результаты</title>
+    <link rel="stylesheet" href="/css/quiz_results.css" />
+</head>
+<body>
+    <div class="top-container">
+        <img class="card-image" />
+    </div>
+
+    <div class="table-container">
+        <table class="results-table">
+            <tbody>
+                @foreach (var (key, value) in Model.UserPoints)
+                {
+                    if (string.IsNullOrWhiteSpace(key))
+                    {
+                        // Пропускаем пользователя с null или пустым именем
+                        continue;
+                    }
+
+                    var splitUserKey = value.displayName.Split(new char[] { ']', '[' }, StringSplitOptions.RemoveEmptyEntries);
+                    var emoji = splitUserKey.Length > 0 ? splitUserKey[0] + ".png" : "";  // Извлечение эмоджи и добавление расширения .png
+                    var userName = splitUserKey.Length > 1 ? splitUserKey[1] : "";  // Извлечение имени пользователя
+
+                    if (string.IsNullOrWhiteSpace(userName))
+                    {
+                        // Пропускаем пользователя с пустым именем после эмоджи
+                        continue;
+                    }
+
+                    <tr>
+                        <td class="player-number">@userIndex</td> <!-- Номер пользователя -->
+                        <td>
+                            <img src="/images/emojis/@emoji" alt="@emoji" style="max-width: 40px; max-height: 40px;" />
+                        </td>
+                        <td class ="player-name">@userName</td>
+                        <td class="player-score">@value.points</td>
+                    </tr>
+                    userIndex++; // Увеличиваем счётчик
+                }
+            </tbody>
+        </table>
+    </div>
+    <!-- /.card -->
+</body>
+</html>

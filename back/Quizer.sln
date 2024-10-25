@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Quizer", "Quizer.csproj", "{383399A2-82B1-40FD-AE3A-77B855358912}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuizerTests", "..\QuizerTests\QuizerTests.csproj", "{0DA34F83-3D1B-4F59-9063-34DDC0B7063E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{383399A2-82B1-40FD-AE3A-77B855358912}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{383399A2-82B1-40FD-AE3A-77B855358912}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{383399A2-82B1-40FD-AE3A-77B855358912}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{383399A2-82B1-40FD-AE3A-77B855358912}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0DA34F83-3D1B-4F59-9063-34DDC0B7063E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DA34F83-3D1B-4F59-9063-34DDC0B7063E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DA34F83-3D1B-4F59-9063-34DDC0B7063E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DA34F83-3D1B-4F59-9063-34DDC0B7063E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {30372FD5-8C9F-41A9-9DB2-9CF192EBD455}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,60 @@
+﻿@{
+    ViewData["Title"] = $"Ожидание начала квиза";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!-- Для разных браузеров -->
+<link rel="stylesheet" href="/css/normalize.css" />
+<!-- <link rel="stylesheet" href="../resource/css/quiz_mobile.css"> -->
+<link rel="stylesheet" href="/css/briefing_mobile.css" />
+<div class="card">
+    <img src="/images/background_purple.svg" class="card-image" />
+    <div class="card-container">
+        <div class="card-question">
+            <h3 class="question">
+                Квиз совсем скоро начнётся!!!
+            </h3>
+        </div>
+        <!-- /.card-question -->
+        <div class="card-timer">
+            Пожалуйста, подождите
+        </div>
+        <div class="card-options">
+            <img class="image" src="/images/loading_circle.svg" alt="" width="120" height="120">
+        </div>
+        <!-- /.card-timer -->
+        <!-- /.card-options -->
+    </div>
+    <!-- /.card-container -->
+</div>
+<!-- /.card -->
+
+<!-- Добавляем ссылку на SignalR -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.18/signalr.min.js"></script>
+
+<script>
+    // Подключение к хабу
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/LobbyHub") // URL хаба
+        .build();
+
+    // Обработчик на сообщение от сервера о старте квиза
+    connection.on("RedirectToQuestion", function () {
+        // Логика перенаправления на страницу с вопросом
+        console.log("RedirectToQuestion.");
+        window.location.href = '/Lobby/Game/@ViewData["lobbyGuid"]';
+    });
+
+    // Ожидание начала квиза
+    connection.start()
+        .then(function () {
+            console.log("Подключение к хабу установлено.");
+        })
+        .catch(function (err) {
+            return console.error(err.toString());
+        });
+</script>
