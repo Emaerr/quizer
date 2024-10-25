@@ -95,6 +95,8 @@ p, h1, h2, h3, h4, h5, h6 {
     height: 33vh;
     position: relative;
     z-index: 2;
+    background-color: #a42fc1;
+    border-radius: 0 0 50px 50px;
 }
 
 .card-image {
