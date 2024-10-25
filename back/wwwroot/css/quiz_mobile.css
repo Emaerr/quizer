@@ -75,6 +75,7 @@
         font-weight: 700;
         margin-top: 0px;
         margin-bottom: 18px;
+        overflow-wrap:anywhere;
     }
 
     .timer {

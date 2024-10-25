@@ -42,12 +42,12 @@
                     }
 
                     <tr>
-                        <td>@userIndex</td> <!-- Номер пользователя -->
+                        <td class="player-number">@userIndex</td> <!-- Номер пользователя -->
                         <td>
                             <img src="/images/emojis/@emoji" alt="@emoji" style="max-width: 40px; max-height: 40px;" />
                         </td>
-                        <td>@userName</td>
-                        <td>@value.points</td>
+                        <td class ="player-name">@userName</td>
+                        <td class="player-score">@value.points</td>
                     </tr>
                     userIndex++; // Увеличиваем счётчик
                 }
