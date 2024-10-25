@@ -379,7 +379,7 @@ namespace Quizer.Controllers
             {
                 return new ForbidResult();
             }
-
+            ViewData["layout"] = "";
             Result<LobbyStatus> lobbyStatusResult = lobbyConductService.GetLobbyStatus(lobbyGuid);
             if (lobbyStatusResult.Value == LobbyStatus.Result)
             {
@@ -408,7 +408,7 @@ namespace Quizer.Controllers
             }
 
             ViewData["lobbyGuid"] = lobbyGuid;
-            ViewData["layout"] = "";
+            
 
             QuestionResultViewModel viewModel = result.Value;
 

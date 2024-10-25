@@ -1,37 +1,37 @@
 ﻿@model Quizer.Models.Lobbies.StatsViewModel
 @{
     ViewData["Title"] = "Результаты викторины";
+    int userIndex = 1; // Инициализируем счётчик для номера пользователя
 }
 
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"]</title>
-    <link rel="stylesheet" href="~/css/quizResults.css" />
+    <title>Результаты</title>
+    <link rel="stylesheet" href="/css/quiz_results.css" />
 </head>
 <body>
-    <div class="quiz-results-container">
-        <h1>Результаты викторины</h1>
+    <div class="top-container">
+        <img class="card-image" />
+    </div>
+
+    <div class="table-container">
         <table class="results-table">
-            <thead>
-                <tr>
-                    <th>Эмоджи</th>
-                    <th>Имя пользователя</th>
-                    <th>Очки</th>
-                </tr>
-            </thead>
             <tbody>
-                @foreach (var user in Model.UserPoints)
+                @foreach (var (key, value) in Model.UserPoints)
                 {
-                    if (string.IsNullOrWhiteSpace(user.Key))
+                    if (string.IsNullOrWhiteSpace(key))
                     {
                         // Пропускаем пользователя с null или пустым именем
                         continue;
                     }
 
-                    var splitUserKey = user.Key.Split(new char[] { ']', '[' }, StringSplitOptions.RemoveEmptyEntries);
+                    var splitUserKey = value.displayName.Split(new char[] { ']', '[' }, StringSplitOptions.RemoveEmptyEntries);
                     var emoji = splitUserKey.Length > 0 ? splitUserKey[0] + ".png" : "";  // Извлечение эмоджи и добавление расширения .png
                     var userName = splitUserKey.Length > 1 ? splitUserKey[1] : "";  // Извлечение имени пользователя
 
@@ -42,18 +42,18 @@
                     }
 
                     <tr>
+                        <td>@userIndex</td> <!-- Номер пользователя -->
                         <td>
                             <img src="/images/emojis/@emoji" alt="@emoji" style="max-width: 40px; max-height: 40px;" />
                         </td>
                         <td>@userName</td>
-                        <td>@user.Value</td>
+                        <td>@value.points</td>
                     </tr>
+                    userIndex++; // Увеличиваем счётчик
                 }
             </tbody>
         </table>
-        <div class="actions">
-            <a href="~/Home/Index" class="back-button">Вернуться на главную</a>
-        </div>
     </div>
+    <!-- /.card -->
 </body>
 </html>

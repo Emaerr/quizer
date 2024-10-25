@@ -93,7 +93,6 @@
 <script>
     document.addEventListener("DOMContentLoaded", async function () {
         const lobbyGuid = "@ViewData["lobbyGuid"]";
-
         const emojiInput = document.getElementById("emoji-input");
 
         // Создание подключения к хабу SignalR
@@ -105,9 +104,9 @@
             await connection.start();
             console.log("Connected to SignalR hub");
 
-            // Получение connectionId через вызов метода хаба
             const connectionId = await connection.invoke("GetConnectionId");
             console.log("Connection ID:", connectionId);
+
             document.getElementById("confirmJoinButton").addEventListener("click", function () {
                 if (emojiInput.value == null || emojiInput.value == "") {
                     alert("Выбери смайлик");
@@ -123,7 +122,6 @@
 
                 const emojiAndDisplayName = `[${emojiInput.value}]${displayName}`;
 
-                // Создание FormData для передачи данных как [FromForm]
                 const formData = new FormData();
                 formData.append("displayName", emojiAndDisplayName);
 
@@ -133,7 +131,6 @@
                 })
                     .then(response => {
                         if (response.redirected) {
-                            // Перенаправление в случае успешного завершения
                             window.location.href = response.url;
                         } else if (response.status === 404) {
                             alert("Lobby not found.");
@@ -152,11 +149,16 @@
         }
 
         const buttons = document.getElementsByClassName("emoji-button");
-            for (let i = 0; i < buttons.length; i++) {
-                const button = buttons[i];
-                button.addEventListener("click", (event) => {
-                    emojiInput.value = button.id;
-                })
-            }
-        });
+        for (let i = 0; i < buttons.length; i++) {
+            const button = buttons[i];
+            button.addEventListener("click", (event) => {
+                event.preventDefault(); // Предотвращаем стандартное поведение кнопки
+                emojiInput.value = button.id;
+
+                // Снятие выделения с предыдущей кнопки и добавление к текущей
+                Array.from(buttons).forEach(btn => btn.classList.remove("selected"));
+                button.classList.add("selected");
+            });
+        }
+    });
 </script>
