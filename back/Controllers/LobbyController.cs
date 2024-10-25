@@ -381,10 +381,10 @@ namespace Quizer.Controllers
             }
             ViewData["layout"] = "";
             Result<LobbyStatus> lobbyStatusResult = lobbyConductService.GetLobbyStatus(lobbyGuid);
-            if (lobbyStatusResult.Value == LobbyStatus.Result)
-            {
+            //if (lobbyStatusResult.Value == LobbyStatus.Result)
+            //{
                 return View("QuizResults", await GetStatsViewModelAsync(lobbyGuid));
-            }
+            //}
 
             Result<Question> questionResult = lobbyConductService.GetCurrentQuestion(lobbyGuid);
             if (questionResult.HasError<LobbyUnavailableError>())
